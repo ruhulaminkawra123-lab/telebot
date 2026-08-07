@@ -450,6 +450,11 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
+        
+        if (localStorage.getItem('channels_verified') === 'true') {
+            document.getElementById('guard-modal').style.display = 'none';
+            document.getElementById('guard-modal').classList.remove('active');
+        }
 
         let userId = 123456789; 
         let userName = "User";
@@ -502,6 +507,7 @@
                 const data = await res.json();
                 
                 if (data.is_verified) {
+                    localStorage.setItem('channels_verified', 'true');
                     document.getElementById('guard-modal').style.display = 'none';
                     document.getElementById('guard-modal').classList.remove('active');
                 } else {
