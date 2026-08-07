@@ -231,7 +231,6 @@
             cursor: pointer;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script>
 </head>
 <body>
 
@@ -923,7 +922,12 @@
                 const data = await res.json();
                 if (data.success) {
                     adSessionToken = data.token;
-                    openTgLink(data.ad_url);
+                    
+                    if (tg.openLink) {
+                        tg.openLink(data.ad_url);
+                    } else {
+                        window.open(data.ad_url, '_blank');
+                    }
                     
                     adSecondsRemaining = 15;
                     document.getElementById('ad-timer-display').style.display = 'block';
@@ -1046,8 +1050,8 @@
         }
         
         function openTgLink(url) {
-            if (tg.openTelegramLink) {
-                tg.openTelegramLink(url);
+            if (tg.openLink) {
+                tg.openLink(url);
             } else {
                 window.open(url, "_blank");
             }
