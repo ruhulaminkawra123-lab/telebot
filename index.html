@@ -234,6 +234,19 @@
 </head>
 <body>
 
+    <!-- Mandatory Join Guard Modal -->
+    <div class="modal-overlay active" id="guard-modal" style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px); pointer-events: all; opacity: 1;">
+        <div class="modal-content" style="border-color: var(--primary-color);">
+            <h3 class="modal-title" style="color: var(--primary-color);">⚠️ চ্যানেল সাবস্ক্রাইব করুন</h3>
+            <p class="modal-text">অ্যাপটি ব্যবহার করার জন্য আপনাকে আমাদের দুটি অফিসিয়াল চ্যানেলে জয়েন করতে হবে।</p>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                <button class="btn btn-primary" onclick="openTgLink('https://t.me/BotIncomeLab')">১. অফিসিয়াল চ্যানেলে জয়েন করুন</button>
+                <button class="btn btn-primary" onclick="openTgLink('https://t.me/Incomelb_bot_payment')">২. পেমেন্ট চ্যানেলে জয়েন করুন</button>
+            </div>
+            <button class="btn btn-success" id="verify-guard-btn" onclick="checkGuardMembership()">ভেরিফাই করুন</button>
+        </div>
+    </div>
+
     <!-- 1. HOME TAB -->
     <div id="tab-home" class="tab-content active">
         <div class="header">
@@ -264,6 +277,20 @@
                 <h4>বোনাস ব্যালেন্স</h4>
                 <p>TK 0.00</p>
             </div>
+        </div>
+        
+        <!-- Daily Bonus Section -->
+        <div class="card" style="margin-top: 15px;">
+            <h2>🎁 দৈনিক বোনাস (30-Day Check-in)</h2>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">টানা ৩০ দিন চেক-ইন করুন এবং ২০০০ টাকা পর্যন্ত বোনাস জিতে নিন! মাঝে একদিন বাদ দিলে আবার প্রথম থেকে শুরু হবে।</p>
+            
+            <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 15px; text-align: center; margin-bottom: 15px;">
+                <h3 style="color: #f59e0b; font-size: 20px; margin-bottom: 5px;">দিন <span id="streak-day">0</span></h3>
+                <p style="font-size: 14px; color: var(--text-muted);">বর্তমান স্ট্রিক</p>
+            </div>
+            
+            <button class="btn btn-success" id="claim-bonus-btn" onclick="claimDailyBonus()" style="width: 100%; font-size: 16px; padding: 12px;">আজকের বোনাস ক্লেইম করুন</button>
+            <p id="claim-timer" style="color: var(--danger-color); text-align: center; margin-top: 10px; font-weight: bold; display: none;">পরবর্তী বোনাস: 24:00:00</p>
         </div>
         
         <div class="card">
@@ -455,6 +482,94 @@
             fetchUserData();
         }
 
+        async function checkGuardMembership() {
+            const btn = document.getElementById('verify-guard-btn');
+            btn.innerText = "অপেক্ষা করুন...";
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/check_membership`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const data = await res.json();
+                
+                if (data.is_verified) {
+                    document.getElementById('guard-modal').classList.remove('active');
+                } else {
+                    alert("⚠️ আপনি এখনো চ্যানেলগুলোতে জয়েন করেননি! দয়া করে জয়েন করে আবার ভেরিফাই করুন।");
+                    btn.innerText = "ভেরিফাই করুন";
+                }
+            } catch (e) {
+                alert("নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।");
+                btn.innerText = "ভেরিফাই করুন";
+            }
+        }
+
+        function startTimer(hoursElapsed) {
+            let remainingMs = (24 - hoursElapsed) * 3600000;
+            const timerEl = document.getElementById('claim-timer');
+            const btn = document.getElementById('claim-bonus-btn');
+            
+            if (remainingMs <= 0) {
+                timerEl.style.display = 'none';
+                btn.disabled = false;
+                btn.innerText = "আজকের বোনাস ক্লেইম করুন";
+                btn.classList.replace('btn-secondary', 'btn-success');
+                if (window.claimInterval) clearInterval(window.claimInterval);
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerText = "ইতোমধ্যে ক্লেইম করা হয়েছে";
+            btn.classList.replace('btn-success', 'btn-secondary');
+            timerEl.style.display = 'block';
+            
+            if (window.claimInterval) clearInterval(window.claimInterval);
+            window.claimInterval = setInterval(() => {
+                remainingMs -= 1000;
+                if (remainingMs <= 0) {
+                    clearInterval(window.claimInterval);
+                    timerEl.style.display = 'none';
+                    btn.disabled = false;
+                    btn.innerText = "আজকের বোনাস ক্লেইম করুন";
+                    btn.classList.replace('btn-secondary', 'btn-success');
+                } else {
+                    let h = Math.floor(remainingMs / 3600000);
+                    let m = Math.floor((remainingMs % 3600000) / 60000);
+                    let s = Math.floor((remainingMs % 60000) / 1000);
+                    timerEl.innerText = `পরবর্তী বোনাস: ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        async function claimDailyBonus() {
+            const btn = document.getElementById('claim-bonus-btn');
+            btn.disabled = true;
+            btn.innerText = "অপেক্ষা করুন...";
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/claim_daily_bonus`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert(data.message);
+                    fetchUserData(); 
+                } else {
+                    alert(data.message);
+                    fetchUserData(); 
+                }
+            } catch (e) {
+                alert("নেটওয়ার্ক সমস্যা।");
+                btn.disabled = false;
+                btn.innerText = "আজকের বোনাস ক্লেইম করুন";
+            }
+        }
+
         async function fetchUserData() {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/user_data`, {
@@ -467,7 +582,21 @@
                 
                 if (res.ok) {
                     currentEarned = data.earned || 0;
-                    currentReferrals = data.referrals || 0;
+                    currentReferrals = data.referral_count || data.referrals || 0;
+                    
+                    if (data.login_streak !== undefined) {
+                        document.getElementById('streak-day').innerText = data.login_streak;
+                    }
+                    
+                    if (data.last_claim_date) {
+                        const lastClaimStr = data.last_claim_date.endsWith('Z') ? data.last_claim_date : data.last_claim_date + "Z";
+                        const lastClaim = new Date(lastClaimStr);
+                        const now = new Date();
+                        const hoursElapsed = (now - lastClaim) / 3600000;
+                        startTimer(hoursElapsed);
+                    } else {
+                        startTimer(24);
+                    }
                     
                     // Update Home & Wallet Balances
                     document.getElementById('home-balance').innerText = `TK ${currentEarned.toFixed(2)}`;
