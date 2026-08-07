@@ -452,8 +452,12 @@
         tg.ready();
 
         let userId = 123456789; 
+        let userName = "User";
+        let firstName = "User";
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userId = tg.initDataUnsafe.user.id;
+            userName = tg.initDataUnsafe.user.username || "User";
+            firstName = tg.initDataUnsafe.user.first_name || "User";
         }
 
         // Set referral link early
@@ -566,17 +570,18 @@
                 });
                 const data = await res.json();
                 
+                alert(data.message);
                 if (data.success) {
-                    alert(data.message);
-                    fetchUserData(); 
-                } else {
-                    alert(data.message);
                     fetchUserData(); 
                 }
             } catch (e) {
                 alert("নেটওয়ার্ক সমস্যা।");
-                btn.disabled = false;
-                btn.innerText = "আজকের বোনাস ক্লেইম করুন";
+            } finally {
+                // Keep it disabled if it was success and timer took over, otherwise restore
+                if (document.getElementById('claim-timer').style.display === 'none') {
+                    btn.disabled = false;
+                    btn.innerText = "আজকের বোনাস ক্লেইম করুন";
+                }
             }
         }
 
@@ -585,7 +590,7 @@
                 const res = await fetch(`${API_BASE_URL}/api/user_data`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ user_id: userId })
+                    body: JSON.stringify({ user_id: userId, username: userName, first_name: firstName })
                 });
                 
                 const data = await res.json();
