@@ -231,6 +231,7 @@
             cursor: pointer;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script>
 </head>
 <body>
 
@@ -548,7 +549,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = "https://income-lab-bot.onrender.com";
+        const API_BASE_URL = window.location.hostname.includes('vercel.app') ? 'https://income-lab-bot.onrender.com' : '';
         // Telegram WebApp Initialization
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -609,7 +610,8 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/api/check_membership`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify({ user_id: userId }),
                     signal: controller.signal
                 });
@@ -643,7 +645,8 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/api/daily_checkin`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify({ user_id: userId })
                 });
                 const data = await res.json();
@@ -669,7 +672,8 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/api/user_data`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify({ user_id: userId, username: userName, first_name: firstName })
                 });
                 
@@ -787,7 +791,8 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/api/verify_task`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify({ user_id: userId, task_id: taskId })
                 });
                 const data = await res.json();
@@ -877,7 +882,8 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/api/withdraw`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify({
                         user_id: userId,
                         method: method,
@@ -910,7 +916,8 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/api/get_ad_token`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify({ user_id: userId })
                 });
                 const data = await res.json();
@@ -988,7 +995,8 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/api/verify_ad`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify({ user_id: userId, token: adSessionToken, elapsed_time_seconds: 15 })
                 });
                 const data = await res.json();
@@ -1057,7 +1065,8 @@
         async function adminLoadStats() {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/admin/stats`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    method: 'POST', credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify(getAdminPayload())
                 });
                 const data = await res.json();
@@ -1077,7 +1086,8 @@
             if(!q) return;
             try {
                 const res = await fetch(`${API_BASE_URL}/api/admin/user`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    method: 'POST', credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify(getAdminPayload({action: 'search', target_user_id: q}))
                 });
                 const data = await res.json();
@@ -1107,7 +1117,8 @@
             const pts = document.getElementById('admin-set-points').value;
             try {
                 await fetch(`${API_BASE_URL}/api/admin/user`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    method: 'POST', credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify(getAdminPayload({action: 'update', target_user_id: adminCurrentTargetUser.user_id, points: parseInt(pts)}))
                 });
                 tg.showAlert("Points updated successfully!");
@@ -1120,7 +1131,8 @@
             const newBanStatus = adminCurrentTargetUser.is_banned ? false : true;
             try {
                 await fetch(`${API_BASE_URL}/api/admin/user`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    method: 'POST', credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify(getAdminPayload({action: 'update', target_user_id: adminCurrentTargetUser.user_id, is_banned: newBanStatus}))
                 });
                 tg.showAlert(newBanStatus ? "User Banned!" : "User Unbanned!");
@@ -1133,7 +1145,8 @@
             list.innerHTML = 'Loading...';
             try {
                 const res = await fetch(`${API_BASE_URL}/api/admin/withdrawals`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    method: 'POST', credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify(getAdminPayload({action: 'list'}))
                 });
                 const data = await res.json();
@@ -1165,7 +1178,8 @@
             if(!confirm(`Are you sure you want to ${action} this withdrawal?`)) return;
             try {
                 await fetch(`${API_BASE_URL}/api/admin/withdrawals`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    method: 'POST', credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify(getAdminPayload({action: action, withdrawal_id: id}))
                 });
                 tg.showAlert("Processed successfully.");
@@ -1179,7 +1193,8 @@
             container.innerHTML = 'Loading...';
             try {
                 const res = await fetch(`${API_BASE_URL}/api/admin/settings`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    method: 'POST', credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify(getAdminPayload({action: 'get'}))
                 });
                 const data = await res.json();
@@ -1207,7 +1222,8 @@
             });
             try {
                 await fetch(`${API_BASE_URL}/api/admin/settings`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    method: 'POST', credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify(getAdminPayload({action: 'update', settings: updates}))
                 });
                 tg.showAlert("Settings Saved!");
@@ -1219,7 +1235,8 @@
             if(!msg) return tg.showAlert("Please enter a message");
             try {
                 await fetch(`${API_BASE_URL}/api/admin/broadcast`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    method: 'POST', credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify(getAdminPayload({message: msg}))
                 });
                 tg.showAlert("Broadcast initiated in background.");
