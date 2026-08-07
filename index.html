@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Income Lab Bot</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0f172a; 
+            --surface-color: #1e293b; 
+            --primary-color: #10b981; 
+            --secondary-color: #3b82f6; 
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger-color: #ef4444; 
+            --nav-height: 70px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding-bottom: calc(var(--nav-height) + 20px);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            font-size: 26px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+            font-weight: 800;
+        }
+
+        /* Home Tab Specs */
+        .balance-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+        }
+        .balance-card h3 { color: var(--text-muted); font-size: 16px; margin-bottom: 10px;}
+        .balance-card h1 { font-size: 36px; color: var(--primary-color); margin-bottom: 15px;}
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-item {
+            background: var(--surface-color);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .stat-item h4 { color: var(--text-muted); font-size: 13px; margin-bottom: 8px;}
+        .stat-item p { color: white; font-size: 18px; font-weight: bold;}
+
+        /* Card Layout */
+        .card {
+            background-color: var(--surface-color);
+            padding: 22px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 12px;
+            color: #f1f5f9;
+        }
+
+        /* Buttons */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 12px;
+            text-align: center;
+            text-decoration: none;
+            transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .btn-outline { background: transparent; border: 2px solid var(--secondary-color); color: var(--secondary-color); }
+        .btn-disabled { background: #475569; color: #94a3b8; cursor: not-allowed; }
+
+        /* Inputs */
+        .input-group { margin-bottom: 18px; }
+        .input-group label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 14px; font-weight: 500;}
+        .input-group input, .input-group select {
+            width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #334155;
+            background-color: #0f172a; color: white; font-size: 16px;
+        }
+        .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--secondary-color); }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--nav-height);
+            background: var(--surface-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            width: 20%;
+            height: 100%;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .nav-item.active { color: var(--primary-color); }
+        .nav-item i { font-size: 20px; margin-bottom: 4px; }
+        .nav-item span { font-size: 11px; font-weight: 600; }
+
+        /* Tables & Lists */
+        .data-list { width: 100%; }
+        .data-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .data-item:last-child { border-bottom: none; }
+        .data-item .left { display: flex; flex-direction: column; }
+        .data-item .title { font-weight: 600; font-size: 15px; }
+        .data-item .subtitle { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+        .data-item .right { font-weight: bold; font-size: 14px; }
+        
+        .status-pending { color: #f59e0b; }
+        .status-approved { color: #10b981; }
+        .status-rejected { color: #ef4444; }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-content {
+            background-color: var(--surface-color); padding: 28px; border-radius: 20px;
+            width: 90%; max-width: 360px; text-align: center; border: 1px solid rgba(239, 68, 68, 0.4);
+            transform: translateY(30px) scale(0.95); transition: all 0.3s;
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+        .modal-title { color: var(--danger-color); font-size: 22px; margin-bottom: 12px; font-weight: 800; }
+        .modal-text { font-size: 15px; margin-bottom: 20px; line-height: 1.6; color: var(--text-muted); }
+        .modal-status {
+            background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 10px;
+            margin-bottom: 24px; font-weight: 700; color: #fca5a5; border: 1px dashed rgba(239, 68, 68, 0.3);
+        }
+        .modal-btn { background: var(--danger-color); color: white; padding: 12px 20px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Utility */
+        .text-center { text-align: center; }
+        .mb-2 { margin-bottom: 15px; }
+        
+        .copy-box {
+            display: flex;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .copy-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 12px 15px;
+            font-size: 14px;
+        }
+        .copy-box button {
+            background: var(--secondary-color);
+            border: none;
+            color: white;
+            padding: 0 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. HOME TAB -->
+    <div id="tab-home" class="tab-content active">
+        <div class="header">
+            <h1>ইনকাম ল্যাব বট</h1>
+            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Complete tasks and earn!</p>
+        </div>
+
+        <div class="balance-card">
+            <h3>মূল ব্যালেন্স (Main Balance)</h3>
+            <h1 id="home-balance">TK 0.00</h1>
+            <button class="btn btn-success" onclick="attemptWithdraw()">এখনই উইথড্র করুন</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h4>মোট টাস্ক</h4>
+                <p id="home-tasks">0</p>
+            </div>
+            <div class="stat-item">
+                <h4>মোট রেফার</h4>
+                <p id="home-refs">0</p>
+            </div>
+            <div class="stat-item">
+                <h4>অ্যাড দেখা হয়েছে</h4>
+                <p>0</p>
+            </div>
+            <div class="stat-item">
+                <h4>বোনাস ব্যালেন্স</h4>
+                <p>TK 0.00</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🏆 লিডারবোর্ড (Leaderboard)</h2>
+            <div class="data-list text-center" style="color: var(--text-muted); padding: 10px;">
+                <p>শীঘ্রই আসছে...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. TASK TAB -->
+    <div id="tab-task" class="tab-content">
+        <div class="header">
+            <h1>টাস্ক (Tasks)</h1>
+            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Complete the tasks below</p>
+        </div>
+        
+        <div class="card">
+            <h2>✅ কাজ ১ (Task 1)</h2>
+            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">অফিসিয়াল চ্যানেলে জয়েন করুন এবং ভেরিফাই বাটনে ক্লিক করে বোনাস নিন।</p>
+            <button class="btn btn-primary" id="join-btn-1" onclick="openTgLink('https://t.me/BotIncomeLab')">১. অফিসিয়াল চ্যানেলে জয়েন করুন</button>
+            <button class="btn btn-success" id="verify-btn-1" onclick="verifyTask(1)">২. ভেরিফাই করুন</button>
+        </div>
+        
+        <div class="card">
+            <h2>✅ কাজ ২ (Task 2)</h2>
+            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">অফিসিয়াল পেমেন্ট চ্যানেলে জয়েন করুন এবং ভেরিফাই বাটনে ক্লিক করে 100 BDT বোনাস নিন।</p>
+            <button class="btn btn-primary" id="join-btn-2" onclick="openTgLink('https://t.me/Incomelb_bot_payment')">১. পেমেন্ট চ্যানেলে জয়েন করুন</button>
+            <button class="btn btn-success" id="verify-btn-2" onclick="verifyTask(2)">২. ভেরিফাই করুন</button>
+        </div>
+
+        <div class="card" style="text-align: center;">
+            <p style="color: var(--primary-color); font-weight: bold; font-size: 15px;">✨ আরও নতুন টাস্ক শীঘ্রই আসছে...</p>
+        </div>
+    </div>
+
+    <!-- 3. SUPPORT TAB -->
+    <div id="tab-support" class="tab-content">
+        <div class="header">
+            <h1>সাপোর্ট (Support)</h1>
+            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Get help from our admins</p>
+        </div>
+        
+        <div class="card text-center">
+            <i class="fas fa-headset" style="font-size: 50px; color: var(--secondary-color); margin-bottom: 20px;"></i>
+            <h2>অ্যাডমিন সাপোর্ট</h2>
+            <p class="mb-2" style="color: var(--text-muted); font-size: 15px; font-weight: bold;">🎧 সাপোর্ট সার্ভিস শীঘ্রই আসছে (Coming Soon)...</p>
+        </div>
+    </div>
+
+    <!-- 4. REFERRAL TAB -->
+    <div id="tab-referral" class="tab-content">
+        <div class="header">
+            <h1>রেফার (Referral)</h1>
+            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Invite & Earn</p>
+        </div>
+        
+        <div class="card">
+            <h2>👥 বন্ধুদের রেফার করুন এবং ইনকাম করুন</h2>
+            <p class="mb-2" style="color: var(--text-muted); font-size: 14px; text-align: center;">প্রতি রেফারে বোনাস 100.00 টাকা পাবেন। বেশি বেশি রেফার করে আয় বৃদ্ধি করুন।</p>
+            
+            <label style="color: var(--text-muted); font-size: 13px; margin-bottom: 5px; display: block;">আপনার রেফারেল লিংক:</label>
+            <div class="copy-box">
+                <input type="text" id="ref-link" readonly value="https://t.me/Incomlb_bot?start=">
+                <button onclick="copyRefLink()">লিংক কপি</button>
+            </div>
+            <button class="btn btn-outline" onclick="shareRefLink()">শেয়ার করুন</button>
+        </div>
+        
+        <div class="card">
+            <h2>📋 রেফার করা বন্ধুদের তালিকা - মোট: <span id="ref-total-count">0</span></h2>
+            <div class="data-list" id="ref-list-container" style="margin-top: 15px;">
+                <!-- Injected via JS -->
+                <p style="text-align: center; color: var(--text-muted); font-size: 14px;">কোনো রেফার পাওয়া যায়নি।</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. WALLET TAB -->
+    <div id="tab-wallet" class="tab-content">
+        <div class="header">
+            <h1>ওয়ালেট (Wallet)</h1>
+            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Withdraw your earnings</p>
+        </div>
+        
+        <div class="balance-card" style="padding: 20px;">
+            <h3>মোট ব্যালেন্স</h3>
+            <h1 id="wallet-balance">TK 0.00</h1>
+        </div>
+
+        <div class="card">
+            <h2>💳 উইথড্র করুন</h2>
+            <div class="input-group">
+                <label>পেমেন্ট মেথড (Payment Method)</label>
+                <select id="withdraw-method">
+                    <option value="Bkash">Bkash (বিকাশ)</option>
+                    <option value="Nagad">Nagad (ন নগদ)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>অ্যাকাউন্ট নম্বর (Account Number)</label>
+                <input type="number" id="account-number" placeholder="01XXXXXXXXX">
+            </div>
+            <div class="input-group">
+                <label>পরিমাণ (Amount)</label>
+                <input type="number" id="withdraw-amount" placeholder="Minimum 2000 BDT">
+            </div>
+            <button class="btn btn-success" onclick="attemptWithdrawForm()">রিকোয়েস্ট পাঠান</button>
+        </div>
+        
+        <div class="card">
+            <h2>📜 উইথড্র হিস্ট্রি (History)</h2>
+            <div class="data-list" id="withdrawal-history-container" style="margin-top: 15px;">
+                <!-- Injected via JS -->
+                <p style="text-align: center; color: var(--text-muted); font-size: 14px;">কোনো উইথড্র রেকর্ড নেই।</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('home', this)">
+            <i class="fas fa-home"></i>
+            <span>হোম</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('task', this)">
+            <i class="fas fa-tasks"></i>
+            <span>টাস্ক</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('support', this)">
+            <i class="fas fa-headset"></i>
+            <span>সাপোর্ট</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('referral', this)">
+            <i class="fas fa-users"></i>
+            <span>রেফার</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('wallet', this)">
+            <i class="fas fa-wallet"></i>
+            <span>ওয়ালেট</span>
+        </div>
+    </div>
+
+    <!-- Master Anti-Cheat Modal -->
+    <div class="modal-overlay" id="anti-cheat-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">⚠️ উইথড্র করার শর্ত</h3>
+            <p class="modal-text">উইথড্র করার জন্য আপনাকে অন্তত ২০টি রেফার করতে হবে।</p>
+            <div class="modal-status" id="modal-referral-status">বর্তমানে আপনি করেছেন: 0/20। বাকি আছে: 20 টি।</div>
+            <button class="modal-btn" onclick="closeModal()">বুঝতে পেরেছি</button>
+        </div>
+    </div>
+
+    <script>
+        // Telegram WebApp Initialization
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        let userId = 123456789; 
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            userId = tg.initDataUnsafe.user.id;
+        }
+
+        // Set referral link early
+        document.getElementById('ref-link').value = `https://t.me/Incomlb_bot?start=ref_${userId}`;
+
+        // Global State
+        let currentReferrals = 0;
+        let currentEarned = 0;
+        
+        // Tab Switching Logic
+        function switchTab(tabId, element) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Show target tab
+            document.getElementById('tab-' + tabId).classList.add('active');
+            
+            // Update nav styling
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('active');
+            });
+            element.classList.add('active');
+            
+            // Refresh data when switching tabs if needed
+            fetchUserData();
+        }
+
+        async function fetchUserData() {
+            try {
+                const baseUrl = "https://overhung-cannon-latrine.ngrok-free.dev";
+                
+                const res = await fetch(`${baseUrl}/api/user_data`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    currentEarned = data.earned || 0;
+                    currentReferrals = data.referrals || 0;
+                    
+                    // Update Home & Wallet Balances
+                    document.getElementById('home-balance').innerText = `TK ${currentEarned.toFixed(2)}`;
+                    document.getElementById('wallet-balance').innerText = `TK ${currentEarned.toFixed(2)}`;
+                    
+                    // Update Stats
+                    document.getElementById('home-refs').innerText = currentReferrals;
+                    document.getElementById('ref-total-count').innerText = currentReferrals;
+                    
+                    // Update Task Status
+                    let totalTasksCompleted = 0;
+                    const vBtn1 = document.getElementById('verify-btn-1');
+                    if (data.task_status === 'COMPLETED') {
+                        vBtn1.innerText = "✅ ভেরিফাই সম্পন্ন";
+                        vBtn1.classList.replace('btn-success', 'btn-disabled');
+                        vBtn1.disabled = true;
+                        totalTasksCompleted++;
+                    }
+                    
+                    const vBtn2 = document.getElementById('verify-btn-2');
+                    if (data.task2_status === 'COMPLETED') {
+                        vBtn2.innerText = "✅ ভেরিফাই সম্পন্ন";
+                        vBtn2.classList.replace('btn-success', 'btn-disabled');
+                        vBtn2.disabled = true;
+                        totalTasksCompleted++;
+                    }
+                    
+                    document.getElementById('home-tasks').innerText = totalTasksCompleted;
+                    
+                    // Populate Referrals List
+                    const refContainer = document.getElementById('ref-list-container');
+                    if (data.referrals_list && data.referrals_list.length > 0) {
+                        refContainer.innerHTML = '';
+                        data.referrals_list.forEach(ref => {
+                            const date = new Date(ref.joined_at).toLocaleDateString('bn-BD');
+                            refContainer.innerHTML += `
+                                <div class="data-item">
+                                    <div class="left">
+                                        <span class="title">${ref.first_name || 'User'}</span>
+                                        <span class="subtitle">Join Date: ${date}</span>
+                                    </div>
+                                    <div class="right" style="color: var(--primary-color);">+100.00</div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        refContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 14px;">কোনো রেফার পাওয়া যায়নি।</p>';
+                    }
+                    
+                    // Populate Withdrawal History
+                    const wContainer = document.getElementById('withdrawal-history-container');
+                    if (data.withdrawal_history && data.withdrawal_history.length > 0) {
+                        wContainer.innerHTML = '';
+                        data.withdrawal_history.forEach(w => {
+                            const date = new Date(w.created_at).toLocaleDateString('bn-BD');
+                            let statusColor = w.status === 'PENDING' ? 'status-pending' : (w.status === 'APPROVED' ? 'status-approved' : 'status-rejected');
+                            wContainer.innerHTML += `
+                                <div class="data-item">
+                                    <div class="left">
+                                        <span class="title">${w.method} - ${w.amount} BDT</span>
+                                        <span class="subtitle">${date}</span>
+                                    </div>
+                                    <div class="right ${statusColor}">${w.status}</div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        wContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 14px;">কোনো উইথড্র রেকর্ড নেই।</p>';
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch user data:", err);
+            }
+        }
+
+        async function verifyTask(taskId) {
+            const vBtn = document.getElementById('verify-btn-' + taskId);
+            if (vBtn.disabled) return;
+            
+            const originalText = vBtn.innerText;
+            vBtn.innerText = "অপেক্ষা করুন...";
+            
+            try {
+                const baseUrl = "https://overhung-cannon-latrine.ngrok-free.dev";
+                const res = await fetch(`${baseUrl}/api/verify_task`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId, task_id: taskId })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    tg.showAlert(data.message);
+                    fetchUserData();
+                } else {
+                    tg.showAlert(data.message || "⚠️ ভেরিফিকেশন ব্যর্থ হয়েছে!");
+                    vBtn.innerText = originalText;
+                }
+            } catch (err) {
+                tg.showAlert("Network error. Try again.");
+                vBtn.innerText = originalText;
+            }
+        }
+
+        // Master Anti-Cheat function
+        function triggerAntiCheatCheck() {
+            if (currentReferrals < 20) {
+                let remaining = 20 - currentReferrals;
+                document.getElementById('modal-referral-status').innerText = `বর্তমানে আপনি করেছেন: ${currentReferrals}/20। বাকি আছে: ${remaining} টি।`;
+                document.getElementById('anti-cheat-modal').classList.add('active');
+                return false;
+            }
+            if (currentEarned < 2000) {
+                tg.showAlert("⚠️ আপনার ব্যালেন্স অপর্যাপ্ত! সর্বনিম্ন উইথড্র পরিমাণ ২০০০.০০ টাকা।");
+                return false;
+            }
+            return true;
+        }
+
+        function attemptWithdraw() {
+            if(triggerAntiCheatCheck()) {
+                // If passed, switch to wallet tab
+                const walletNav = document.querySelectorAll('.nav-item')[4];
+                switchTab('wallet', walletNav);
+            }
+        }
+
+        function attemptWithdrawForm() {
+            if(!triggerAntiCheatCheck()) return;
+
+            const method = document.getElementById('withdraw-method').value;
+            const account = document.getElementById('account-number').value;
+            // The value is taken from current balance automatically in backend, or here we can send amount
+            const amount = document.getElementById('withdraw-amount').value || currentEarned;
+
+            if (!account || account.length < 11) {
+                tg.showAlert("সঠিক অ্যাকাউন্ট নম্বর দিন।");
+                return;
+            }
+            
+            if (amount < 2000 || amount > currentEarned) {
+                tg.showAlert("⚠️ আপনার ব্যালেন্স অপর্যাপ্ত! সর্বনিম্ন উইথড্র পরিমাণ ২০০০.০০ টাকা এবং ব্যালেন্সের বেশি দেয়া যাবে না।");
+                return;
+            }
+
+            submitWithdrawal(method, account, amount);
+        }
+
+        async function submitWithdrawal(method, account, amount) {
+            try {
+                const baseUrl = "https://overhung-cannon-latrine.ngrok-free.dev";
+                const res = await fetch(`${baseUrl}/api/withdraw`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: userId,
+                        method: method,
+                        account: account,
+                        amount: amount
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    tg.showAlert(data.message);
+                    fetchUserData();
+                    document.getElementById('account-number').value = '';
+                    document.getElementById('withdraw-amount').value = '';
+                } else {
+                    tg.showAlert(data.error || "An error occurred.");
+                }
+            } catch (err) {
+                tg.showAlert("Network error. Try again.");
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('anti-cheat-modal').classList.remove('active');
+        }
+
+        function copyRefLink() {
+            const link = document.getElementById('ref-link');
+            link.select();
+            document.execCommand("copy");
+            tg.showAlert("লিংক কপি করা হয়েছে!");
+        }
+
+        function shareRefLink() {
+            const link = document.getElementById('ref-link').value;
+            const text = "Income Lab Bot এ জয়েন করুন আর প্রতিদিন আয় করুন!\n\n" + link;
+            if (tg.openTelegramLink) {
+                tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
+            } else {
+                window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`, "_blank");
+            }
+        }
+        
+        function openTgLink(url) {
+            if (tg.openTelegramLink) {
+                tg.openTelegramLink(url);
+            } else {
+                window.open(url, "_blank");
+            }
+        }
+
+        // Initialize App on load
+        fetchUserData();
+    </script>
+</body>
+</html>
