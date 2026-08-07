@@ -485,24 +485,33 @@
         async function checkGuardMembership() {
             const btn = document.getElementById('verify-guard-btn');
             btn.innerText = "অপেক্ষা করুন...";
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 7000);
             
             try {
                 const res = await fetch(`${API_BASE_URL}/api/check_membership`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ user_id: userId })
+                    body: JSON.stringify({ user_id: userId }),
+                    signal: controller.signal
                 });
                 const data = await res.json();
                 
                 if (data.is_verified) {
+                    document.getElementById('guard-modal').style.display = 'none';
                     document.getElementById('guard-modal').classList.remove('active');
                 } else {
-                    let msg = data.message ? `⚠️ ${data.message}` : "⚠️ আপনি ২টি চ্যানেলে জয়েন করেননি!";
-                    alert(msg);
-                    btn.innerText = "ভেরিফাই করুন";
+                    let msg = data.message || data.error || "আপনি এখনো ২টি চ্যানেলে জয়েন করেননি!";
+                    alert(`⚠️ ${msg}`);
                 }
             } catch (e) {
-                alert("নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।");
+                if (e.name === 'AbortError') {
+                    alert("⚠️ সার্ভার কানেকশন টাইমআউট! দয়া করে আবার চেষ্টা করুন।");
+                } else {
+                    alert("⚠️ নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।");
+                }
+            } finally {
+                clearTimeout(timeoutId);
                 btn.innerText = "ভেরিফাই করুন";
             }
         }
