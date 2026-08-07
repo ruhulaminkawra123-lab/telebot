@@ -418,6 +418,7 @@
     </div>
 
     <script>
+        const API_BASE_URL = "https://income-lab-bot.onrender.com";
         // Telegram WebApp Initialization
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -456,9 +457,7 @@
 
         async function fetchUserData() {
             try {
-                const baseUrl = "https://overhung-cannon-latrine.ngrok-free.dev";
-                
-                const res = await fetch(`${baseUrl}/api/user_data`, {
+                const res = await fetch(`${API_BASE_URL}/api/user_data`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ user_id: userId })
@@ -552,8 +551,7 @@
             vBtn.innerText = "অপেক্ষা করুন...";
             
             try {
-                const baseUrl = "https://overhung-cannon-latrine.ngrok-free.dev";
-                const res = await fetch(`${baseUrl}/api/verify_task`, {
+                const res = await fetch(`${API_BASE_URL}/api/verify_task`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ user_id: userId, task_id: taskId })
@@ -619,8 +617,7 @@
 
         async function submitWithdrawal(method, account, amount) {
             try {
-                const baseUrl = "https://overhung-cannon-latrine.ngrok-free.dev";
-                const res = await fetch(`${baseUrl}/api/withdraw`, {
+                const res = await fetch(`${API_BASE_URL}/api/withdraw`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
