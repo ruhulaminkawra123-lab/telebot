@@ -279,18 +279,11 @@
             </div>
         </div>
         
-        <!-- Daily Bonus Section -->
+        <!-- Daily Check-in Section -->
         <div class="card" style="margin-top: 15px;">
-            <h2>🎁 দৈনিক বোনাস (30-Day Check-in)</h2>
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">টানা ৩০ দিন চেক-ইন করুন এবং ২০০০ টাকা পর্যন্ত বোনাস জিতে নিন! মাঝে একদিন বাদ দিলে আবার প্রথম থেকে শুরু হবে।</p>
-            
-            <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 15px; text-align: center; margin-bottom: 15px;">
-                <h3 style="color: #f59e0b; font-size: 20px; margin-bottom: 5px;">দিন <span id="streak-day">0</span></h3>
-                <p style="font-size: 14px; color: var(--text-muted);">বর্তমান স্ট্রিক</p>
-            </div>
-            
-            <button class="btn btn-success" id="claim-bonus-btn" onclick="claimDailyBonus()" style="width: 100%; font-size: 16px; padding: 12px;">আজকের বোনাস ক্লেইম করুন</button>
-            <p id="claim-timer" style="color: var(--danger-color); text-align: center; margin-top: 10px; font-weight: bold; display: none;">পরবর্তী বোনাস: 24:00:00</p>
+            <h2>🎁 দৈনিক বোনাস (Daily Check-in)</h2>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">প্রতিদিন একবার চেক-ইন করে 10 Points বোনাস জিতে নিন!</p>
+            <button class="btn btn-success" id="claim-bonus-btn" onclick="dailyCheckin()" style="width: 100%; font-size: 16px; padding: 12px;">আজকের চেক-ইন করুন</button>
         </div>
         
         <div class="card">
@@ -437,6 +430,65 @@
         </div>
     </div>
 
+    <!-- 6. ADMIN TAB -->
+    <div id="tab-admin" class="tab-content">
+        <div class="header">
+            <h1 style="color: var(--danger-color);">এডমিন প্যানেল</h1>
+            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Admin Control Center</p>
+        </div>
+        
+        <div class="stats-grid" id="admin-stats-grid">
+            <div class="stat-item"><h4>Total Users</h4><p id="astat-users">0</p></div>
+            <div class="stat-item"><h4>Active Today</h4><p id="astat-active">0</p></div>
+            <div class="stat-item"><h4>Ads Today</h4><p id="astat-ads">0</p></div>
+            <div class="stat-item"><h4>Pending WD</h4><p id="astat-wd">0</p></div>
+            <div class="stat-item"><h4>Total Points</h4><p id="astat-points">0</p></div>
+            <div class="stat-item"><h4>Total Paid (BDT)</h4><p id="astat-paid">0</p></div>
+        </div>
+
+        <div class="card">
+            <h2>👤 User Management</h2>
+            <div class="input-group">
+                <input type="text" id="admin-search-user" placeholder="User ID or Username">
+            </div>
+            <button class="btn btn-primary" onclick="adminSearchUser()">Search</button>
+            <div id="admin-user-details" style="display: none; margin-top: 15px; text-align: left;">
+                <p><strong>ID:</strong> <span id="adetail-id"></span></p>
+                <p><strong>Username:</strong> <span id="adetail-uname"></span></p>
+                <p><strong>Points:</strong> <span id="adetail-points"></span></p>
+                <p><strong>Ads:</strong> <span id="adetail-ads"></span></p>
+                <p><strong>Refs:</strong> <span id="adetail-refs"></span></p>
+                <div class="input-group" style="margin-top: 10px;">
+                    <label>Set Points</label>
+                    <input type="number" id="admin-set-points">
+                </div>
+                <button class="btn btn-success" onclick="adminUpdateUserPoints()">Update Points</button>
+                <button class="btn btn-danger" style="background: var(--danger-color); color: white; width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: bold; margin-bottom: 12px;" onclick="adminToggleBan()" id="admin-ban-btn">Ban User</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>💳 Pending Withdrawals</h2>
+            <button class="btn btn-outline" onclick="adminLoadWithdrawals()">Refresh List</button>
+            <div class="data-list" id="admin-wd-list" style="margin-top: 15px;"></div>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ System Settings</h2>
+            <button class="btn btn-outline" onclick="adminLoadSettings()">Load Settings</button>
+            <div id="admin-settings-container" style="margin-top: 15px;"></div>
+            <button class="btn btn-success" onclick="adminSaveSettings()" style="margin-top: 15px; display: none;" id="admin-save-settings-btn">Save Settings</button>
+        </div>
+
+        <div class="card">
+            <h2>📢 Broadcast</h2>
+            <div class="input-group">
+                <textarea id="admin-broadcast-msg" rows="4" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 15px;" placeholder="Message to all active users..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="adminSendBroadcast()">Send Broadcast</button>
+        </div>
+    </div>
+
     <!-- BOTTOM NAVIGATION -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('home', this)">
@@ -462,6 +514,10 @@
         <div class="nav-item" onclick="switchTab('wallet', this)">
             <i class="fas fa-wallet"></i>
             <span>ওয়ালেট</span>
+        </div>
+        <div class="nav-item" id="nav-admin" style="display: none;" onclick="switchTab('admin', this); adminLoadStats();">
+            <i class="fas fa-shield-alt" style="color: var(--danger-color);"></i>
+            <span style="color: var(--danger-color);">এডমিন</span>
         </div>
     </div>
 
@@ -563,75 +619,32 @@
             }
         }
 
-        function startTimer(hoursElapsed) {
-            let remainingMs = (24 - hoursElapsed) * 3600000;
-            const timerEl = document.getElementById('claim-timer');
-            const btn = document.getElementById('claim-bonus-btn');
-            
-            if (remainingMs <= 0) {
-                timerEl.style.display = 'none';
-                btn.disabled = false;
-                btn.innerText = "আজকের বোনাস ক্লেইম করুন";
-                btn.classList.replace('btn-secondary', 'btn-success');
-                if (window.claimInterval) clearInterval(window.claimInterval);
-                return;
-            }
-            
-            btn.disabled = true;
-            btn.innerText = "ইতোমধ্যে ক্লেইম করা হয়েছে";
-            btn.classList.replace('btn-success', 'btn-secondary');
-            timerEl.style.display = 'block';
-            
-            if (window.claimInterval) clearInterval(window.claimInterval);
-            window.claimInterval = setInterval(() => {
-                remainingMs -= 1000;
-                if (remainingMs <= 0) {
-                    clearInterval(window.claimInterval);
-                    timerEl.style.display = 'none';
-                    btn.disabled = false;
-                    btn.innerText = "আজকের বোনাস ক্লেইম করুন";
-                    btn.classList.replace('btn-secondary', 'btn-success');
-                } else {
-                    let h = Math.floor(remainingMs / 3600000);
-                    let m = Math.floor((remainingMs % 3600000) / 60000);
-                    let s = Math.floor((remainingMs % 60000) / 1000);
-                    timerEl.innerText = `পরবর্তী বোনাস: ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-                }
-            }, 1000);
-        }
-
-        async function claimDailyBonus() {
+        async function dailyCheckin() {
             const btn = document.getElementById('claim-bonus-btn');
             btn.disabled = true;
             btn.innerText = "অপেক্ষা করুন...";
             
             try {
-                const res = await fetch(`${API_BASE_URL}/api/claim_daily_bonus`, {
+                const res = await fetch(`${API_BASE_URL}/api/daily_checkin`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ user_id: userId })
                 });
                 const data = await res.json();
                 
-                alert(data.message);
                 if (data.success) {
-                    if (data.earned !== undefined) {
-                        document.getElementById('home-balance').innerText = `TK ${data.earned.toFixed(2)}`;
-                        document.getElementById('wallet-balance').innerText = `TK ${data.earned.toFixed(2)}`;
-                    }
-                    if (data.streak !== undefined) {
-                        document.getElementById('streak-day').innerText = data.streak;
-                    }
+                    alert(data.message);
                     fetchUserData(); 
+                } else {
+                    alert(`⚠️ ${data.message}`);
+                    btn.disabled = true;
+                    btn.innerText = "ইতোমধ্যে চেক-ইন করা হয়েছে";
                 }
             } catch (e) {
+                console.error("Daily Checkin Error:", e);
                 alert("নেটওয়ার্ক সমস্যা।");
-            } finally {
-                // Keep it disabled if it was success and timer took over, otherwise restore
-                if (document.getElementById('claim-timer').style.display === 'none') {
-                    btn.disabled = false;
-                    btn.innerText = "আজকের বোনাস ক্লেইম করুন";
-                }
+                btn.disabled = false;
+                btn.innerText = "আজকের চেক-ইন করুন";
             }
         }
 
@@ -646,23 +659,29 @@
                 const data = await res.json();
                 
                 if (res.ok) {
+                    if (data.is_banned) {
+                        document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:50px;'>⚠️ Your account has been banned.</h1>";
+                        return;
+                    }
+                    if (data.is_admin) {
+                        document.getElementById('nav-admin').style.display = 'flex';
+                    }
+                    
                     currentEarned = data.earned || 0;
                     currentPoints = data.points || 0;
                     currentReferrals = data.referral_count || data.total_referrals || 0;
                     totalAdsWatched = data.total_ads_watched || 0;
                     
-                    if (data.login_streak !== undefined) {
-                        document.getElementById('streak-day').innerText = data.login_streak;
-                    }
-                    
-                    if (data.last_claim_date) {
-                        const lastClaimStr = data.last_claim_date.endsWith('Z') ? data.last_claim_date : data.last_claim_date + "Z";
-                        const lastClaim = new Date(lastClaimStr);
-                        const now = new Date();
-                        const hoursElapsed = (now - lastClaim) / 3600000;
-                        startTimer(hoursElapsed);
-                    } else {
-                        startTimer(24);
+                    if (data.last_checkin_date) {
+                        const today = new Date().toISOString().split('T')[0];
+                        const btn = document.getElementById('claim-bonus-btn');
+                        if (data.last_checkin_date === today) {
+                            btn.disabled = true;
+                            btn.innerText = "ইতোমধ্যে চেক-ইন করা হয়েছে";
+                        } else {
+                            btn.disabled = false;
+                            btn.innerText = "আজকের চেক-ইন করুন";
+                        }
                     }
                     
                     // Update Home & Wallet Balances
@@ -706,7 +725,7 @@
                                         <span class="title">${ref.first_name || 'User'}</span>
                                         <span class="subtitle">Join Date: ${date}</span>
                                     </div>
-                                    <div class="right" style="color: var(--primary-color);">+100.00</div>
+                                    <div class="right" style="color: var(--primary-color);">+50 Points</div>
                                 </div>
                             `;
                         });
@@ -763,27 +782,29 @@
                     vBtn.innerText = originalText;
                 }
             } catch (err) {
+                console.error("verifyTask Error:", err);
                 tg.showAlert("Network error. Try again.");
+                vBtn.disabled = false;
                 vBtn.innerText = originalText;
             }
         }
 
         // Master Anti-Cheat function
         function triggerAntiCheatCheck() {
-            if (currentReferrals < 10 || totalAdsWatched < 50) {
-                let remRefs = Math.max(0, 10 - currentReferrals);
-                let remAds = Math.max(0, 50 - totalAdsWatched);
+            if (currentReferrals < 3 || totalAdsWatched < 30) {
+                let remRefs = Math.max(0, 3 - currentReferrals);
+                let remAds = Math.max(0, 30 - totalAdsWatched);
                 let msg = "উইথড্র করার জন্য আপনাকে অন্তত ";
                 if (remRefs > 0 && remAds > 0) {
-                    msg += `১০টি রেফার এবং ৫০টি অ্যাড দেখতে হবে।`;
+                    msg += `৩টি রেফার এবং ৩০টি অ্যাড দেখতে হবে।`;
                 } else if (remRefs > 0) {
-                    msg += `১০টি রেফার করতে হবে।`;
+                    msg += `৩টি রেফার করতে হবে।`;
                 } else {
-                    msg += `৫০টি অ্যাড দেখতে হবে।`;
+                    msg += `৩০টি অ্যাড দেখতে হবে।`;
                 }
                 
                 document.getElementById('modal-text-dynamic').innerText = msg;
-                document.getElementById('modal-referral-status').innerText = `আপনার রেফার: ${currentReferrals}/10 | অ্যাড দেখা: ${totalAdsWatched}/50`;
+                document.getElementById('modal-referral-status').innerText = `আপনার রেফার: ${currentReferrals}/3 | অ্যাড দেখা: ${totalAdsWatched}/30`;
                 document.getElementById('anti-cheat-modal').classList.add('active');
                 return false;
             }
@@ -857,6 +878,7 @@
                     tg.showAlert(data.error || "An error occurred.");
                 }
             } catch (err) {
+                console.error("submitWithdrawal Error:", err);
                 tg.showAlert("Network error. Try again.");
             }
         }
@@ -889,6 +911,7 @@
                     btn.innerText = "অ্যাড দেখুন (Watch Ad)";
                 }
             } catch (err) {
+                console.error("startAdSession Error:", err);
                 tg.showAlert("Network error");
                 btn.disabled = false;
                 btn.innerText = "অ্যাড দেখুন (Watch Ad)";
@@ -968,6 +991,7 @@
                     btn.innerText = "১০ পয়েন্ট নিন (Claim Reward)";
                 }
             } catch (err) {
+                console.error("verifyAndClaimAd Error:", err);
                 tg.showAlert("Network Error");
                 btn.disabled = false;
                 btn.innerText = "১০ পয়েন্ট নিন (Claim Reward)";
@@ -1001,6 +1025,188 @@
             } else {
                 window.open(url, "_blank");
             }
+        }
+
+        // === ADMIN FUNCTIONS ===
+        function getAdminPayload(extra = {}) {
+            return {
+                admin_user_id: userId,
+                admin_username: window.Telegram.WebApp.initDataUnsafe?.user?.username,
+                ...extra
+            };
+        }
+
+        async function adminLoadStats() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/admin/stats`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(getAdminPayload())
+                });
+                const data = await res.json();
+                if(data.error) return;
+                document.getElementById('astat-users').innerText = data.total_users;
+                document.getElementById('astat-active').innerText = data.active_today;
+                document.getElementById('astat-ads').innerText = data.ads_today;
+                document.getElementById('astat-wd').innerText = data.pending_withdrawals;
+                document.getElementById('astat-points').innerText = data.total_points;
+                document.getElementById('astat-paid').innerText = data.total_paid;
+            } catch(e) {}
+        }
+
+        let adminCurrentTargetUser = null;
+        async function adminSearchUser() {
+            const q = document.getElementById('admin-search-user').value;
+            if(!q) return;
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/admin/user`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(getAdminPayload({action: 'search', target_user_id: q}))
+                });
+                const data = await res.json();
+                if(data.error) {
+                    tg.showAlert("User not found");
+                    document.getElementById('admin-user-details').style.display = 'none';
+                    return;
+                }
+                adminCurrentTargetUser = data;
+                document.getElementById('adetail-id').innerText = data.user_id;
+                document.getElementById('adetail-uname').innerText = data.username || 'N/A';
+                document.getElementById('adetail-points').innerText = data.points || 0;
+                document.getElementById('adetail-ads').innerText = data.total_ads_watched || 0;
+                document.getElementById('adetail-refs').innerText = data.total_referrals || 0;
+                document.getElementById('admin-set-points').value = data.points || 0;
+                
+                const banBtn = document.getElementById('admin-ban-btn');
+                banBtn.innerText = data.is_banned ? "Unban User" : "Ban User";
+                banBtn.style.background = data.is_banned ? "#10b981" : "var(--danger-color)";
+                
+                document.getElementById('admin-user-details').style.display = 'block';
+            } catch(e) {}
+        }
+
+        async function adminUpdateUserPoints() {
+            if(!adminCurrentTargetUser) return;
+            const pts = document.getElementById('admin-set-points').value;
+            try {
+                await fetch(`${API_BASE_URL}/api/admin/user`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(getAdminPayload({action: 'update', target_user_id: adminCurrentTargetUser.user_id, points: parseInt(pts)}))
+                });
+                tg.showAlert("Points updated successfully!");
+                adminSearchUser();
+            } catch(e) {}
+        }
+
+        async function adminToggleBan() {
+            if(!adminCurrentTargetUser) return;
+            const newBanStatus = adminCurrentTargetUser.is_banned ? false : true;
+            try {
+                await fetch(`${API_BASE_URL}/api/admin/user`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(getAdminPayload({action: 'update', target_user_id: adminCurrentTargetUser.user_id, is_banned: newBanStatus}))
+                });
+                tg.showAlert(newBanStatus ? "User Banned!" : "User Unbanned!");
+                adminSearchUser();
+            } catch(e) {}
+        }
+
+        async function adminLoadWithdrawals() {
+            const list = document.getElementById('admin-wd-list');
+            list.innerHTML = 'Loading...';
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/admin/withdrawals`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(getAdminPayload({action: 'list'}))
+                });
+                const data = await res.json();
+                if(data.error || data.length === 0) {
+                    list.innerHTML = 'No pending withdrawals.';
+                    return;
+                }
+                list.innerHTML = '';
+                data.forEach(w => {
+                    list.innerHTML += `
+                        <div class="data-item" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+                            <div>
+                                <strong>User ID:</strong> ${w.user_id}<br>
+                                <strong>Method:</strong> ${w.method}<br>
+                                <strong>Account:</strong> ${w.account_details || w.account_number}<br>
+                                <strong>Amount:</strong> ${w.bdt_amount} BDT (${w.points_requested || w.amount} Pts)
+                            </div>
+                            <div style="display: flex; gap: 10px; width: 100%;">
+                                <button class="btn btn-success" style="flex: 1; font-size: 14px;" onclick="adminProcessWd(${w.id}, 'approve')">Approve</button>
+                                <button class="btn btn-danger" style="flex: 1; font-size: 14px; background: var(--danger-color); border: none; border-radius: 8px; color: white;" onclick="adminProcessWd(${w.id}, 'reject')">Reject</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch(e) {}
+        }
+
+        async function adminProcessWd(id, action) {
+            if(!confirm(`Are you sure you want to ${action} this withdrawal?`)) return;
+            try {
+                await fetch(`${API_BASE_URL}/api/admin/withdrawals`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(getAdminPayload({action: action, withdrawal_id: id}))
+                });
+                tg.showAlert("Processed successfully.");
+                adminLoadWithdrawals();
+                adminLoadStats();
+            } catch(e) {}
+        }
+
+        async function adminLoadSettings() {
+            const container = document.getElementById('admin-settings-container');
+            container.innerHTML = 'Loading...';
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/admin/settings`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(getAdminPayload({action: 'get'}))
+                });
+                const data = await res.json();
+                if(data.error) return;
+                
+                container.innerHTML = '';
+                for(const [k, v] of Object.entries(data)) {
+                    container.innerHTML += `
+                        <div class="input-group" style="margin-bottom: 10px;">
+                            <label>${k}</label>
+                            <input type="text" id="setting-${k}" value='${v}'>
+                        </div>
+                    `;
+                }
+                document.getElementById('admin-save-settings-btn').style.display = 'block';
+            } catch(e) {}
+        }
+
+        async function adminSaveSettings() {
+            const inputs = document.querySelectorAll('[id^="setting-"]');
+            let updates = {};
+            inputs.forEach(inp => {
+                const key = inp.id.replace('setting-', '');
+                updates[key] = inp.value;
+            });
+            try {
+                await fetch(`${API_BASE_URL}/api/admin/settings`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(getAdminPayload({action: 'update', settings: updates}))
+                });
+                tg.showAlert("Settings Saved!");
+            } catch(e) {}
+        }
+
+        async function adminSendBroadcast() {
+            const msg = document.getElementById('admin-broadcast-msg').value;
+            if(!msg) return tg.showAlert("Please enter a message");
+            try {
+                await fetch(`${API_BASE_URL}/api/admin/broadcast`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(getAdminPayload({message: msg}))
+                });
+                tg.showAlert("Broadcast initiated in background.");
+                document.getElementById('admin-broadcast-msg').value = '';
+            } catch(e) {}
         }
 
         // Initialize App on load
