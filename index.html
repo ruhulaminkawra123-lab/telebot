@@ -375,6 +375,32 @@
         </div>
     </div>
 
+    <!-- NEW ADS / EARN TAB -->
+    <div id="tab-ads" class="tab-content">
+        <div class="header">
+            <h1>অ্যাড দেখুন (Watch Ads)</h1>
+            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Earn points by watching ads</p>
+        </div>
+        
+        <div class="card" style="text-align: center;">
+            <h2 style="color: var(--primary-color);">▶️ ওয়াচ অ্যাড (Watch Ad)</h2>
+            <p style="color: #cbd5e1; font-size: 15px; margin-bottom: 20px;">
+                নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। অ্যাড চলাকালীন অ্যাপ মিনিমাইজ করলে বা অন্য কোনো পেজে গেলে অ্যাড বাতিল হয়ে যাবে!
+            </p>
+            
+            <div id="ad-timer-display" style="display: none; font-size: 48px; font-weight: bold; color: var(--secondary-color); margin: 20px 0;">
+                15s
+            </div>
+            
+            <button class="btn btn-primary" id="start-ad-btn" onclick="startAdSession()">অ্যাড দেখুন (Watch Ad)</button>
+            <button class="btn btn-success" id="claim-ad-btn" style="display: none;" onclick="verifyAndClaimAd()">১০ পয়েন্ট নিন (Claim Reward)</button>
+            
+            <div style="margin-top: 20px; font-size: 14px; color: var(--text-muted);">
+                সর্বমোট অ্যাড দেখা হয়েছে: <strong id="total-ads-count" style="color: white;">0</strong> টি
+            </div>
+        </div>
+    </div>
+
     <!-- 5. WALLET TAB -->
     <div id="tab-wallet" class="tab-content">
         <div class="header">
@@ -391,18 +417,19 @@
             <h2>💳 উইথড্র করুন</h2>
             <div class="input-group">
                 <label>পেমেন্ট মেথড (Payment Method)</label>
-                <select id="withdraw-method">
+                <select id="withdraw-method" onchange="updateWithdrawalPlaceholder()">
                     <option value="Bkash">Bkash (বিকাশ)</option>
-                    <option value="Nagad">Nagad (ন নগদ)</option>
+                    <option value="Nagad">Nagad (নগদ)</option>
+                    <option value="USDT (BEP-20)">USDT (BEP-20)</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>অ্যাকাউন্ট নম্বর (Account Number)</label>
-                <input type="number" id="account-number" placeholder="01XXXXXXXXX">
+                <label>অ্যাকাউন্ট নম্বর / Address</label>
+                <input type="text" id="account-number" placeholder="01XXXXXXXXX">
             </div>
             <div class="input-group">
-                <label>পরিমাণ (Amount)</label>
-                <input type="number" id="withdraw-amount" placeholder="Minimum 2000 BDT">
+                <label>পরিমাণ (Points)</label>
+                <input type="number" id="withdraw-amount" placeholder="Minimum 2000 Points">
             </div>
             <button class="btn btn-success" onclick="attemptWithdrawForm()">রিকোয়েস্ট পাঠান</button>
         </div>
@@ -434,6 +461,10 @@
             <i class="fas fa-users"></i>
             <span>রেফার</span>
         </div>
+        <div class="nav-item" onclick="switchTab('ads', this)">
+            <i class="fas fa-play-circle"></i>
+            <span>অ্যাড</span>
+        </div>
         <div class="nav-item" onclick="switchTab('wallet', this)">
             <i class="fas fa-wallet"></i>
             <span>ওয়ালেট</span>
@@ -444,8 +475,8 @@
     <div class="modal-overlay" id="anti-cheat-modal">
         <div class="modal-content">
             <h3 class="modal-title">⚠️ উইথড্র করার শর্ত</h3>
-            <p class="modal-text">উইথড্র করার জন্য আপনাকে অন্তত ২০টি রেফার করতে হবে।</p>
-            <div class="modal-status" id="modal-referral-status">বর্তমানে আপনি করেছেন: 0/20। বাকি আছে: 20 টি।</div>
+            <p class="modal-text" id="modal-text-dynamic">উইথড্র করার জন্য আপনাকে অন্তত ১০টি রেফার এবং ৫০টি অ্যাড দেখতে হবে।</p>
+            <div class="modal-status" id="modal-referral-status">আপনার রেফার: 0/10 | অ্যাড দেখা: 0/50</div>
             <button class="modal-btn" onclick="closeModal()">বুঝতে পেরেছি</button>
         </div>
     </div>
@@ -477,6 +508,12 @@
         // Global State
         let currentReferrals = 0;
         let currentEarned = 0;
+        let currentPoints = 0;
+        let totalAdsWatched = 0;
+        
+        let adSessionToken = null;
+        let adTimerInterval = null;
+        let adSecondsRemaining = 15;
         
         // Tab Switching Logic
         function switchTab(tabId, element) {
@@ -616,7 +653,9 @@
                 
                 if (res.ok) {
                     currentEarned = data.earned || 0;
-                    currentReferrals = data.referral_count || data.referrals || 0;
+                    currentPoints = data.points || 0;
+                    currentReferrals = data.referral_count || data.total_referrals || 0;
+                    totalAdsWatched = data.total_ads_watched || 0;
                     
                     if (data.login_streak !== undefined) {
                         document.getElementById('streak-day').innerText = data.login_streak;
@@ -633,12 +672,13 @@
                     }
                     
                     // Update Home & Wallet Balances
-                    document.getElementById('home-balance').innerText = `TK ${currentEarned.toFixed(2)}`;
-                    document.getElementById('wallet-balance').innerText = `TK ${currentEarned.toFixed(2)}`;
+                    document.getElementById('home-balance').innerText = `${currentPoints} Points`;
+                    document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
                     
                     // Update Stats
                     document.getElementById('home-refs').innerText = currentReferrals;
                     document.getElementById('ref-total-count').innerText = currentReferrals;
+                    document.getElementById('total-ads-count').innerText = totalAdsWatched;
                     
                     // Update Task Status
                     let totalTasksCompleted = 0;
@@ -736,14 +776,25 @@
 
         // Master Anti-Cheat function
         function triggerAntiCheatCheck() {
-            if (currentReferrals < 20) {
-                let remaining = 20 - currentReferrals;
-                document.getElementById('modal-referral-status').innerText = `বর্তমানে আপনি করেছেন: ${currentReferrals}/20। বাকি আছে: ${remaining} টি।`;
+            if (currentReferrals < 10 || totalAdsWatched < 50) {
+                let remRefs = Math.max(0, 10 - currentReferrals);
+                let remAds = Math.max(0, 50 - totalAdsWatched);
+                let msg = "উইথড্র করার জন্য আপনাকে অন্তত ";
+                if (remRefs > 0 && remAds > 0) {
+                    msg += `১০টি রেফার এবং ৫০টি অ্যাড দেখতে হবে।`;
+                } else if (remRefs > 0) {
+                    msg += `১০টি রেফার করতে হবে।`;
+                } else {
+                    msg += `৫০টি অ্যাড দেখতে হবে।`;
+                }
+                
+                document.getElementById('modal-text-dynamic').innerText = msg;
+                document.getElementById('modal-referral-status').innerText = `আপনার রেফার: ${currentReferrals}/10 | অ্যাড দেখা: ${totalAdsWatched}/50`;
                 document.getElementById('anti-cheat-modal').classList.add('active');
                 return false;
             }
-            if (currentEarned < 2000) {
-                tg.showAlert("⚠️ আপনার ব্যালেন্স অপর্যাপ্ত! সর্বনিম্ন উইথড্র পরিমাণ ২০০০.০০ টাকা।");
+            if (currentPoints < 2000) {
+                tg.showAlert("⚠️ আপনার ব্যালেন্স অপর্যাপ্ত! সর্বনিম্ন উইথড্র পরিমাণ ২০০০ পয়েন্ট (২০ টাকা)।");
                 return false;
             }
             return true;
@@ -752,8 +803,20 @@
         function attemptWithdraw() {
             if(triggerAntiCheatCheck()) {
                 // If passed, switch to wallet tab
-                const walletNav = document.querySelectorAll('.nav-item')[4];
+                const walletNav = document.querySelectorAll('.nav-item')[5]; // Changed index for ads tab addition
                 switchTab('wallet', walletNav);
+            }
+        }
+
+        function updateWithdrawalPlaceholder() {
+            const method = document.getElementById('withdraw-method').value;
+            const input = document.getElementById('account-number');
+            if (method === 'USDT (BEP-20)') {
+                input.placeholder = "0x...";
+                input.type = "text";
+            } else {
+                input.placeholder = "01XXXXXXXXX";
+                input.type = "number";
             }
         }
 
@@ -762,16 +825,15 @@
 
             const method = document.getElementById('withdraw-method').value;
             const account = document.getElementById('account-number').value;
-            // The value is taken from current balance automatically in backend, or here we can send amount
-            const amount = document.getElementById('withdraw-amount').value || currentEarned;
+            const amount = document.getElementById('withdraw-amount').value || currentPoints;
 
             if (!account || account.length < 11) {
-                tg.showAlert("সঠিক অ্যাকাউন্ট নম্বর দিন।");
+                tg.showAlert("সঠিক অ্যাকাউন্ট নম্বর/অ্যাড্রেস দিন।");
                 return;
             }
             
-            if (amount < 2000 || amount > currentEarned) {
-                tg.showAlert("⚠️ আপনার ব্যালেন্স অপর্যাপ্ত! সর্বনিম্ন উইথড্র পরিমাণ ২০০০.০০ টাকা এবং ব্যালেন্সের বেশি দেয়া যাবে না।");
+            if (amount < 2000 || amount > currentPoints) {
+                tg.showAlert("⚠️ আপনার ব্যালেন্স অপর্যাপ্ত! সর্বনিম্ন উইথড্র পরিমাণ ২০০০ পয়েন্ট এবং ব্যালেন্সের বেশি দেয়া যাবে না।");
                 return;
             }
 
@@ -802,6 +864,119 @@
                 }
             } catch (err) {
                 tg.showAlert("Network error. Try again.");
+            }
+        }
+
+        // --- Ad System Scripts ---
+        async function startAdSession() {
+            const btn = document.getElementById('start-ad-btn');
+            btn.disabled = true;
+            btn.innerText = "অ্যাড প্রস্তুত হচ্ছে...";
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/get_ad_token`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    adSessionToken = data.token;
+                    openTgLink(data.ad_url);
+                    
+                    adSecondsRemaining = 15;
+                    document.getElementById('ad-timer-display').style.display = 'block';
+                    document.getElementById('start-ad-btn').style.display = 'none';
+                    document.getElementById('claim-ad-btn').style.display = 'none';
+                    runAdTimer();
+                } else {
+                    tg.showAlert(data.message || "Error generating ad.");
+                    btn.disabled = false;
+                    btn.innerText = "অ্যাড দেখুন (Watch Ad)";
+                }
+            } catch (err) {
+                tg.showAlert("Network error");
+                btn.disabled = false;
+                btn.innerText = "অ্যাড দেখুন (Watch Ad)";
+            }
+        }
+
+        function runAdTimer() {
+            const display = document.getElementById('ad-timer-display');
+            display.innerText = `${adSecondsRemaining}s`;
+            
+            if (adTimerInterval) clearInterval(adTimerInterval);
+            
+            adTimerInterval = setInterval(() => {
+                if (document.hidden) {
+                    clearInterval(adTimerInterval);
+                    adSecondsRemaining = 15;
+                    display.innerText = "15s";
+                    tg.showAlert("অ্যাড চলাকালীন স্ক্রিন থেকে বের হওয়া যাবে না! টাইমার রিস্টার্ট হয়েছে।");
+                    return;
+                }
+                
+                adSecondsRemaining--;
+                display.innerText = `${adSecondsRemaining}s`;
+                
+                if (adSecondsRemaining <= 0) {
+                    clearInterval(adTimerInterval);
+                    display.innerText = "সম্পন্ন!";
+                    document.getElementById('claim-ad-btn').style.display = 'inline-block';
+                }
+            }, 1000);
+        }
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && adTimerInterval && adSecondsRemaining > 0) {
+                clearInterval(adTimerInterval);
+                adSecondsRemaining = 15;
+                document.getElementById('ad-timer-display').innerText = "15s";
+                tg.showAlert("অ্যাড চলাকালীন স্ক্রিন থেকে বের হওয়া যাবে না! টাইমার রিস্টার্ট হয়েছে।");
+            }
+        });
+
+        window.addEventListener("blur", () => {
+            if (adTimerInterval && adSecondsRemaining > 0) {
+                clearInterval(adTimerInterval);
+                adSecondsRemaining = 15;
+                document.getElementById('ad-timer-display').innerText = "15s";
+                tg.showAlert("অ্যাড চলাকালীন স্ক্রিন থেকে বের হওয়া যাবে না! টাইমার রিস্টার্ট হয়েছে।");
+            }
+        });
+
+        async function verifyAndClaimAd() {
+            const btn = document.getElementById('claim-ad-btn');
+            btn.disabled = true;
+            btn.innerText = "অপেক্ষা করুন...";
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/verify_ad`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId, token: adSessionToken, elapsed_time_seconds: 15 })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    tg.showAlert(data.message);
+                    fetchUserData();
+                    document.getElementById('ad-timer-display').style.display = 'none';
+                    btn.style.display = 'none';
+                    
+                    const startBtn = document.getElementById('start-ad-btn');
+                    startBtn.style.display = 'inline-block';
+                    startBtn.disabled = false;
+                    startBtn.innerText = "অ্যাড দেখুন (Watch Ad)";
+                } else {
+                    tg.showAlert(data.message);
+                    btn.disabled = false;
+                    btn.innerText = "১০ পয়েন্ট নিন (Claim Reward)";
+                }
+            } catch (err) {
+                tg.showAlert("Network Error");
+                btn.disabled = false;
+                btn.innerText = "১০ পয়েন্ট নিন (Claim Reward)";
             }
         }
 
