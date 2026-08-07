@@ -280,10 +280,22 @@
         </div>
         
         <!-- Daily Check-in Section -->
-        <div class="card" style="margin-top: 15px;">
-            <h2>🎁 দৈনিক বোনাস (Daily Check-in)</h2>
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">প্রতিদিন একবার চেক-ইন করে 10 Points বোনাস জিতে নিন!</p>
-            <button class="btn btn-success" id="claim-bonus-btn" onclick="dailyCheckin()" style="width: 100%; font-size: 16px; padding: 12px;">আজকের চেক-ইন করুন</button>
+        <div class="card" style="margin-top: 15px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.15)); border: 1px solid rgba(16, 185, 129, 0.2); display: flex; flex-direction: column; align-items: center; text-align: center; padding: 25px 20px;">
+            <i class="fas fa-calendar-check" style="font-size: 40px; color: #10b981; margin-bottom: 12px;"></i>
+            <h2 style="font-size: 20px; color: #10b981; margin-bottom: 5px;">দৈনিক চেক-ইন (Daily Check-in)</h2>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px; font-weight: 500;">প্রতিদিন চেক-ইন করে বোনাস বুঝে নিন!</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; width: 100%; margin-bottom: 20px;">
+                <div style="background: rgba(16, 185, 129, 0.2); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: #10b981;">Day 1<br><span style="font-size: 10px;">+10</span></div>
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: var(--text-muted);">Day 2<br><span style="font-size: 10px;">+10</span></div>
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: var(--text-muted);">Day 3<br><span style="font-size: 10px;">+10</span></div>
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: var(--text-muted);">Day 4<br><span style="font-size: 10px;">+10</span></div>
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: var(--text-muted);">Day 5<br><span style="font-size: 10px;">+10</span></div>
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: var(--text-muted);">Day 6<br><span style="font-size: 10px;">+10</span></div>
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: var(--text-muted);">Day 7<br><span style="font-size: 10px;">+50</span></div>
+            </div>
+            
+            <button class="btn btn-success" id="claim-bonus-btn" onclick="dailyCheckin()" style="width: 100%; font-size: 15px; padding: 12px; border-radius: 10px; font-weight: bold;">Claim Today's Bonus / ১০ পয়েন্ট নিন</button>
         </div>
         
         <div class="card">
@@ -303,14 +315,14 @@
         
         <div class="card">
             <h2>✅ কাজ ১ (Task 1)</h2>
-            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">অফিসিয়াল চ্যানেলে জয়েন করুন এবং ভেরিফাই বাটনে ক্লিক করে বোনাস নিন।</p>
+            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">অফিসিয়াল চ্যানেলে জয়েন করুন এবং ভেরিফাই বাটনে ক্লিক করে ৫০ Points বোনাস নিন।</p>
             <button class="btn btn-primary" id="join-btn-1" onclick="openTgLink('https://t.me/BotIncomeLab')">১. অফিসিয়াল চ্যানেলে জয়েন করুন</button>
             <button class="btn btn-success" id="verify-btn-1" onclick="verifyTask(1)">২. ভেরিফাই করুন</button>
         </div>
         
         <div class="card">
             <h2>✅ কাজ ২ (Task 2)</h2>
-            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">অফিসিয়াল পেমেন্ট চ্যানেলে জয়েন করুন এবং ভেরিফাই বাটনে ক্লিক করে 30 Points Bonus নিন।</p>
+            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">অফিসিয়াল পেমেন্ট চ্যানেলে জয়েন করুন এবং ভেরিফাই বাটনে ক্লিক করে ৫০ Points বোনাস নিন।</p>
             <button class="btn btn-primary" id="join-btn-2" onclick="openTgLink('https://t.me/Incomelb_bot_payment')">১. পেমেন্ট চ্যানেলে জয়েন করুন</button>
             <button class="btn btn-success" id="verify-btn-2" onclick="verifyTask(2)">২. ভেরিফাই করুন</button>
         </div>
@@ -343,7 +355,7 @@
         
         <div class="card">
             <h2>👥 বন্ধুদের রেফার করুন এবং ইনকাম করুন</h2>
-            <p class="mb-2" style="color: var(--text-muted); font-size: 14px; text-align: center;">প্রতি সফল রেফারে পাবেন 50 Points + 10% লাইফটাইম কমিশন!</p>
+            <p class="mb-2" style="color: var(--text-muted); font-size: 14px; text-align: center;">প্রতি সফল রেফারে পাবেন ১০০ Points (১ টাকা) + ১০% লাইফটাইম কমিশন!</p>
             
             <label style="color: var(--text-muted); font-size: 13px; margin-bottom: 5px; display: block;">আপনার রেফারেল লিংক:</label>
             <div class="copy-box">
@@ -371,6 +383,9 @@
         
         <div class="card" style="text-align: center;">
             <h2 style="color: var(--primary-color);">▶️ ওয়াচ অ্যাড (Watch Ad)</h2>
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px dashed rgba(16, 185, 129, 0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; display: inline-block;">
+                <span style="color: #10b981; font-weight: bold; font-size: 15px;">🔥 লঞ্চিং অফার: প্রতি অ্যাড দেখলে পাবেন ২০ Points!</span>
+            </div>
             <p style="color: #cbd5e1; font-size: 15px; margin-bottom: 20px;">
                 নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। অ্যাড চলাকালীন অ্যাপ মিনিমাইজ করলে বা অন্য কোনো পেজে গেলে অ্যাড বাতিল হয়ে যাবে!
             </p>
@@ -380,7 +395,7 @@
             </div>
             
             <button class="btn btn-primary" id="start-ad-btn" onclick="startAdSession()">অ্যাড দেখুন (Watch Ad)</button>
-            <button class="btn btn-success" id="claim-ad-btn" style="display: none;" onclick="verifyAndClaimAd()">১০ পয়েন্ট নিন (Claim Reward)</button>
+            <button class="btn btn-success" id="claim-ad-btn" style="display: none;" onclick="verifyAndClaimAd()">২০ পয়েন্ট নিন (Claim Reward)</button>
             
             <div style="margin-top: 20px; font-size: 14px; color: var(--text-muted);">
                 সর্বমোট অ্যাড দেখা হয়েছে: <strong id="total-ads-count" style="color: white;">0</strong> টি
@@ -398,6 +413,7 @@
         <div class="balance-card" style="padding: 20px;">
             <h3>মোট ব্যালেন্স</h3>
             <h1 id="wallet-balance">TK 0.00</h1>
+            <p style="font-size: 13px; margin-top: 10px; color: #fca5a5; font-weight: bold;">💡 কনভার্সন রেট: ১,০০০ Points = ১০ টাকা (BDT)</p>
         </div>
 
         <div class="card">
@@ -638,13 +654,14 @@
                 } else {
                     alert(`⚠️ ${data.message}`);
                     btn.disabled = true;
-                    btn.innerText = "ইতোমধ্যে চেক-ইন করা হয়েছে";
+                    btn.innerText = "আজকের বোনাস ক্লেইম করা হয়েছে ✅";
+                    btn.style.background = "#059669";
                 }
             } catch (e) {
                 console.error("Daily Checkin Error:", e);
                 alert("নেটওয়ার্ক সমস্যা।");
                 btn.disabled = false;
-                btn.innerText = "আজকের চেক-ইন করুন";
+                btn.innerText = "Claim Today's Bonus / ১০ পয়েন্ট নিন";
             }
         }
 
@@ -677,10 +694,11 @@
                         const btn = document.getElementById('claim-bonus-btn');
                         if (data.last_checkin_date === today) {
                             btn.disabled = true;
-                            btn.innerText = "ইতোমধ্যে চেক-ইন করা হয়েছে";
+                            btn.innerText = "আজকের বোনাস ক্লেইম করা হয়েছে ✅";
+                            btn.style.background = "#059669";
                         } else {
                             btn.disabled = false;
-                            btn.innerText = "আজকের চেক-ইন করুন";
+                            btn.innerText = "Claim Today's Bonus / ১০ পয়েন্ট নিন";
                         }
                     }
                     
