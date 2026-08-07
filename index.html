@@ -572,6 +572,13 @@
                 
                 alert(data.message);
                 if (data.success) {
+                    if (data.earned !== undefined) {
+                        document.getElementById('home-balance').innerText = `TK ${data.earned.toFixed(2)}`;
+                        document.getElementById('wallet-balance').innerText = `TK ${data.earned.toFixed(2)}`;
+                    }
+                    if (data.streak !== undefined) {
+                        document.getElementById('streak-day').innerText = data.streak;
+                    }
                     fetchUserData(); 
                 }
             } catch (e) {
