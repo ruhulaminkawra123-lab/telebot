@@ -497,7 +497,8 @@
                 if (data.is_verified) {
                     document.getElementById('guard-modal').classList.remove('active');
                 } else {
-                    alert("⚠️ আপনি এখনো চ্যানেলগুলোতে জয়েন করেননি! দয়া করে জয়েন করে আবার ভেরিফাই করুন।");
+                    let msg = data.message ? `⚠️ ${data.message}` : "⚠️ আপনি ২টি চ্যানেলে জয়েন করেননি!";
+                    alert(msg);
                     btn.innerText = "ভেরিফাই করুন";
                 }
             } catch (e) {
