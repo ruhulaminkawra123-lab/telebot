@@ -6,6 +6,8 @@
     <title>Income Lab Bot</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://sad.adsgram.ai/js/sad-b.js"></script>
+    <script src='//libtl.com/sdk.js' data-zone='11525199' data-sdk='show_11525199'></script>
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -410,7 +412,7 @@
             
 
             
-            <button class="btn btn-primary" id="start-ad-btn" onclick="showWaterfallAd()">Watch Ad (+20 Pts)</button>
+            <button class="btn btn-primary" id="start-ad-btn" onclick="playHybridAd()">Watch Ad (+20 Pts)</button>
             
             
             <div style="margin-top: 20px; font-size: 14px; color: var(--text-muted);">
@@ -951,8 +953,14 @@
         }
 
         // --- Ad System Scripts (Adsgram) ---
-        async function rewardUser(pointsToAdd) {
+        async function rewardUserPoints(pointsToAdd) {
             try {
+                currentPoints += pointsToAdd;
+                localStorage.setItem('cachedPoints', currentPoints);
+                document.getElementById('home-balance').innerText = `${currentPoints} Points`;
+                document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
+                tg.showAlert(`Ad watched successfully! +${pointsToAdd} Points added.`);
+                hidePremiumModal();
                 fetch(`${API_BASE_URL}/api/add-points`, {
                     method: 'POST', credentials: 'omit',
                     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
@@ -973,6 +981,52 @@
         }
 
         const ADSGRAM_UNITS = ["41772", "41786", "41787"];
+
+        async function playHybridAd() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.ready();
+            }
+
+            let adSuccess = false;
+
+            // STEP 1: TRY ADSGRAM WATERFALL
+            if (typeof window.Adsgram !== 'undefined' || typeof AdController !== 'undefined') {
+                for (let i = 0; i < ADSGRAM_UNITS.length; i++) {
+                    try {
+                        const blockId = ADSGRAM_UNITS[i];
+                        const controller = window.Adsgram 
+                            ? window.Adsgram.init({ blockId: blockId, debug: false }) 
+                            : new AdController({ blockId: blockId });
+
+                        const result = await controller.show();
+                        if (result && (result.done || result.state === 'completed')) {
+                            adSuccess = true;
+                            await rewardUserPoints(20);
+                            return;
+                        }
+                    } catch (err) {
+                        console.warn(`Adsgram Block ${ADSGRAM_UNITS[i]} failed. Moving to next...`, err);
+                    }
+                }
+            }
+
+            // STEP 2: FALLBACK TO MONETAG SDK (Zone 11525199)
+            if (!adSuccess && typeof show_11525199 === 'function') {
+                try {
+                    const tgUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || "guest";
+                    await show_11525199({ ymid: String(tgUserId) });
+                    await rewardUserPoints(20);
+                    adSuccess = true;
+                    return;
+                } catch (mErr) {
+                    console.warn("Monetag Ad failed or skipped:", mErr);
+                }
+            }
+
+            if (!adSuccess) {
+                alert("এই মুহূর্তে কোনো অ্যাড খালি নেই। ১০-১৫ সেকেন্ড পর আবার চেষ্টা করুন।");
+            }
+        }
 
         async function showWaterfallAd() {
             if (!window.Telegram || !window.Telegram.WebApp || !window.Telegram.WebApp.initData) {
