@@ -904,51 +904,72 @@
         }
 
         // --- Ad System Scripts (Adsgram) ---
-        async function startAdSession() {
+        async function rewardUserPoints(pointsToAdd) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/add-points`, {
+                    method: 'POST', credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+                    body: JSON.stringify({ userId: userId, points: pointsToAdd })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    currentPoints = data.balance;
+                    document.getElementById('home-balance').innerText = `${currentPoints} Points`;
+                    document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
+                    tg.showAlert(`Ad watched successfully! +${pointsToAdd} Points added.`);
+                } else {
+                    tg.showAlert(data.error || "Failed to add points.");
+                }
+            } catch (e) {
+                tg.showAlert("Network error while adding points.");
+            }
+        }
+
+        function startAdSession() {
             const btn = document.getElementById('start-ad-btn');
             btn.disabled = true;
             btn.innerText = "Loading Ad...";
             
-            try {
-                if (window.Adsgram || typeof AdController !== 'undefined') {
-                    const AdControllerInstance = window.Adsgram ? window.Adsgram.init({ blockId: "41772" }) : new AdController({ blockId: "41772" });
-                    
-                    AdControllerInstance.show().then(async (result) => {
-                        try {
-                            const res = await fetch(`${API_BASE_URL}/api/add-points`, {
-                                method: 'POST', credentials: 'omit',
-                                headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                                body: JSON.stringify({ userId: userId, points: 20 })
-                            });
-                            const data = await res.json();
-                            if (data.success) {
-                                currentPoints = data.balance;
-                                document.getElementById('home-balance').innerText = `${currentPoints} Points`;
-                                document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
-                                tg.showAlert("Ad watched successfully! +20 Points added.");
-                            } else {
-                                tg.showAlert(data.error || "Failed to add points.");
-                            }
-                        } catch (e) {
-                            tg.showAlert("Network error while adding points.");
-                        }
-                    }).catch((error) => {
-                        console.log("Ad error or skipped:", error);
-                        tg.showAlert("Ad was skipped or failed to load.");
-                    }).finally(() => {
-                        btn.disabled = false;
-                        btn.innerText = "Watch Ad (+20 Pts)";
-                    });
-                } else {
-                    tg.showAlert("Adsgram SDK is still loading or blocked. Please try again in a few seconds.");
+            if (window.Adsgram) {
+                const AdController = window.Adsgram.init({ blockId: "41772" });
+                AdController.show().then((result) => {
+                    rewardUserPoints(20);
+                }).catch((result) => {
+                    console.log("Ad closed or error:", result);
+                    tg.showAlert("Ad was skipped or failed to load.");
+                }).finally(() => {
                     btn.disabled = false;
                     btn.innerText = "Watch Ad (+20 Pts)";
-                }
-            } catch (err) {
-                console.error("Ad error:", err);
-                tg.showAlert("An error occurred starting the ad.");
-                btn.disabled = false;
-                btn.innerText = "Watch Ad (+20 Pts)";
+                });
+            } else if (typeof AdController !== 'undefined') {
+                const AdControllerInstance = new AdController({ blockId: "41772" });
+                AdControllerInstance.show().then((result) => {
+                    rewardUserPoints(20);
+                }).catch((result) => {
+                    console.log("Ad error:", result);
+                    tg.showAlert("Ad was skipped or failed to load.");
+                }).finally(() => {
+                    btn.disabled = false;
+                    btn.innerText = "Watch Ad (+20 Pts)";
+                });
+            } else {
+                // Dynamically append script if missing and retry
+                let script = document.createElement('script');
+                script.src = "https://sad.adsgram.ai/js/sad-bign.js";
+                script.onload = () => {
+                    setTimeout(() => {
+                        // After loading, unlock the button and call again, or just call directly.
+                        btn.disabled = false;
+                        btn.innerText = "Watch Ad (+20 Pts)";
+                        startAdSession(); 
+                    }, 500);
+                };
+                script.onerror = () => {
+                    alert("Adsgram failed to load. Please check your internet connection or ad-blocker.");
+                    btn.disabled = false;
+                    btn.innerText = "Watch Ad (+20 Pts)";
+                };
+                document.head.appendChild(script);
             }
         }
 
