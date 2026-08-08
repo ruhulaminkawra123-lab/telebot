@@ -718,9 +718,9 @@
                     const wdInput = document.getElementById('withdraw-amount');
                     if (wdInput) {
                         if (window.successfulWithdrawalsCount === 0) {
-                            wdInput.placeholder = "Minimum 10000 Points";
+                            wdInput.placeholder = "Minimum 10,000 Points (100 BDT)";
                         } else {
-                            wdInput.placeholder = "Minimum 2000 Points (20 TK)";
+                            wdInput.placeholder = "Minimum 2,000 Points (20 BDT)";
                         }
                     }
                     
@@ -1026,7 +1026,7 @@
                     if (!adShown) {
                         // Fallback attempt: Monetag
                         if (typeof show_3439952 === 'function') {
-                            show_3439952({ ymid: userId }).then(() => { rewardUser(20); hidePremiumModal(); }).catch((e) => { alert("No ad available!"); hidePremiumModal(); });
+                            show_3439952({ ymid: userId }).then(() => { rewardUser(20); hidePremiumModal(); }).catch(() => { alert("এই মুহূর্তে কোনো অ্যাড খালি নেই।"); hidePremiumModal(); });
                         } else {
                             alert("এই মুহূর্তে কোনো অ্যাড খালি নেই (No Fill)। ১৫-২০ সেকেন্ড পর আবার চেষ্টা করুন।");
                             hidePremiumModal();
