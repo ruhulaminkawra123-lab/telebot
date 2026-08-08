@@ -393,7 +393,7 @@
             
 
             
-            <button class="btn btn-primary" id="start-ad-btn" onclick="startAdSession()">Watch Ad (+20 Pts)</button>
+            <button class="btn btn-primary" id="start-ad-btn" onclick="showAd()">Watch Ad (+20 Pts)</button>
             
             
             <div style="margin-top: 20px; font-size: 14px; color: var(--text-muted);">
@@ -904,7 +904,7 @@
         }
 
         // --- Ad System Scripts (Adsgram) ---
-        async function rewardUserPoints(pointsToAdd) {
+        async function addPointsToUser(pointsToAdd) {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/add-points`, {
                     method: 'POST', credentials: 'omit',
@@ -925,51 +925,43 @@
             }
         }
 
-        function startAdSession() {
+        async function showAd() {
             const btn = document.getElementById('start-ad-btn');
             btn.disabled = true;
             btn.innerText = "Loading Ad...";
-            
-            if (window.Adsgram) {
-                const AdController = window.Adsgram.init({ blockId: "41772" });
-                AdController.show().then((result) => {
-                    rewardUserPoints(20);
-                }).catch((result) => {
-                    console.log("Ad closed or error:", result);
-                    tg.showAlert("Ad was skipped or failed to load.");
-                }).finally(() => {
-                    btn.disabled = false;
-                    btn.innerText = "Watch Ad (+20 Pts)";
-                });
-            } else if (typeof AdController !== 'undefined') {
-                const AdControllerInstance = new AdController({ blockId: "41772" });
-                AdControllerInstance.show().then((result) => {
-                    rewardUserPoints(20);
-                }).catch((result) => {
-                    console.log("Ad error:", result);
-                    tg.showAlert("Ad was skipped or failed to load.");
-                }).finally(() => {
-                    btn.disabled = false;
-                    btn.innerText = "Watch Ad (+20 Pts)";
-                });
-            } else {
-                // Dynamically append script if missing and retry
-                let script = document.createElement('script');
-                script.src = "https://sad.adsgram.ai/js/sad-bign.js";
-                script.onload = () => {
-                    setTimeout(() => {
-                        // After loading, unlock the button and call again, or just call directly.
-                        btn.disabled = false;
-                        btn.innerText = "Watch Ad (+20 Pts)";
-                        startAdSession(); 
-                    }, 500);
-                };
-                script.onerror = () => {
-                    alert("Adsgram failed to load. Please check your internet connection or ad-blocker.");
-                    btn.disabled = false;
-                    btn.innerText = "Watch Ad (+20 Pts)";
-                };
-                document.head.appendChild(script);
+
+            // Ensure Telegram WebApp is ready
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.ready();
+            }
+
+            if (typeof AdController === 'undefined' && !window.Adsgram) {
+                alert("অ্যাড সার্ভিসটি লোড হচ্ছে, অনুগ্রহ করে ৩ সেকেন্ড পর আবার চেষ্টা করুন।");
+                btn.disabled = false;
+                btn.innerText = "Watch Ad (+20 Pts)";
+                return;
+            }
+
+            try {
+                // Fresh controller instance per click using Adsgram Unit 39112
+                const adController = window.Adsgram 
+                    ? window.Adsgram.init({ blockId: "39112", debug: false }) 
+                    : new AdController({ blockId: "39112" });
+
+                const result = await adController.show();
+                
+                // Ad watched successfully -> Award 20 points
+                if (result && (result.done || result.state === 'completed' || result === undefined)) {
+                    await addPointsToUser(20);
+                } else {
+                    alert("অ্যাডটি সম্পূর্ণ দেখা হয়নি!");
+                }
+            } catch (error) {
+                console.error("Adsgram Error:", error);
+                alert("এই মুহূর্তে কোনো অ্যাড খালি নেই বা লোড হতে সমস্যা হয়েছে। কিছুক্ষণ পর চেষ্টা করুন।");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Watch Ad (+20 Pts)";
             }
         }
 
