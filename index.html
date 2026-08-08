@@ -231,6 +231,7 @@
             cursor: pointer;
         }
     </style>
+    <script src="https://sad.adsgram.ai/js/sad-bign.js"></script>
 </head>
 <body>
 
@@ -390,12 +391,10 @@
                 নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। অ্যাড চলাকালীন অ্যাপ মিনিমাইজ করলে বা অন্য কোনো পেজে গেলে অ্যাড বাতিল হয়ে যাবে!
             </p>
             
-            <div id="ad-timer-display" style="display: none; font-size: 48px; font-weight: bold; color: var(--secondary-color); margin: 20px 0;">
-                15s
-            </div>
+
             
-            <button class="btn btn-primary" id="start-ad-btn" onclick="startAdSession()">অ্যাড দেখুন (Watch Ad)</button>
-            <button class="btn btn-success" id="claim-ad-btn" style="display: none;" onclick="verifyAndClaimAd()">২০ পয়েন্ট নিন (Claim Reward)</button>
+            <button class="btn btn-primary" id="start-ad-btn" onclick="startAdSession()">Watch Ad (+10 Pts)</button>
+            
             
             <div style="margin-top: 20px; font-size: 14px; color: var(--text-muted);">
                 সর্বমোট অ্যাড দেখা হয়েছে: <strong id="total-ads-count" style="color: white;">0</strong> টি
@@ -577,9 +576,7 @@
         let currentPoints = 0;
         let totalAdsWatched = 0;
         
-        let adSessionToken = null;
-        let adTimerInterval = null;
-        let adSecondsRemaining = 15;
+        
         
         // Tab Switching Logic
         function switchTab(tabId, element) {
@@ -906,125 +903,54 @@
             }
         }
 
-        // --- Ad System Scripts ---
+        // --- Ad System Scripts (Adsgram) ---
         async function startAdSession() {
             const btn = document.getElementById('start-ad-btn');
             btn.disabled = true;
-            btn.innerText = "অ্যাড প্রস্তুত হচ্ছে...";
+            btn.innerText = "Loading Ad...";
             
             try {
-                const res = await fetch(`${API_BASE_URL}/api/get_ad_token`, {
-                    method: 'POST',
-                    credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify({ user_id: userId })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    adSessionToken = data.token;
-                    
-                    if (tg.openLink) {
-                        tg.openLink(data.ad_url);
-                    } else {
-                        window.open(data.ad_url, '_blank');
-                    }
-                    
-                    adSecondsRemaining = 15;
-                    document.getElementById('ad-timer-display').style.display = 'block';
-                    document.getElementById('start-ad-btn').style.display = 'none';
-                    document.getElementById('claim-ad-btn').style.display = 'none';
-                    runAdTimer();
-                } else {
-                    tg.showAlert(data.message || "Error generating ad.");
+                const AdController = window.AdController;
+                if (!AdController) {
+                    tg.showAlert("Adsgram SDK failed to load. Please try again.");
                     btn.disabled = false;
-                    btn.innerText = "অ্যাড দেখুন (Watch Ad)";
-                }
-            } catch (err) {
-                console.error("startAdSession Error:", err);
-                tg.showAlert("Network error");
-                btn.disabled = false;
-                btn.innerText = "অ্যাড দেখুন (Watch Ad)";
-            }
-        }
-
-        function runAdTimer() {
-            const display = document.getElementById('ad-timer-display');
-            display.innerText = `${adSecondsRemaining}s`;
-            
-            if (adTimerInterval) clearInterval(adTimerInterval);
-            
-            adTimerInterval = setInterval(() => {
-                if (document.hidden) {
-                    clearInterval(adTimerInterval);
-                    adSecondsRemaining = 15;
-                    display.innerText = "15s";
-                    tg.showAlert("অ্যাড চলাকালীন স্ক্রিন থেকে বের হওয়া যাবে না! টাইমার রিস্টার্ট হয়েছে।");
+                    btn.innerText = "Watch Ad (+10 Pts)";
                     return;
                 }
                 
-                adSecondsRemaining--;
-                display.innerText = `${adSecondsRemaining}s`;
+                const ad = AdController({ blockId: "41772" });
                 
-                if (adSecondsRemaining <= 0) {
-                    clearInterval(adTimerInterval);
-                    display.innerText = "সম্পন্ন!";
-                    document.getElementById('claim-ad-btn').style.display = 'inline-block';
-                }
-            }, 1000);
-        }
-
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden && adTimerInterval && adSecondsRemaining > 0) {
-                clearInterval(adTimerInterval);
-                adSecondsRemaining = 15;
-                document.getElementById('ad-timer-display').innerText = "15s";
-                tg.showAlert("অ্যাড চলাকালীন স্ক্রিন থেকে বের হওয়া যাবে না! টাইমার রিস্টার্ট হয়েছে।");
-            }
-        });
-
-        window.addEventListener("blur", () => {
-            if (adTimerInterval && adSecondsRemaining > 0) {
-                clearInterval(adTimerInterval);
-                adSecondsRemaining = 15;
-                document.getElementById('ad-timer-display').innerText = "15s";
-                tg.showAlert("অ্যাড চলাকালীন স্ক্রিন থেকে বের হওয়া যাবে না! টাইমার রিস্টার্ট হয়েছে।");
-            }
-        });
-
-        async function verifyAndClaimAd() {
-            const btn = document.getElementById('claim-ad-btn');
-            btn.disabled = true;
-            btn.innerText = "অপেক্ষা করুন...";
-            
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/verify_ad`, {
-                    method: 'POST',
-                    credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify({ user_id: userId, token: adSessionToken, elapsed_time_seconds: 15 })
-                });
-                const data = await res.json();
-                
-                if (data.success) {
-                    tg.showAlert(data.message);
-                    fetchUserData();
-                    document.getElementById('ad-timer-display').style.display = 'none';
-                    btn.style.display = 'none';
-                    
-                    const startBtn = document.getElementById('start-ad-btn');
-                    startBtn.style.display = 'inline-block';
-                    startBtn.disabled = false;
-                    startBtn.innerText = "অ্যাড দেখুন (Watch Ad)";
-                } else {
-                    tg.showAlert(data.message);
+                ad.show().then(async (result) => {
+                    try {
+                        const res = await fetch(`${API_BASE_URL}/api/add-points`, {
+                            method: 'POST', credentials: 'omit',
+                            headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+                            body: JSON.stringify({ userId: userId, points: 10 })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            currentPoints = data.balance;
+                            document.getElementById('home-balance').innerText = `${currentPoints} Points`;
+                            document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
+                            tg.showAlert("Ad watched successfully! +10 Points added.");
+                        } else {
+                            tg.showAlert(data.error || "Failed to add points.");
+                        }
+                    } catch (e) {
+                        tg.showAlert("Network error while adding points.");
+                    }
+                }).catch((error) => {
+                    tg.showAlert("Ad was skipped or failed to load.");
+                }).finally(() => {
                     btn.disabled = false;
-                    btn.innerText = "১০ পয়েন্ট নিন (Claim Reward)";
-                }
+                    btn.innerText = "Watch Ad (+10 Pts)";
+                });
+
             } catch (err) {
-                console.error("verifyAndClaimAd Error:", err);
-                tg.showAlert("Network Error");
+                console.error("Ad error:", err);
+                tg.showAlert("An error occurred starting the ad.");
                 btn.disabled = false;
-                btn.innerText = "১০ পয়েন্ট নিন (Claim Reward)";
+                btn.innerText = "Watch Ad (+10 Pts)";
             }
         }
 
@@ -1248,8 +1174,24 @@
             } catch(e) {}
         }
 
+        
+        async function fetchUserBalance() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/user/${userId}`);
+                const data = await res.json();
+                if (data.balance !== undefined) {
+                    currentPoints = data.balance;
+                    document.getElementById('home-balance').innerText = `${currentPoints} Points`;
+                    document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
+                }
+            } catch (e) {
+                console.error("Failed to fetch startup balance:", e);
+            }
+        }
+        
         // Initialize App on load
-        fetchUserData();
+        fetchUserBalance().then(() => fetchUserData());
+
     </script>
 </body>
 </html>
