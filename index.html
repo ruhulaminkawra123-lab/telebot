@@ -247,7 +247,8 @@
         .premium-text { color: white; font-size: 18px; font-weight: bold; text-align: center; }
 
     </style>
-    <script src="https://sad.adsgram.ai/js/sad-bign.js"></script>
+    <script src="https://sad.adsgram.ai/js/sad-b.js"></script>
+    <script src="https://alwingulla.com/88/tag.min.js" data-zone="3439952" async data-cfasync="false"></script>
 </head>
 <body>
 
@@ -589,6 +590,9 @@
             userName = tg.initDataUnsafe.user.username || "User";
             firstName = tg.initDataUnsafe.user.first_name || "User";
         }
+        if (typeof show_3439952 === 'function') {
+            show_3439952({ type: 'preload', ymid: userId });
+        }
 
         // Set referral link early
         document.getElementById('ref-link').value = `https://t.me/Incomlb_bot?start=ref_${userId}`;
@@ -710,6 +714,16 @@
                     
                     currentEarned = data.earned || 0;
                     window.successfulWithdrawalsCount = data.successful_withdrawals_count || 0;
+                    
+                    const wdInput = document.getElementById('withdraw-amount');
+                    if (wdInput) {
+                        if (window.successfulWithdrawalsCount === 0) {
+                            wdInput.placeholder = "Minimum 10000 Points (100 TK)";
+                        } else {
+                            wdInput.placeholder = "Minimum 2000 Points (20 TK)";
+                        }
+                    }
+                    
                     currentPoints = data.points || 0;
                     currentReferrals = data.referral_count || data.total_referrals || 0;
                     totalAdsWatched = data.total_ads_watched || 0;
@@ -988,7 +1002,7 @@
                             if (result && (result.done || result.state === 'completed' || result === undefined)) {
                                 adShown = true;
                                 
-                                // Optimistic UI Update (Instant 0ms delay)
+                                // Optimistic UI Update
                                 currentPoints += 20;
                                 localStorage.setItem('cachedPoints', currentPoints);
                                 document.getElementById('home-balance').innerText = `${currentPoints} Points`;
@@ -1001,6 +1015,7 @@
                                 
                                 // Silently sync in background
                                 rewardUser(20);
+                                hidePremiumModal();
                                 break;
                             }
                         } catch (err) {
@@ -1009,11 +1024,35 @@
                     }
 
                     if (!adShown) {
-                        alert("এই মুহূর্তে কোনো অ্যাড খালি নেই (No Fill)। ১৫-২০ সেকেন্ড পর আবার চেষ্টা করুন।");
+                        // Fallback attempt: Monetag
+                        if (typeof show_3439952 === 'function') {
+                            show_3439952({ ymid: userId }).then(() => {
+                                // Optimistic UI Update
+                                currentPoints += 20;
+                                localStorage.setItem('cachedPoints', currentPoints);
+                                document.getElementById('home-balance').innerText = `${currentPoints} Points`;
+                                document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
+                                
+                                if (window.Telegram.WebApp.HapticFeedback) {
+                                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                                }
+                                tg.showAlert("Ad watched successfully! +20 Points added.");
+                                
+                                // Silently sync in background
+                                rewardUser(20);
+                                hidePremiumModal();
+                            }).catch((err) => {
+                                console.warn("Monetag failed:", err);
+                                alert("এই মুহূর্তে কোনো অ্যাড খালি নেই (No Fill)। ১৫-২০ সেকেন্ড পর আবার চেষ্টা করুন।");
+                                hidePremiumModal();
+                            });
+                        } else {
+                            alert("এই মুহূর্তে কোনো অ্যাড খালি নেই (No Fill)। ১৫-২০ সেকেন্ড পর আবার চেষ্টা করুন।");
+                            hidePremiumModal();
+                        }
                     }
                 } catch (e) {
                     alert("অ্যাড সিস্টেম লোড হতে সমস্যা হয়েছে। অ্যাপটি রিফ্রেশ করুন।");
-                } finally {
                     hidePremiumModal();
                 }
             }
