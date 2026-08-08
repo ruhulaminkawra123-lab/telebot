@@ -414,6 +414,9 @@
             
             <button class="btn btn-primary" id="start-ad-btn" onclick="playHybridAd()">Watch Ad (+20 Pts)</button>
             
+            <div style="margin-top: 20px; padding: 12px; background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; border-radius: 6px; color: #cbd5e1; font-size: 14px; text-align: left;">
+                💡 টিপস: ১৫ সেকেন্ডের অ্যাড দেখা শেষে "Continue" বাটনে ক্লিক করলে এবং বোনাস অফারগুলো চেক করলে আপনার ওয়ালেট দ্রুত আপডেট হবে!
+            </div>
             
             <div style="margin-top: 20px; font-size: 14px; color: var(--text-muted);">
                 সর্বমোট অ্যাড দেখা হয়েছে: <strong id="total-ads-count" style="color: white;">0</strong> টি
@@ -724,7 +727,7 @@
                         if (window.successfulWithdrawalsCount === 0) {
                             wdInput.placeholder = "সর্বনিম্ন ১০,০০০ পয়েন্ট (১০০ টাকা)";
                             if (wdNotice) {
-                                wdNotice.innerText = "⚠️ নোট: প্রথমবার উইথড্র করার জন্য সর্বনিম্ন ১০০ টাকা (১০,০০০ পয়েন্ট) প্রয়োজন। প্রথম সফল উইথড্রয়ের পর থেকে মাত্র ২০ টাকা (২,০০০ পয়েন্ট) হলেই আপনি উইথড্র করতে পারবেন।";
+                                wdNotice.innerText = "⚠️ নোট: প্রথমবার উইথড্র করার জন্য সর্বনিম্ন ১০০ টাকা (১০,০০০ পয়েন্ট) প্রয়োজন। প্রথম সফল উইথড্রয়ের পর থেকে মাত্র ২০ টাকা (২,০০০ পয়েন্ট) হলেই আপনি পেমেন্ট নিতে পারবেন।";
                                 wdNotice.style.display = "block";
                             }
                         } else {
@@ -1047,7 +1050,7 @@
                     adSuccess = true;
                     return;
                 } catch (mErr) {
-                    console.log('Ad skipped or exited early - No points awarded.');
+                    console.log('Ad closed early before timer completion:', mErr);
                 }
             }
 
