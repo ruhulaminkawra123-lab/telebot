@@ -727,6 +727,10 @@
                     }
                     
                     currentPoints = data.points || 0;
+                    localStorage.setItem('user_balance', currentPoints);
+                    document.getElementById('home-balance').innerText = `${currentPoints} Points`;
+                    document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
+                    
                     currentReferrals = data.referral_count || data.total_referrals || 0;
                     totalAdsWatched = data.total_ads_watched || 0;
                     
@@ -956,16 +960,22 @@
         async function rewardUserPoints(pointsToAdd) {
             try {
                 currentPoints += pointsToAdd;
-                localStorage.setItem('cachedPoints', currentPoints);
                 document.getElementById('home-balance').innerText = `${currentPoints} Points`;
                 document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
                 tg.showAlert(`Ad watched successfully! +${pointsToAdd} Points added.`);
                 hidePremiumModal();
-                fetch(`${API_BASE_URL}/api/add-points`, {
+                const res = await fetch(`${API_BASE_URL}/api/add-points`, {
                     method: 'POST', credentials: 'omit',
                     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify({ userId: userId, points: pointsToAdd })
-                }).catch(e => console.error(e));
+                });
+                const data = await res.json();
+                if (data && data.new_balance !== undefined) {
+                    currentPoints = data.new_balance;
+                    localStorage.setItem('user_balance', currentPoints);
+                    document.getElementById('home-balance').innerText = `${currentPoints} Points`;
+                    document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
+                }
             } catch (e) {
                 console.error(e);
             }
@@ -1328,24 +1338,11 @@
 
         
         async function fetchUserBalance() {
-            // Instant render from cache
-            const cached = localStorage.getItem('cachedPoints');
+            const cached = localStorage.getItem('user_balance');
             if (cached !== null) {
                 currentPoints = parseInt(cached);
                 document.getElementById('home-balance').innerText = `${currentPoints} Points`;
                 document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
-            }
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/user/${userId}`);
-                const data = await res.json();
-                if (data.balance !== undefined) {
-                    currentPoints = data.balance;
-                    localStorage.setItem('cachedPoints', currentPoints);
-                    document.getElementById('home-balance').innerText = `${currentPoints} Points`;
-                    document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
-                }
-            } catch (e) {
-                console.error("Failed to fetch startup balance:", e);
             }
         }
         
