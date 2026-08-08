@@ -291,7 +291,7 @@
             </div>
             <div class="stat-item">
                 <h4>অ্যাড দেখা হয়েছে</h4>
-                <p>0</p>
+                <p id="home-ads">0</p>
             </div>
             <div class="stat-item">
                 <h4>বোনাস পয়েন্ট / Bonus Points</h4>
@@ -454,6 +454,9 @@
             <div class="input-group">
                 <label>পরিমাণ (Points)</label>
                 <input type="number" id="withdraw-amount" placeholder="Minimum 2000 Points">
+            </div>
+            <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; border-radius: 6px; color: #f87171; font-size: 13px; text-align: left;">
+                💳 উইথড্র ফি নোটিশ: প্রতিটি সফল উইথড্র রিকোয়েস্টে ৫০০ পয়েন্ট (৫ টাকা) সার্ভিস ও প্রসেসিং ফি হিসেবে কাটা হবে।
             </div>
             <button class="btn btn-success" onclick="attemptWithdrawForm()">রিকোয়েস্ট পাঠান</button>
             <div id="withdrawal-notice" style="margin-top: 10px; font-size: 13px; color: var(--danger-color); display: none;"></div>
@@ -727,7 +730,7 @@
                         if (window.successfulWithdrawalsCount === 0) {
                             wdInput.placeholder = "সর্বনিম্ন ১০,০০০ পয়েন্ট (১০০ টাকা)";
                             if (wdNotice) {
-                                wdNotice.innerText = "⚠️ নোট: প্রথমবার উইথড্র করার জন্য সর্বনিম্ন ১০০ টাকা (১০,০০০ পয়েন্ট) প্রয়োজন। প্রথম সফল উইথড্রয়ের পর থেকে মাত্র ২০ টাকা (২,০০০ পয়েন্ট) হলেই আপনি পেমেন্ট নিতে পারবেন।";
+                                wdNotice.innerText = "⚠️ নোট: প্রথমবার উইথড্র করার জন্য সর্বনিম্ন ১০০ টাকা (১০,০০০ পয়েন্ট) প্রয়োজন। পরবর্তী যেকোনো উইথড্র মাত্র ২০ টাকা (২,০০০ পয়েন্ট) হলেই করতে পারবেন।";
                                 wdNotice.style.display = "block";
                             }
                         } else {
@@ -748,6 +751,8 @@
                     localStorage.setItem('ads_watched', totalAdsWatched);
                     const adsCountEl = document.getElementById('total-ads-count');
                     if (adsCountEl) adsCountEl.innerText = totalAdsWatched;
+                    const homeAdsEl = document.getElementById('home-ads');
+                    if (homeAdsEl) homeAdsEl.innerText = totalAdsWatched;
                     
                     if (data.last_checkin_date) {
                         const today = new Date().toISOString().split('T')[0];
@@ -770,6 +775,8 @@
                     document.getElementById('home-refs').innerText = currentReferrals;
                     document.getElementById('ref-total-count').innerText = currentReferrals;
                     document.getElementById('total-ads-count').innerText = totalAdsWatched;
+                    const homeAdsEl2 = document.getElementById('home-ads');
+                    if (homeAdsEl2) homeAdsEl2.innerText = totalAdsWatched;
                     
                     // Update Task Status
                     let totalTasksCompleted = 0;
@@ -996,6 +1003,8 @@
                     localStorage.setItem('ads_watched', totalAdsWatched);
                     const adsCountEl = document.getElementById('total-ads-count');
                     if (adsCountEl) adsCountEl.innerText = totalAdsWatched;
+                    const homeAdsEl = document.getElementById('home-ads');
+                    if (homeAdsEl) homeAdsEl.innerText = totalAdsWatched;
                 }
             } catch (e) {
                 console.error(e);
@@ -1364,6 +1373,14 @@
                 currentPoints = parseInt(cached);
                 document.getElementById('home-balance').innerText = `${currentPoints} Points`;
                 document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
+            }
+            const cachedAds = localStorage.getItem('ads_watched');
+            if (cachedAds !== null) {
+                totalAdsWatched = parseInt(cachedAds);
+                const homeAdsEl = document.getElementById('home-ads');
+                if (homeAdsEl) homeAdsEl.innerText = totalAdsWatched;
+                const totalAdsCountEl = document.getElementById('total-ads-count');
+                if (totalAdsCountEl) totalAdsCountEl.innerText = totalAdsWatched;
             }
         }
         
