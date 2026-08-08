@@ -230,6 +230,22 @@
             font-weight: bold;
             cursor: pointer;
         }
+    
+        .premium-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .premium-modal.active { opacity: 1; pointer-events: auto; }
+        .premium-spinner {
+            width: 50px; height: 50px; border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: var(--primary-color); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .premium-text { color: white; font-size: 18px; font-weight: bold; text-align: center; }
+
     </style>
     <script src="https://sad.adsgram.ai/js/sad-bign.js"></script>
 </head>
@@ -393,7 +409,7 @@
             
 
             
-            <button class="btn btn-primary" id="start-ad-btn" onclick="triggerAdsgramAd()">Watch Ad (+20 Pts)</button>
+            <button class="btn btn-primary" id="start-ad-btn" onclick="showWaterfallAd()">Watch Ad (+20 Pts)</button>
             
             
             <div style="margin-top: 20px; font-size: 14px; color: var(--text-muted);">
@@ -411,8 +427,8 @@
         
         <div class="balance-card" style="padding: 20px;">
             <h3>মোট ব্যালেন্স</h3>
-            <h1 id="wallet-balance">TK 0.00</h1>
-            <p style="font-size: 13px; margin-top: 10px; color: #fca5a5; font-weight: bold;">💡 কনভার্সন রেট: ১,০০০ Points = ১০ টাকা (BDT)</p>
+            <h1 id="wallet-balance">0 Points</h1>
+            <p style="font-size: 13px; margin-top: 10px; color: #fca5a5; font-weight: bold;">১,০০০ Points = ১০ টাকা (BDT)</p>
         </div>
 
         <div class="card">
@@ -546,6 +562,13 @@
         </div>
     </div>
 
+    
+    <!-- Premium Ad Loading Modal -->
+    <div class="premium-modal" id="premium-ad-modal">
+        <div class="premium-spinner"></div>
+        <div class="premium-text" id="premium-ad-text">Preparing Premium Ad...</div>
+    </div>
+
     <script>
         const API_BASE_URL = window.location.hostname.includes('vercel.app') ? 'https://income-lab-bot.onrender.com' : '';
         // Telegram WebApp Initialization
@@ -574,6 +597,7 @@
         let currentReferrals = 0;
         let currentEarned = 0;
         let currentPoints = 0;
+        window.successfulWithdrawalsCount = 0;
         let totalAdsWatched = 0;
         
         
@@ -685,6 +709,7 @@
                     }
                     
                     currentEarned = data.earned || 0;
+                    window.successfulWithdrawalsCount = data.successful_withdrawals_count || 0;
                     currentPoints = data.points || 0;
                     currentReferrals = data.referral_count || data.total_referrals || 0;
                     totalAdsWatched = data.total_ads_watched || 0;
@@ -866,8 +891,16 @@
                 return;
             }
             
-            if (amount < 2000 || amount > currentPoints) {
-                tg.showAlert("⚠️ আপনার ব্যালেন্স অপর্যাপ্ত! সর্বনিম্ন উইথড্র পরিমাণ ২০০০ পয়েন্ট এবং ব্যালেন্সের বেশি দেয়া যাবে না।");
+            if (window.successfulWithdrawalsCount === 0 && amount < 10000) {
+                tg.showAlert("প্রথম উইথড্রয়ালের জন্য সর্বনিম্ন ১০,০০০ পয়েন্ট (১০০ টাকা) প্রয়োজন।");
+                return;
+            }
+            if (window.successfulWithdrawalsCount > 0 && amount < 2000) {
+                tg.showAlert("সর্বনিম্ন ২,০০০ পয়েন্ট (২০ টাকা) প্রয়োজন।");
+                return;
+            }
+            if (amount > currentPoints) {
+                tg.showAlert("আপনার ব্যালেন্স অপর্যাপ্ত!");
                 return;
             }
 
@@ -904,71 +937,96 @@
         }
 
         // --- Ad System Scripts (Adsgram) ---
-        async function rewardUserPoints(pointsToAdd) {
+        async function rewardUser(pointsToAdd) {
             try {
-                const res = await fetch(`${API_BASE_URL}/api/add-points`, {
+                fetch(`${API_BASE_URL}/api/add-points`, {
                     method: 'POST', credentials: 'omit',
                     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
                     body: JSON.stringify({ userId: userId, points: pointsToAdd })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    currentPoints = data.balance;
-                    document.getElementById('home-balance').innerText = `${currentPoints} Points`;
-                    document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
-                    tg.showAlert(`Ad watched successfully! +${pointsToAdd} Points added.`);
-                } else {
-                    tg.showAlert(data.error || "Failed to add points.");
-                }
+                }).catch(e => console.error(e));
             } catch (e) {
-                tg.showAlert("Network error while adding points.");
+                console.error(e);
             }
         }
 
-        async function triggerAdsgramAd() {
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.ready();
+        function showPremiumModal(text) {
+            document.getElementById('premium-ad-text').innerText = text;
+            document.getElementById('premium-ad-modal').classList.add('active');
+        }
+
+        function hidePremiumModal() {
+            document.getElementById('premium-ad-modal').classList.remove('active');
+        }
+
+        const ADSGRAM_UNITS = ["41772", "41786", "41787"];
+
+        async function showWaterfallAd() {
+            if (!window.Telegram || !window.Telegram.WebApp || !window.Telegram.WebApp.initData) {
+                alert("অনুগ্রহ করে টেলিগ্রাম অ্যাপের ভেতর থেকে মিনি অ্যাপটি চালু করুন!");
+                return;
             }
 
-            const btn = document.getElementById('start-ad-btn');
-            btn.disabled = true;
-            btn.innerText = "Loading Ad...";
+            window.Telegram.WebApp.ready();
+            if (window.Telegram.WebApp.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+            }
 
-            // Function to show ad once SDK is verified
-            function executeShow() {
+            showPremiumModal("Preparing Premium Ad...");
+
+            async function executeShow() {
                 try {
-                    const adController = window.Adsgram 
-                        ? window.Adsgram.init({ blockId: "41772", debug: false }) 
-                        : new AdController({ blockId: "41772" });
+                    let adShown = false;
+                    for (let i = 0; i < ADSGRAM_UNITS.length; i++) {
+                        const currentBlockId = ADSGRAM_UNITS[i];
+                        try {
+                            console.log(`Trying Adsgram Block ID: ${currentBlockId}`);
+                            const controller = window.Adsgram 
+                                ? window.Adsgram.init({ blockId: currentBlockId, debug: false }) 
+                                : new AdController({ blockId: currentBlockId });
 
-                    adController.show().then(async (result) => {
-                        // Call backend API to add 20 points
-                        await rewardUserPoints(20);
-                    }).catch((err) => {
-                        alert("অ্যাড সম্পূর্ণ হয়নি বা এই মুহূর্তে অ্যাড নেই। Error: " + JSON.stringify(err));
-                    }).finally(() => {
-                        btn.disabled = false;
-                        btn.innerText = "Watch Ad (+20 Pts)";
-                    });
+                            const result = await controller.show();
+                            if (result && (result.done || result.state === 'completed' || result === undefined)) {
+                                adShown = true;
+                                
+                                // Optimistic UI Update (Instant 0ms delay)
+                                currentPoints += 20;
+                                localStorage.setItem('cachedPoints', currentPoints);
+                                document.getElementById('home-balance').innerText = `${currentPoints} Points`;
+                                document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
+                                
+                                if (window.Telegram.WebApp.HapticFeedback) {
+                                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                                }
+                                tg.showAlert("Ad watched successfully! +20 Points added.");
+                                
+                                // Silently sync in background
+                                rewardUser(20);
+                                break;
+                            }
+                        } catch (err) {
+                            console.warn(`Block ID ${currentBlockId} failed or no fill. Error:`, err);
+                        }
+                    }
+
+                    if (!adShown) {
+                        alert("এই মুহূর্তে কোনো অ্যাড খালি নেই (No Fill)। ১৫-২০ সেকেন্ড পর আবার চেষ্টা করুন।");
+                    }
                 } catch (e) {
-                    alert("Adsgram সূচনা করতে সমস্যা হয়েছে: " + e.message);
-                    btn.disabled = false;
-                    btn.innerText = "Watch Ad (+20 Pts)";
+                    alert("অ্যাড সিস্টেম লোড হতে সমস্যা হয়েছে। অ্যাপটি রিফ্রেশ করুন।");
+                } finally {
+                    hidePremiumModal();
                 }
             }
 
-            // If SDK is present, run immediately
             if (window.Adsgram || typeof AdController !== 'undefined') {
                 executeShow();
             } else {
-                // Dynamically append script and run immediately on load
                 let script = document.createElement('script');
                 script.src = "https://sad.adsgram.ai/js/sad-bign.js";
                 script.onload = () => executeShow();
                 script.onerror = () => {
-                    alert("Adsgram SDK লোড করতে ব্যর্থ হয়েছে। ইন্টারনেট বা প্রক্সি চেক করুন।");
-                    btn.disabled = false;
-                    btn.innerText = "Watch Ad (+20 Pts)";
+                    alert("Adsgram SDK লোড হতে ব্যর্থ হয়েছে। ২ সেকেন্ড পর চেষ্টা করুন।");
+                    hidePremiumModal();
                 };
                 document.head.appendChild(script);
             }
@@ -1196,11 +1254,19 @@
 
         
         async function fetchUserBalance() {
+            // Instant render from cache
+            const cached = localStorage.getItem('cachedPoints');
+            if (cached !== null) {
+                currentPoints = parseInt(cached);
+                document.getElementById('home-balance').innerText = `${currentPoints} Points`;
+                document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
+            }
             try {
                 const res = await fetch(`${API_BASE_URL}/api/user/${userId}`);
                 const data = await res.json();
                 if (data.balance !== undefined) {
                     currentPoints = data.balance;
+                    localStorage.setItem('cachedPoints', currentPoints);
                     document.getElementById('home-balance').innerText = `${currentPoints} Points`;
                     document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
                 }
