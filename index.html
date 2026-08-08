@@ -718,7 +718,7 @@
                     const wdInput = document.getElementById('withdraw-amount');
                     if (wdInput) {
                         if (window.successfulWithdrawalsCount === 0) {
-                            wdInput.placeholder = "Minimum 10000 Points (100 TK)";
+                            wdInput.placeholder = "Minimum 10000 Points";
                         } else {
                             wdInput.placeholder = "Minimum 2000 Points (20 TK)";
                         }
@@ -1026,26 +1026,7 @@
                     if (!adShown) {
                         // Fallback attempt: Monetag
                         if (typeof show_3439952 === 'function') {
-                            show_3439952({ ymid: userId }).then(() => {
-                                // Optimistic UI Update
-                                currentPoints += 20;
-                                localStorage.setItem('cachedPoints', currentPoints);
-                                document.getElementById('home-balance').innerText = `${currentPoints} Points`;
-                                document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
-                                
-                                if (window.Telegram.WebApp.HapticFeedback) {
-                                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                                }
-                                tg.showAlert("Ad watched successfully! +20 Points added.");
-                                
-                                // Silently sync in background
-                                rewardUser(20);
-                                hidePremiumModal();
-                            }).catch((err) => {
-                                console.warn("Monetag failed:", err);
-                                alert("এই মুহূর্তে কোনো অ্যাড খালি নেই (No Fill)। ১৫-২০ সেকেন্ড পর আবার চেষ্টা করুন।");
-                                hidePremiumModal();
-                            });
+                            show_3439952({ ymid: userId }).then(() => { rewardUser(20); hidePremiumModal(); }).catch((e) => { alert("No ad available!"); hidePremiumModal(); });
                         } else {
                             alert("এই মুহূর্তে কোনো অ্যাড খালি নেই (No Fill)। ১৫-২০ সেকেন্ড পর আবার চেষ্টা করুন।");
                             hidePremiumModal();
