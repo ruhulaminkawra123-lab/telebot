@@ -453,6 +453,7 @@
                 <input type="number" id="withdraw-amount" placeholder="Minimum 2000 Points">
             </div>
             <button class="btn btn-success" onclick="attemptWithdrawForm()">রিকোয়েস্ট পাঠান</button>
+            <div id="withdrawal-notice" style="margin-top: 10px; font-size: 13px; color: var(--danger-color); display: none;"></div>
         </div>
         
         <div class="card">
@@ -718,11 +719,19 @@
                     window.successfulWithdrawalsCount = data.successful_withdrawals_count || 0;
                     
                     const wdInput = document.getElementById('withdraw-amount');
+                    const wdNotice = document.getElementById('withdrawal-notice');
                     if (wdInput) {
                         if (window.successfulWithdrawalsCount === 0) {
-                            wdInput.placeholder = "Minimum 10,000 Points (100 BDT)";
+                            wdInput.placeholder = "সর্বনিম্ন ১০,০০০ পয়েন্ট (১০০ টাকা)";
+                            if (wdNotice) {
+                                wdNotice.innerText = "⚠️ নোট: প্রথমবার উইথড্র করার জন্য সর্বনিম্ন ১০০ টাকা (১০,০০০ পয়েন্ট) প্রয়োজন। প্রথম সফল উইথড্রয়ের পর থেকে মাত্র ২০ টাকা (২,০০০ পয়েন্ট) হলেই আপনি উইথড্র করতে পারবেন।";
+                                wdNotice.style.display = "block";
+                            }
                         } else {
-                            wdInput.placeholder = "Minimum 2,000 Points (20 BDT)";
+                            wdInput.placeholder = "সর্বনিম্ন ২,০০০ পয়েন্ট (২০ টাকা)";
+                            if (wdNotice) {
+                                wdNotice.style.display = "none";
+                            }
                         }
                     }
                     
@@ -732,7 +741,10 @@
                     document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
                     
                     currentReferrals = data.referral_count || data.total_referrals || 0;
-                    totalAdsWatched = data.total_ads_watched || 0;
+                    totalAdsWatched = data.ads_watched || data.total_ads_watched || 0;
+                    localStorage.setItem('ads_watched', totalAdsWatched);
+                    const adsCountEl = document.getElementById('total-ads-count');
+                    if (adsCountEl) adsCountEl.innerText = totalAdsWatched;
                     
                     if (data.last_checkin_date) {
                         const today = new Date().toISOString().split('T')[0];
@@ -957,7 +969,7 @@
         }
 
         // --- Ad System Scripts (Adsgram) ---
-        async function rewardUserPoints(pointsToAdd) {
+        async function rewardUserPoints(pointsToAdd, reason = '') {
             try {
                 currentPoints += pointsToAdd;
                 document.getElementById('home-balance').innerText = `${currentPoints} Points`;
@@ -967,7 +979,7 @@
                 const res = await fetch(`${API_BASE_URL}/api/add-points`, {
                     method: 'POST', credentials: 'omit',
                     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify({ userId: userId, points: pointsToAdd })
+                    body: JSON.stringify({ userId: userId, points: pointsToAdd, reason: reason })
                 });
                 const data = await res.json();
                 if (data && data.new_balance !== undefined) {
@@ -975,6 +987,12 @@
                     localStorage.setItem('user_balance', currentPoints);
                     document.getElementById('home-balance').innerText = `${currentPoints} Points`;
                     document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
+                }
+                if (reason === 'ad' && data && data.ads_watched !== undefined) {
+                    totalAdsWatched = data.ads_watched;
+                    localStorage.setItem('ads_watched', totalAdsWatched);
+                    const adsCountEl = document.getElementById('total-ads-count');
+                    if (adsCountEl) adsCountEl.innerText = totalAdsWatched;
                 }
             } catch (e) {
                 console.error(e);
@@ -1011,7 +1029,7 @@
                         const result = await controller.show();
                         if (result && (result.done || result.state === 'completed')) {
                             adSuccess = true;
-                            await rewardUserPoints(20);
+                            await rewardUserPoints(20, 'ad');
                             return;
                         }
                     } catch (err) {
@@ -1025,11 +1043,11 @@
                 try {
                     const tgUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || "guest";
                     await show_11525199({ ymid: String(tgUserId) });
-                    await rewardUserPoints(20);
+                    await rewardUserPoints(20, 'ad');
                     adSuccess = true;
                     return;
                 } catch (mErr) {
-                    console.warn("Monetag Ad failed or skipped:", mErr);
+                    console.log('Ad skipped or exited early - No points awarded.');
                 }
             }
 
