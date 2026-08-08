@@ -1030,31 +1030,31 @@
 
         const ADSGRAM_UNITS = ["41772", "41786", "41787"];
 
-        async function checkAdBlockerOrDNS() {
-            let isBlocked = false;
+        async function isAdBlockerOrPrivateDNSActive() {
+            // Check 1: Probe Monetag & Adsgram script endpoints directly
+            try {
+                const adsgramCheck = fetch('https://sad.adsgram.ai/js/sad-b.js', { method: 'HEAD', mode: 'no-cors' });
+                const monetagCheck = fetch('https://libtl.com/sdk.js', { method: 'HEAD', mode: 'no-cors' });
+                
+                // If network fails or DNS rejects resolution
+                await Promise.all([adsgramCheck, monetagCheck]);
+            } catch (err) {
+                return true; // Private DNS / AdGuard actively blocked network request
+            }
 
-            // Check 1: Verify global Ad SDK object availability
+            // Check 2: Verify global SDK object bindings
             if (typeof window.Adsgram === 'undefined' && typeof window.show_11525199 === 'undefined') {
-                isBlocked = true;
+                return true;
             }
 
-            // Check 2: Probe ad script endpoint fetch
-            if (!isBlocked) {
-                try {
-                    const response = await fetch('https://sad.adsgram.ai/js/sad-b.js', { method: 'HEAD', mode: 'no-cors' });
-                } catch (e) {
-                    isBlocked = true;
-                }
-            }
-
-            return isBlocked;
+            return false;
         }
 
         async function playHybridAd() {
-            const adBlockDetected = await checkAdBlockerOrDNS();
-            if (adBlockDetected) {
-                alert("⚠️ অ্যাড গার্ড / প্রাইভেট DNS / AdBlocker শনাক্ত হয়েছে!\n\nদয়া করে আপনার ফোন বা VPN সেটিংস থেকে Private DNS / AdGuard বন্ধ করুন এবং অ্যাপ রিফ্রেশ করে আবার চেষ্টা করুন।");
-                return; // Stop execution, do not show 'no ads available'
+            const isBlocked = await isAdBlockerOrPrivateDNSActive();
+            if (isBlocked) {
+                alert("⚠️ প্রাইভেট DNS / AdGuard / VPN শনাক্ত হয়েছে!\n\nআপনার ফোন সেটিংস বা VPN থেকে Private DNS অথবা AdGuard বন্ধ করুন এবং অ্যাপটি রিফ্রেশ করে আবার চেষ্টা করুন।");
+                return; // Strictly stop execution here
             }
 
             if (window.Telegram && window.Telegram.WebApp) {
