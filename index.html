@@ -411,7 +411,7 @@
         <div class="card" style="text-align: center;">
             <h2 style="color: var(--primary-color);">▶️ ওয়াচ অ্যাড (Watch Ad)</h2>
             <div style="background: rgba(16, 185, 129, 0.1); border: 1px dashed rgba(16, 185, 129, 0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; display: inline-block;">
-                <span style="color: #10b981; font-weight: bold; font-size: 15px;">🔥 লঞ্চিং অফার: প্রতি অ্যাড দেখলে পাবেন ২০ Points!</span>
+                <span id="ad-reward-banner" style="color: #10b981; font-weight: bold; font-size: 15px;">🔥 অফার: প্রতি অ্যাড দেখলে পাবেন 15 Points!</span>
             </div>
             <p style="color: #cbd5e1; font-size: 15px; margin-bottom: 20px;">
                 নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। অ্যাড চলাকালীন অ্যাপ মিনিমাইজ করলে বা অন্য কোনো পেজে গেলে অ্যাড বাতিল হয়ে যাবে!
@@ -419,7 +419,7 @@
             
 
             
-            <button class="btn btn-primary" id="start-ad-btn" onclick="playHybridAd()">Watch Ad (+20 Pts)</button>
+            <button class="btn btn-primary" id="start-ad-btn" onclick="playHybridAd()">Watch Ad (+15 Pts)</button>
             
             <div style="margin-top: 20px; padding: 12px; background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; border-radius: 6px; color: #cbd5e1; font-size: 14px; text-align: left;">
                 💡 টিপস: ১৫ সেকেন্ডের অ্যাড দেখা শেষে "Continue" বাটনে ক্লিক করলে এবং বোনাস অফারগুলো চেক করলে আপনার ওয়ালেট দ্রুত আপডেট হবে!
@@ -530,6 +530,22 @@
                 </div>
                 <button class="btn btn-success" onclick="adminUpdateUserPoints()">Update Points</button>
                 <button class="btn btn-danger" style="background: var(--danger-color); color: white; width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: bold; margin-bottom: 12px;" onclick="adminToggleBan()" id="admin-ban-btn">Ban User</button>
+            </div>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-outline" onclick="adminLoadAllUsers()">Load All Users</button>
+                <div style="overflow-x: auto; margin-top: 15px;">
+                    <table style="width: 100%; text-align: left; border-collapse: collapse; display: none;" id="admin-users-table">
+                        <thead>
+                            <tr style="border-bottom: 1px solid #334155;">
+                                <th style="padding: 10px;">ID</th>
+                                <th style="padding: 10px;">Username</th>
+                                <th style="padding: 10px;">Points</th>
+                                <th style="padding: 10px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-list"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -753,6 +769,12 @@
                     
                     currentEarned = data.earned || 0;
                     window.successfulWithdrawalsCount = data.successful_withdrawals_count || 0;
+                    
+                    window.adRewardPoints = data.ad_reward_points || 15;
+                    const adBanner = document.getElementById('ad-reward-banner');
+                    if (adBanner) adBanner.innerText = `🔥 অফার: প্রতি অ্যাড দেখলে পাবেন ${window.adRewardPoints} Points!`;
+                    const adBtn = document.getElementById('start-ad-btn');
+                    if (adBtn) adBtn.innerText = `Watch Ad (+${window.adRewardPoints} Pts)`;
                     
                     const wdInput = document.getElementById('withdraw-amount');
                     const wdNotice = document.getElementById('withdrawal-notice');
@@ -1297,9 +1319,42 @@
         }
 
         let adminCurrentTargetUser = null;
+        async function adminLoadAllUsers() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/admin/user`, {
+                    method: 'POST', credentials: 'omit',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+                    body: JSON.stringify(getAdminPayload({action: 'list_all'}))
+                });
+                const users = await res.json();
+                if(users.error) return tg.showAlert(users.error);
+                
+                const table = document.getElementById('admin-users-table');
+                const list = document.getElementById('admin-users-list');
+                list.innerHTML = '';
+                table.style.display = 'table';
+                
+                users.forEach(u => {
+                    list.innerHTML += `
+                        <tr style="border-bottom: 1px solid #334155;">
+                            <td style="padding: 10px;">${u.user_id}</td>
+                            <td style="padding: 10px;">${u.username || 'N/A'}</td>
+                            <td style="padding: 10px;">${u.points}</td>
+                            <td style="padding: 10px;">
+                                <button class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; margin: 0;" onclick="document.getElementById('admin-search-user').value = '${u.user_id}'; adminSearchUser();">Select</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+                tg.showAlert("Failed to load users");
+            }
+        }
+
         async function adminSearchUser() {
             const q = document.getElementById('admin-search-user').value;
-            if(!q) return;
+            if(!q) return tg.showAlert("Enter User ID or Username");
             try {
                 const res = await fetch(`${API_BASE_URL}/api/admin/user`, {
                     method: 'POST', credentials: 'omit',
