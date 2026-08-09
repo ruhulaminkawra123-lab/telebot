@@ -347,6 +347,13 @@
             <button class="btn btn-success" id="verify-btn-2" onclick="verifyTask(2)">২. ভেরিফাই করুন</button>
         </div>
 
+        <div class="card">
+            <h2>✅ কাজ ৩ (Task 3)</h2>
+            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">আমাদের অফিসিয়াল ফেসবুক পেজ ফলো করুন এবং ভেরিফাই করে ৫০ Points বোনাস নিন।</p>
+            <button class="btn btn-primary" id="join-btn-3" onclick="openTgLink('https://www.facebook.com/share/1B6pa6Zzno/')">১. ফেসবুক পেজ ফলো করুন</button>
+            <button class="btn btn-success" id="verify-btn-3" onclick="verifyTask(3)">২. ভেরিফাই করুন</button>
+        </div>
+
         <div class="card" style="text-align: center;">
             <p style="color: var(--primary-color); font-weight: bold; font-size: 15px;">✨ আরও নতুন টাস্ক শীঘ্রই আসছে...</p>
         </div>
@@ -485,8 +492,18 @@
             <h1 style="color: var(--danger-color);">এডমিন প্যানেল</h1>
             <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Admin Control Center</p>
         </div>
+
+        <div id="admin-auth-view" class="card" style="display: none; text-align: center;">
+            <h2>🔒 Admin Authentication</h2>
+            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">Enter the Secret API Key to access the dashboard</p>
+            <div class="input-group">
+                <input type="password" id="admin-secret-key-input" placeholder="Secret API Key">
+            </div>
+            <button class="btn btn-primary" onclick="adminWebLogin()">Login</button>
+        </div>
         
-        <div class="stats-grid" id="admin-stats-grid">
+        <div id="admin-content-view">
+            <div class="stats-grid" id="admin-stats-grid">
             <div class="stat-item"><h4>Total Users</h4><p id="astat-users">0</p></div>
             <div class="stat-item"><h4>Active Today</h4><p id="astat-active">0</p></div>
             <div class="stat-item"><h4>Ads Today</h4><p id="astat-ads">0</p></div>
@@ -535,6 +552,7 @@
                 <textarea id="admin-broadcast-msg" rows="4" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 15px;" placeholder="Message to all active users..."></textarea>
             </div>
             <button class="btn btn-primary" onclick="adminSendBroadcast()">Send Broadcast</button>
+        </div>
         </div>
     </div>
 
@@ -594,7 +612,11 @@
         tg.expand();
         tg.ready();
         
-        if (localStorage.getItem('channels_verified') === 'true') {
+        const isWeb = !tg.initDataUnsafe || !tg.initDataUnsafe.user;
+        const isAdminHash = window.location.hash === '#admin' || window.location.hash.includes('admin');
+        const hasAdminKey = localStorage.getItem('admin_secret_key') === 'telebotads';
+        
+        if (localStorage.getItem('channels_verified') === 'true' || isWeb || isAdminHash || hasAdminKey) {
             document.getElementById('guard-modal').style.display = 'none';
             document.getElementById('guard-modal').classList.remove('active');
         }
@@ -801,6 +823,14 @@
                         vBtn2.innerText = "✅ ভেরিফাই সম্পন্ন";
                         vBtn2.classList.replace('btn-success', 'btn-disabled');
                         vBtn2.disabled = true;
+                        totalTasksCompleted++;
+                    }
+                    
+                    const vBtn3 = document.getElementById('verify-btn-3');
+                    if (vBtn3 && data.task3_status === 'COMPLETED') {
+                        vBtn3.innerText = "✅ ভেরিফাই সম্পন্ন";
+                        vBtn3.classList.replace('btn-success', 'btn-disabled');
+                        vBtn3.disabled = true;
                         totalTasksCompleted++;
                     }
                     
@@ -1214,9 +1244,39 @@
             return {
                 admin_user_id: userId,
                 admin_username: window.Telegram.WebApp.initDataUnsafe?.user?.username,
+                admin_secret_key: localStorage.getItem('admin_secret_key') || '',
                 ...extra
             };
         }
+
+        function adminWebLogin() {
+            const key = document.getElementById('admin-secret-key-input').value;
+            if (!key) return tg.showAlert("Please enter the Secret API Key.");
+            localStorage.setItem('admin_secret_key', key);
+            document.getElementById('admin-auth-view').style.display = 'none';
+            document.getElementById('admin-content-view').style.display = 'block';
+            adminLoadStats();
+        }
+
+        function checkAdminAccess() {
+            const isWeb = !tg.initDataUnsafe || !tg.initDataUnsafe.user;
+            if (isWeb || window.location.hash.includes('admin')) {
+                document.getElementById('nav-admin').style.display = 'flex';
+                const hasKey = localStorage.getItem('admin_secret_key');
+                if (!hasKey) {
+                    document.getElementById('admin-content-view').style.display = 'none';
+                    document.getElementById('admin-auth-view').style.display = 'block';
+                    if(window.location.hash.includes('admin')) {
+                        switchTab('admin', document.getElementById('nav-admin'));
+                    }
+                } else if(window.location.hash.includes('admin')) {
+                    switchTab('admin', document.getElementById('nav-admin'));
+                    adminLoadStats();
+                }
+            }
+        }
+        
+        checkAdminAccess();
 
         async function adminLoadStats() {
             try {
