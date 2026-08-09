@@ -1505,13 +1505,31 @@
                 updates[key] = inp.value;
             });
             try {
-                await fetch(`${API_BASE_URL}/api/admin/settings`, {
+                const payload = getAdminPayload({action: 'update', settings: updates});
+                if (!payload.admin_user_id) payload.admin_user_id = userId;
+                if (!payload.admin_secret_key) payload.admin_secret_key = localStorage.getItem('admin_secret_key') || '';
+                
+                const response = await fetch(`${API_BASE_URL}/api/admin/settings`, {
                     method: 'POST', credentials: 'omit',
                     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify(getAdminPayload({action: 'update', settings: updates}))
+                    body: JSON.stringify(payload)
                 });
-                tg.showAlert("Settings Saved!");
-            } catch(e) {}
+                
+                const data = await response.json();
+                if (data.success) {
+                    tg.showAlert("Settings Saved!");
+                    if (typeof fetchUserData === 'function') {
+                        fetchUserData();
+                    }
+                    if (typeof adminLoadSettings === 'function') {
+                        adminLoadSettings();
+                    }
+                } else {
+                    tg.showAlert(data.error || "Failed to save settings");
+                }
+            } catch(e) {
+                tg.showAlert("Error saving settings");
+            }
         }
 
         async function adminSendBroadcast() {
