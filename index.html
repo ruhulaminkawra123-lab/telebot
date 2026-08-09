@@ -774,11 +774,19 @@
                     window.dailyAdLimit = data.daily_ad_limit || 15;
                     
                     const adBanner = document.getElementById('ad-reward-banner');
-                    if (adBanner) adBanner.innerText = `🔥 অফার: প্রতি অ্যাড দেখলে পাবেন ${window.adRewardPoints} Points!`;
+                    if (adBanner) {
+                        adBanner.innerText = `🔥 অফার: প্রতি অ্যাড দেখলে পাবেন ${window.adRewardPoints} Points!`;
+                    }
+                    
                     const adBtn = document.getElementById('start-ad-btn');
-                    if (adBtn) adBtn.innerText = `Watch Ad (+${window.adRewardPoints} Pts)`;
+                    if (adBtn) {
+                        adBtn.innerText = `Watch Ad (+${window.adRewardPoints} Pts)`;
+                    }
+                    
                     const adInstr = document.getElementById('ad-instruction');
-                    if (adInstr) adInstr.innerHTML = `নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। অ্যাড চলাকালীন অ্যাপ মিনিমাইজ করলে বা অন্য কোনো পেজে গেলে অ্যাড বাতিল হয়ে যাবে! (দৈনিক লিমিট: ${window.dailyAdLimit} টি)`;
+                    if (adInstr) {
+                        adInstr.innerHTML = `নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। অ্যাড চলাকালীন অ্যাপ মিনিমাইজ করলে বা অন্য কোনো পেজে গেলে অ্যাড বাতিল হয়ে যাবে! (দৈনিক লিমিট: ${window.dailyAdLimit} টি)`;
+                    }
                     
                     const wdInput = document.getElementById('withdraw-amount');
                     const wdNotice = document.getElementById('withdrawal-notice');
