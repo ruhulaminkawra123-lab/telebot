@@ -413,8 +413,8 @@
             <div style="background: rgba(16, 185, 129, 0.1); border: 1px dashed rgba(16, 185, 129, 0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; display: inline-block;">
                 <span id="ad-reward-banner" style="color: #10b981; font-weight: bold; font-size: 15px;">🔥 অফার: প্রতি অ্যাড দেখলে পাবেন 15 Points!</span>
             </div>
-            <p style="color: #cbd5e1; font-size: 15px; margin-bottom: 20px;">
-                নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। অ্যাড চলাকালীন অ্যাপ মিনিমাইজ করলে বা অন্য কোনো পেজে গেলে অ্যাড বাতিল হয়ে যাবে!
+            <p id="ad-instruction" style="color: #cbd5e1; font-size: 15px; margin-bottom: 20px;">
+                নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। অ্যাড চলাকালীন অ্যাপ মিনিমাইজ করলে বা অন্য কোনো পেজে গেলে অ্যাড বাতিল হয়ে যাবে! (দৈনিক লিমিট: 15 টি)
             </p>
             
 
@@ -771,10 +771,14 @@
                     window.successfulWithdrawalsCount = data.successful_withdrawals_count || 0;
                     
                     window.adRewardPoints = data.ad_reward_points || 15;
+                    window.dailyAdLimit = data.daily_ad_limit || 15;
+                    
                     const adBanner = document.getElementById('ad-reward-banner');
                     if (adBanner) adBanner.innerText = `🔥 অফার: প্রতি অ্যাড দেখলে পাবেন ${window.adRewardPoints} Points!`;
                     const adBtn = document.getElementById('start-ad-btn');
                     if (adBtn) adBtn.innerText = `Watch Ad (+${window.adRewardPoints} Pts)`;
+                    const adInstr = document.getElementById('ad-instruction');
+                    if (adInstr) adInstr.innerHTML = `নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। অ্যাড চলাকালীন অ্যাপ মিনিমাইজ করলে বা অন্য কোনো পেজে গেলে অ্যাড বাতিল হয়ে যাবে! (দৈনিক লিমিট: ${window.dailyAdLimit} টি)`;
                     
                     const wdInput = document.getElementById('withdraw-amount');
                     const wdNotice = document.getElementById('withdrawal-notice');
@@ -1127,7 +1131,7 @@
                         const result = await controller.show();
                         if (result && (result.done || result.state === 'completed')) {
                             adSuccess = true;
-                            await rewardUserPoints(20, 'ad');
+                            await rewardUserPoints(window.adRewardPoints || 15, 'ad');
                             return;
                         }
                     } catch (err) {
@@ -1141,7 +1145,7 @@
                 try {
                     const tgUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || "guest";
                     await show_11525199({ ymid: String(tgUserId) });
-                    await rewardUserPoints(20, 'ad');
+                    await rewardUserPoints(window.adRewardPoints || 15, 'ad');
                     adSuccess = true;
                     return;
                 } catch (mErr) {
@@ -1183,7 +1187,8 @@
                                 adShown = true;
                                 
                                 // Optimistic UI Update
-                                currentPoints += 20;
+                                const pts = window.adRewardPoints || 15;
+                                currentPoints += pts;
                                 localStorage.setItem('cachedPoints', currentPoints);
                                 document.getElementById('home-balance').innerText = `${currentPoints} Points`;
                                 document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
@@ -1191,10 +1196,10 @@
                                 if (window.Telegram.WebApp.HapticFeedback) {
                                     window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
                                 }
-                                tg.showAlert("Ad watched successfully! +20 Points added.");
+                                tg.showAlert(`Ad watched successfully! +${pts} Points added.`);
                                 
                                 // Silently sync in background
-                                rewardUser(20);
+                                rewardUserPoints(pts, 'ad');
                                 hidePremiumModal();
                                 break;
                             }
@@ -1206,7 +1211,7 @@
                     if (!adShown) {
                         // Fallback attempt: Monetag
                         if (typeof show_3439952 === 'function') {
-                            show_3439952({ ymid: userId }).then(() => { rewardUser(20); hidePremiumModal(); }).catch(() => { alert("এই মুহূর্তে কোনো অ্যাড খালি নেই।"); hidePremiumModal(); });
+                            show_3439952({ ymid: userId }).then(() => { rewardUserPoints(window.adRewardPoints || 15, 'ad'); hidePremiumModal(); }).catch(() => { alert("এই মুহূর্তে কোনো অ্যাড খালি নেই।"); hidePremiumModal(); });
                         } else {
                             alert("এই মুহূর্তে কোনো অ্যাড খালি নেই (No Fill)। ১৫-২০ সেকেন্ড পর আবার চেষ্টা করুন।");
                             hidePremiumModal();
