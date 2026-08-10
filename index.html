@@ -4,264 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Income Lab Bot</title>
-    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://sad.adsgram.ai/js/sad-b.js"></script>
     <script src='//libtl.com/sdk.js' data-zone='11525199' data-sdk='show_11525199'></script>
-    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-color: #0f172a; 
-            --surface-color: #1e293b; 
-            --primary-color: #10b981; 
-            --secondary-color: #3b82f6; 
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --danger-color: #ef4444; 
-            --nav-height: 70px;
+            --bg-color: #090d16;
+            --glass-bg: rgba(255,255,255,0.04);
+            --glass-border: rgba(255,255,255,0.09);
+            --primary-color: #10b981;
+            --primary-glow: rgba(16,185,129,0.22);
+            --secondary-color: #3b82f6;
+            --text-main: #f1f5f9;
+            --text-muted: #64748b;
+            --danger-color: #ef4444;
+            --nav-height: 66px;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding-bottom: calc(var(--nav-height) + 20px);
-        }
-
-        .tab-content {
-            display: none;
-            padding: 20px;
-            animation: fadeIn 0.4s ease;
-        }
-        .tab-content.active {
-            display: block;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .header h1 {
-            font-size: 26px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 5px;
-            font-weight: 800;
-        }
-
-        /* Home Tab Specs */
-        .balance-card {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 30px 20px;
-            border-radius: 20px;
-            text-align: center;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
-        }
-        .balance-card h3 { color: var(--text-muted); font-size: 16px; margin-bottom: 10px;}
-        .balance-card h1 { font-size: 36px; color: var(--primary-color); margin-bottom: 15px;}
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-        .stat-item {
-            background: var(--surface-color);
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        }
-        .stat-item h4 { color: var(--text-muted); font-size: 13px; margin-bottom: 8px;}
-        .stat-item p { color: white; font-size: 18px; font-weight: bold;}
-
-        /* Card Layout */
-        .card {
-            background-color: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 22px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .card h2 {
-            font-size: 18px;
-            margin-bottom: 18px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 12px;
-            color: #f1f5f9;
-        }
-
-        /* Buttons */
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-bottom: 12px;
-            text-align: center;
-            text-decoration: none;
-            transition: transform 0.1s;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-color); background-image: radial-gradient(ellipse at top left, rgba(16,185,129,0.07) 0%, transparent 55%), radial-gradient(ellipse at bottom right, rgba(59,130,246,0.07) 0%, transparent 55%); color: var(--text-main); padding-bottom: calc(var(--nav-height) + 16px); min-height: 100vh; }
+        .tab-content { display: none; padding: 16px; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { font-size: 22px; background: linear-gradient(135deg, var(--primary-color), #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 3px; font-weight: 800; }
+        .balance-card { background: linear-gradient(135deg, rgba(16,185,129,0.13), rgba(59,130,246,0.07)); border: 1px solid rgba(16,185,129,0.28); box-shadow: 0 0 28px rgba(16,185,129,0.08); padding: 24px 18px; border-radius: 18px; text-align: center; margin-bottom: 18px; }
+        .balance-card h3 { color: var(--text-muted); font-size: 13px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+        .balance-card h1 { font-size: 32px; color: var(--primary-color); margin-bottom: 12px; font-weight: 900; text-shadow: 0 0 18px rgba(16,185,129,0.4); }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+        .stat-item { background: var(--glass-bg); backdrop-filter: blur(14px); padding: 13px; border-radius: 13px; text-align: center; border: 1px solid var(--glass-border); }
+        .stat-item h4 { color: var(--text-muted); font-size: 10px; margin-bottom: 5px; text-transform: uppercase; }
+        .stat-item p { color: white; font-size: 17px; font-weight: 800; }
+        .card { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: 18px; border-radius: 15px; margin-bottom: 14px; border: 1px solid var(--glass-border); box-shadow: 0 6px 28px rgba(0,0,0,0.28); }
+        .card h2 { font-size: 15px; margin-bottom: 13px; border-bottom: 1px solid var(--glass-border); padding-bottom: 9px; color: #e2e8f0; }
+        .btn { display: block; width: 100%; padding: 12px; border: none; border-radius: 11px; font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 9px; text-align: center; transition: transform 0.12s; }
         .btn:active { transform: scale(0.97); }
-        .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
-        .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; box-shadow: 0 4px 14px rgba(59,130,246,0.3); }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 14px rgba(16,185,129,0.3); }
         .btn-outline { background: transparent; border: 2px solid var(--secondary-color); color: var(--secondary-color); }
-        .btn-disabled { background: #475569; color: #94a3b8; cursor: not-allowed; }
-
-        /* Inputs */
-        .input-group { margin-bottom: 18px; }
-        .input-group label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 14px; font-weight: 500;}
-        .input-group input, .input-group select {
-            width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #334155;
-            background-color: #0f172a; color: white; font-size: 16px;
-        }
-        .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--secondary-color); }
-
-        /* Bottom Nav */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: var(--nav-height);
-            background: var(--surface-color);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.1);
-            z-index: 100;
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            text-decoration: none;
-            width: 20%;
-            height: 100%;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
+        .btn-disabled { background: rgba(71,85,105,0.45); color: #64748b; cursor: not-allowed; }
+        .btn-spin { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; box-shadow: 0 4px 14px rgba(245,158,11,0.32); font-size: 15px; }
+        .input-group { margin-bottom: 14px; }
+        .input-group label { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: 12px; font-weight: 500; }
+        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 11px 13px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background-color: rgba(15,23,42,0.8); color: white; font-size: 14px; transition: border-color 0.2s; }
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus { outline: none; border-color: var(--primary-color); }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background: rgba(9,13,22,0.93); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255,255,255,0.07); box-shadow: 0 -6px 28px rgba(0,0,0,0.45); z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); flex: 1; height: 100%; cursor: pointer; transition: color 0.2s; position: relative; }
         .nav-item.active { color: var(--primary-color); }
-        .nav-item i { font-size: 20px; margin-bottom: 4px; }
-        .nav-item span { font-size: 11px; font-weight: 600; }
-
-        /* Tables & Lists */
+        .nav-item.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 26px; height: 3px; background: var(--primary-color); border-radius: 3px 3px 0 0; box-shadow: 0 0 8px var(--primary-color); }
+        .nav-item i { font-size: 18px; margin-bottom: 3px; }
+        .nav-item span { font-size: 10px; font-weight: 600; }
         .data-list { width: 100%; }
-        .data-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
+        .data-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
         .data-item:last-child { border-bottom: none; }
         .data-item .left { display: flex; flex-direction: column; }
-        .data-item .title { font-weight: 600; font-size: 15px; }
-        .data-item .subtitle { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-        .data-item .right { font-weight: bold; font-size: 14px; }
-        
-        .status-pending { color: #f59e0b; }
-        .status-approved { color: #10b981; }
-        .status-rejected { color: #ef4444; }
-
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-        }
+        .data-item .title { font-weight: 600; font-size: 13px; }
+        .data-item .subtitle { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .data-item .right { font-weight: bold; font-size: 12px; }
+        .status-pending { color: #f59e0b; } .status-approved { color: #10b981; } .status-rejected { color: #ef4444; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(9,13,22,0.9); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
-        .modal-content {
-            background-color: var(--surface-color); padding: 28px; border-radius: 20px;
-            width: 90%; max-width: 360px; text-align: center; border: 1px solid rgba(239, 68, 68, 0.4);
-            transform: translateY(30px) scale(0.95); transition: all 0.3s;
-        }
+        .modal-content { background: rgba(15,23,42,0.97); padding: 26px; border-radius: 18px; width: 90%; max-width: 350px; text-align: center; border: 1px solid rgba(239,68,68,0.4); transform: translateY(30px) scale(0.95); transition: all 0.3s; }
         .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
-        .modal-title { color: var(--danger-color); font-size: 22px; margin-bottom: 12px; font-weight: 800; }
-        .modal-text { font-size: 15px; margin-bottom: 20px; line-height: 1.6; color: var(--text-muted); }
-        .modal-status {
-            background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 10px;
-            margin-bottom: 24px; font-weight: 700; color: #fca5a5; border: 1px dashed rgba(239, 68, 68, 0.3);
-        }
-        .modal-btn { background: var(--danger-color); color: white; padding: 12px 20px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        /* Utility */
-        .text-center { text-align: center; }
-        .mb-2 { margin-bottom: 15px; }
-        
-        .copy-box {
-            display: flex;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
-        .copy-box input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: white;
-            padding: 12px 15px;
-            font-size: 14px;
-        }
-        .copy-box button {
-            background: var(--secondary-color);
-            border: none;
-            color: white;
-            padding: 0 20px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    
-        .premium-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-        }
+        .modal-title { color: var(--danger-color); font-size: 19px; margin-bottom: 9px; font-weight: 800; }
+        .modal-text { font-size: 13px; margin-bottom: 16px; line-height: 1.6; color: var(--text-muted); }
+        .modal-status { background: rgba(239,68,68,0.1); padding: 9px; border-radius: 9px; margin-bottom: 18px; font-weight: 700; color: #fca5a5; border: 1px dashed rgba(239,68,68,0.3); font-size: 13px; }
+        .modal-btn { background: var(--danger-color); color: white; padding: 11px 18px; border: none; border-radius: 9px; font-size: 14px; font-weight: bold; cursor: pointer; width: 100%; }
+        .premium-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(9,13,22,0.92); backdrop-filter: blur(12px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .premium-modal.active { opacity: 1; pointer-events: auto; }
-        .premium-spinner {
-            width: 50px; height: 50px; border: 4px solid rgba(255, 255, 255, 0.2);
-            border-top-color: var(--primary-color); border-radius: 50%;
-            animation: spin 1s linear infinite; margin-bottom: 20px;
-        }
+        .premium-spinner { width: 48px; height: 48px; border: 4px solid rgba(255,255,255,0.15); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+        .premium-text { color: white; font-size: 16px; font-weight: bold; text-align: center; }
+        .copy-box { display: flex; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 9px; overflow: hidden; margin-bottom: 12px; }
+        .copy-box input { flex: 1; background: transparent; border: none; color: white; padding: 11px 13px; font-size: 12px; }
+        .copy-box button { background: var(--secondary-color); border: none; color: white; padding: 0 16px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .wheel-wrapper { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .wheel-pointer { width: 0; height: 0; border-left: 11px solid transparent; border-right: 11px solid transparent; border-top: 20px solid #10b981; filter: drop-shadow(0 0 5px #10b981); z-index: 2; }
+        #wheel-canvas { border-radius: 50%; box-shadow: 0 0 26px rgba(16,185,129,0.28); display: block; }
+        .captcha-box { background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-radius: 13px; padding: 18px; text-align: center; margin-bottom: 12px; }
+        .captcha-question { font-size: 30px; font-weight: 900; color: #34d399; margin-bottom: 12px; letter-spacing: 4px; }
+        .captcha-input { background: rgba(15,23,42,0.8); border: 1px solid rgba(16,185,129,0.3); border-radius: 9px; padding: 11px; width: 100%; text-align: center; font-size: 20px; font-weight: 700; color: white; }
+        .captcha-progress { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
+        .captcha-dot { width: 11px; height: 11px; border-radius: 50%; background: rgba(255,255,255,0.14); transition: background 0.3s; }
+        .captcha-dot.done { background: #10b981; box-shadow: 0 0 5px #10b981; }
+        .counter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+        .counter-pill { border-radius: 11px; padding: 11px; text-align: center; border: 1px solid; }
+        .counter-pill.green { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.28); }
+        .counter-pill.blue { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.28); }
+        .counter-pill p.label { color: var(--text-muted); font-size: 10px; margin-bottom: 3px; }
+        .counter-pill p.value { font-size: 19px; font-weight: 800; }
+        .counter-pill.green p.value { color: #10b981; }
+        .counter-pill.blue p.value { color: #60a5fa; }
+        .text-center { text-align: center; } .mb-2 { margin-bottom: 13px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        .premium-text { color: white; font-size: 18px; font-weight: bold; text-align: center; }
-
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     </style>
-    <script src="https://sad.adsgram.ai/js/sad-b.js"></script>
     <script src="https://alwingulla.com/88/tag.min.js" data-zone="3439952" async data-cfasync="false"></script>
 </head>
 <body>
 
-    <!-- Mandatory Join Guard Modal -->
-    <div class="modal-overlay active" id="guard-modal" style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px); pointer-events: all; opacity: 1;">
-        <div class="modal-content" style="border-color: var(--primary-color);">
-            <h3 class="modal-title" style="color: var(--primary-color);">⚠️ চ্যানেল সাবস্ক্রাইব করুন</h3>
-            <p class="modal-text">অ্যাপটি ব্যবহার করার জন্য আপনাকে আমাদের দুটি অফিসিয়াল চ্যানেলে জয়েন করতে হবে।</p>
-            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+    <!-- Guard Modal -->
+    <div class="modal-overlay active" id="guard-modal" style="background:rgba(9,13,22,0.97);pointer-events:all;opacity:1;">
+        <div class="modal-content" style="border-color:var(--primary-color);">
+            <h3 class="modal-title" style="color:var(--primary-color);">⚠️ চ্যানেল সাবস্ক্রাইব করুন</h3>
+            <p class="modal-text">অ্যাপটি ব্যবহার করতে আমাদের ২টি অফিসিয়াল চ্যানেলে জয়েন করুন।</p>
+            <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:18px;">
                 <button class="btn btn-primary" onclick="openTgLink('https://t.me/BotIncomeLab')">১. অফিসিয়াল চ্যানেলে জয়েন করুন</button>
                 <button class="btn btn-primary" onclick="openTgLink('https://t.me/Incomelb_bot_payment')">২. পেমেন্ট চ্যানেলে জয়েন করুন</button>
             </div>
@@ -271,1469 +116,342 @@
 
     <!-- 1. HOME TAB -->
     <div id="tab-home" class="tab-content active">
-        <div class="header">
-            <h1>ইনকাম ল্যাব বট</h1>
-            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Complete tasks and earn!</p>
-        </div>
-
+        <div class="header"><h1>🏠 ইনকাম ল্যাব বট</h1><p style="color:var(--text-muted);font-size:13px;">Complete tasks and earn!</p></div>
         <div class="balance-card">
-            <h3>মূল ব্যালেন্স (Main Balance)</h3>
-            <h1 id="home-balance">TK 0.00</h1>
-            <button class="btn btn-success" onclick="attemptWithdraw()">এখনই উইথড্র করুন</button>
+            <h3>মূল ব্যালেন্স</h3>
+            <h1 id="home-balance">0 Points</h1>
+            <button class="btn btn-success" onclick="attemptWithdraw()">💳 এখনই উইথড্র করুন</button>
         </div>
-
         <div class="stats-grid">
-            <div class="stat-item">
-                <h4>মোট টাস্ক</h4>
-                <p id="home-tasks">0</p>
-            </div>
-            <div class="stat-item">
-                <h4>মোট রেফার</h4>
-                <p id="home-refs">0</p>
-            </div>
-            <div class="stat-item">
-                <h4>অ্যাড দেখা হয়েছে</h4>
-                <p id="home-ads">0</p>
-            </div>
-            <div class="stat-item">
-                <h4>বোনাস পয়েন্ট / Bonus Points</h4>
-                <p id="home-bonus">0</p>
-            </div>
+            <div class="stat-item"><h4>মোট টাস্ক</h4><p id="home-tasks">0</p></div>
+            <div class="stat-item"><h4>মোট রেফার</h4><p id="home-refs">0</p></div>
+            <div class="stat-item"><h4>অ্যাড দেখা</h4><p id="home-ads">0</p></div>
+            <div class="stat-item"><h4>বোনাস পয়েন্ট</h4><p id="home-bonus">0</p></div>
         </div>
-        
-        <!-- Daily Check-in Section -->
-        <div class="card" style="margin-top: 15px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.15)); border: 1px solid rgba(16, 185, 129, 0.2); display: flex; flex-direction: column; align-items: center; text-align: center; padding: 25px 20px;">
-            <i class="fas fa-calendar-check" style="font-size: 40px; color: #10b981; margin-bottom: 12px;"></i>
-            <h2 style="font-size: 20px; color: #10b981; margin-bottom: 5px;">দৈনিক চেক-ইন (Daily Check-in)</h2>
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px; font-weight: 500;">প্রতিদিন চেক-ইন করে বোনাস বুঝে নিন!</p>
-            
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; width: 100%; margin-bottom: 20px;">
-                <div style="background: rgba(16, 185, 129, 0.2); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: #10b981;">Day 1<br><span style="font-size: 10px;">+10</span></div>
-                <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: var(--text-muted);">Day 2<br><span style="font-size: 10px;">+10</span></div>
-                <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: var(--text-muted);">Day 3<br><span style="font-size: 10px;">+10</span></div>
-                <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: var(--text-muted);">Day 4<br><span style="font-size: 10px;">+10</span></div>
-                <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: var(--text-muted);">Day 5<br><span style="font-size: 10px;">+10</span></div>
-                <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: var(--text-muted);">Day 6<br><span style="font-size: 10px;">+10</span></div>
-                <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; color: var(--text-muted);">Day 7<br><span style="font-size: 10px;">+50</span></div>
+        <div class="card" style="background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(5,150,105,0.13));border:1px solid rgba(16,185,129,0.22);text-align:center;padding:22px 16px;">
+            <i class="fas fa-calendar-check" style="font-size:36px;color:#10b981;margin-bottom:10px;"></i>
+            <h2 style="font-size:17px;color:#10b981;margin-bottom:4px;">দৈনিক চেক-ইন</h2>
+            <p style="color:var(--text-muted);font-size:12px;margin-bottom:14px;">প্রতিদিন চেক-ইন করে বোনাস বুঝে নিন!</p>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px;">
+                <div style="background:rgba(16,185,129,0.2);padding:8px 3px;border-radius:7px;font-size:10px;font-weight:bold;color:#10b981;">D1<br><span>+10</span></div>
+                <div style="background:rgba(255,255,255,0.05);padding:8px 3px;border-radius:7px;font-size:10px;font-weight:bold;color:var(--text-muted);">D2<br><span>+10</span></div>
+                <div style="background:rgba(255,255,255,0.05);padding:8px 3px;border-radius:7px;font-size:10px;font-weight:bold;color:var(--text-muted);">D3<br><span>+10</span></div>
+                <div style="background:rgba(255,255,255,0.05);padding:8px 3px;border-radius:7px;font-size:10px;font-weight:bold;color:var(--text-muted);">D4<br><span>+10</span></div>
+                <div style="background:rgba(255,255,255,0.05);padding:8px 3px;border-radius:7px;font-size:10px;font-weight:bold;color:var(--text-muted);">D5<br><span>+10</span></div>
+                <div style="background:rgba(255,255,255,0.05);padding:8px 3px;border-radius:7px;font-size:10px;font-weight:bold;color:var(--text-muted);">D6<br><span>+10</span></div>
+                <div style="background:rgba(255,255,255,0.05);padding:8px 3px;border-radius:7px;font-size:10px;font-weight:bold;color:var(--text-muted);">D7<br><span>+50</span></div>
             </div>
-            
-            <button class="btn btn-success" id="claim-bonus-btn" onclick="dailyCheckin()" style="width: 100%; font-size: 15px; padding: 12px; border-radius: 10px; font-weight: bold;">Claim Today's Bonus / ১০ পয়েন্ট নিন</button>
-        </div>
-        
-        <div class="card">
-            <h2>🏆 লিডারবোর্ড (Leaderboard)</h2>
-            <div class="data-list text-center" style="color: var(--text-muted); padding: 10px;">
-                <p>শীঘ্রই আসছে...</p>
-            </div>
+            <button class="btn btn-success" id="claim-bonus-btn" onclick="dailyCheckin()">Claim Today's Bonus / ১০ পয়েন্ট নিন</button>
         </div>
     </div>
 
     <!-- 2. TASK TAB -->
     <div id="tab-task" class="tab-content">
-        <div class="header">
-            <h1>টাস্ক (Tasks)</h1>
-            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Complete the tasks below</p>
-        </div>
-        
+        <div class="header"><h1>🎯 টাস্ক (Tasks)</h1><p style="color:var(--text-muted);font-size:13px;">Complete tasks & earn points</p></div>
+
+        <!-- A) Secret Jackpot -->
         <div class="card">
-            <h2>🎁 দৈনিক সিক্রেট লিঙ্ক জ্যাকপট (Daily Bonus)</h2>
-            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">🔥 আজকের বিশেষ অফার: <span id="jackpot-reward-text">50</span> Points!</p>
+            <h2>🎁 দৈনিক সিক্রেট জ্যাকপট</h2>
+            <p class="mb-2" style="color:var(--text-muted);font-size:12px;">🔥 আজকের অফার: <span id="jackpot-reward-text">50</span> Points!</p>
             <div id="jackpot-claim-section">
                 <button class="btn btn-primary" onclick="openSecretCodeLink()">১. সিক্রেট কোড সংগ্রহ করুন</button>
-                <div class="input-group" style="margin-top: 15px;">
-                    <input type="text" id="secret-code-input" placeholder="এখানে সিক্রেট কোড লিখুন" style="margin-bottom: 10px;">
-                </div>
+                <div class="input-group" style="margin-top:10px;"><input type="text" id="secret-code-input" placeholder="এখানে সিক্রেট কোড লিখুন"></div>
                 <button class="btn btn-success" onclick="claimSecretCode()">২. ভেরিফাই ও ক্লেইম করুন</button>
             </div>
-            <div id="jackpot-claimed-msg" style="display: none; margin-top: 15px; padding: 10px; background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; border-radius: 6px; color: #34d399; font-size: 14px; text-align: center;">
-                ✅ আজকের সিক্রেট বোনাস ক্লেইম করা হয়েছে
+            <div id="jackpot-claimed-msg" style="display:none;margin-top:11px;padding:9px;background:rgba(16,185,129,0.1);border-left:4px solid #10b981;border-radius:8px;color:#34d399;font-size:12px;text-align:center;">✅ আজকের সিক্রেট বোনাস ক্লেইম করা হয়েছে</div>
+        </div>
+
+        <!-- B) Math Captcha -->
+        <div class="card">
+            <h2>🔢 ম্যাথ ক্যাপচা টাস্ক (+3 Pts)</h2>
+            <p style="color:var(--text-muted);font-size:12px;margin-bottom:12px;">৫টি সহজ গণিত সমাধান করুন, তারপর অ্যাড দেখে পয়েন্ট নিন।</p>
+            <div class="captcha-progress" id="captcha-progress">
+                <div class="captcha-dot" id="dot-0"></div><div class="captcha-dot" id="dot-1"></div><div class="captcha-dot" id="dot-2"></div><div class="captcha-dot" id="dot-3"></div><div class="captcha-dot" id="dot-4"></div>
+            </div>
+            <div class="captcha-box" id="captcha-box">
+                <div class="captcha-question" id="captcha-question">? + ? = ?</div>
+                <input class="captcha-input" id="captcha-answer" type="number" placeholder="উত্তর লিখুন" oninput="checkCaptchaAnswer()">
+            </div>
+            <div id="captcha-reward-btn" style="display:none;">
+                <button class="btn btn-success" onclick="playCaptchaAd()">🎁 পয়েন্ট ওয়ালেটে জমা করতে অ্যাডটি দেখুন (+3 Pts)</button>
+            </div>
+            <div id="captcha-status" style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:7px;"></div>
+        </div>
+
+        <!-- C) Spin Wheel -->
+        <div class="card">
+            <h2>🎡 স্পিন & উইন (Spin & Win)</h2>
+            <p style="color:var(--text-muted);font-size:12px;margin-bottom:14px;">হুইল স্পিন করুন — জয়ী পয়েন্ট ক্লেইম করতে অ্যাড দেখতে হবে।</p>
+            <div class="wheel-wrapper">
+                <div class="wheel-pointer"></div>
+                <canvas id="wheel-canvas" width="250" height="250"></canvas>
+                <button class="btn btn-spin" id="spin-btn" onclick="spinWheel()">🎡 স্পিন করুন!</button>
+            </div>
+            <div id="spin-result" style="display:none;margin-top:12px;text-align:center;">
+                <p style="font-size:20px;font-weight:900;color:#f59e0b;" id="spin-prize-text"></p>
+                <button class="btn btn-success" id="spin-claim-btn" onclick="playSpinAd()">🎁 পয়েন্ট ক্লেইম করতে অ্যাড দেখুন</button>
             </div>
         </div>
-        
+
+        <!-- D) Channel Tasks -->
         <div class="card">
             <h2>✅ কাজ ১ (Task 1)</h2>
-            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">অফিসিয়াল চ্যানেলে জয়েন করুন এবং ভেরিফাই বাটনে ক্লিক করে ৫০ Points বোনাস নিন।</p>
+            <p class="mb-2" style="color:var(--text-muted);font-size:12px;">অফিসিয়াল চ্যানেলে জয়েন করুন ও ৫০ Points নিন।</p>
             <button class="btn btn-primary" id="join-btn-1" onclick="openTgLink('https://t.me/BotIncomeLab')">১. অফিসিয়াল চ্যানেলে জয়েন করুন</button>
             <button class="btn btn-success" id="verify-btn-1" onclick="verifyTask(1)">২. ভেরিফাই করুন</button>
         </div>
-        
         <div class="card">
             <h2>✅ কাজ ২ (Task 2)</h2>
-            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">অফিসিয়াল পেমেন্ট চ্যানেলে জয়েন করুন এবং ভেরিফাই বাটনে ক্লিক করে ৫০ Points বোনাস নিন।</p>
+            <p class="mb-2" style="color:var(--text-muted);font-size:12px;">পেমেন্ট চ্যানেলে জয়েন করুন ও ৫০ Points নিন।</p>
             <button class="btn btn-primary" id="join-btn-2" onclick="openTgLink('https://t.me/Incomelb_bot_payment')">১. পেমেন্ট চ্যানেলে জয়েন করুন</button>
             <button class="btn btn-success" id="verify-btn-2" onclick="verifyTask(2)">২. ভেরিফাই করুন</button>
         </div>
-
         <div class="card">
             <h2>✅ কাজ ৩ (Task 3)</h2>
-            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">আমাদের অফিসিয়াল ফেসবুক পেজ ফলো করুন এবং ভেরিফাই করে ৫০ Points বোনাস নিন।</p>
+            <p class="mb-2" style="color:var(--text-muted);font-size:12px;">ফেসবুক পেজ ফলো করুন ও ৫০ Points নিন।</p>
             <button class="btn btn-primary" id="join-btn-3" onclick="openTgLink('https://www.facebook.com/share/1B6pa6Zzno/')">১. ফেসবুক পেজ ফলো করুন</button>
             <button class="btn btn-success" id="verify-btn-3" onclick="verifyTask(3)">২. ভেরিফাই করুন</button>
         </div>
-
-        <div class="card" style="text-align: center;">
-            <p style="color: var(--primary-color); font-weight: bold; font-size: 15px;">✨ আরও নতুন টাস্ক শীঘ্রই আসছে...</p>
-        </div>
     </div>
 
-    <!-- 3. SUPPORT TAB -->
-    <div id="tab-support" class="tab-content">
-        <div class="header">
-            <h1>সাপোর্ট (Support)</h1>
-            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Get help from our admins</p>
-        </div>
-        
-        <div class="card text-center">
-            <i class="fas fa-headset" style="font-size: 50px; color: var(--secondary-color); margin-bottom: 20px;"></i>
-            <h2>অ্যাডমিন সাপোর্ট</h2>
-            <p class="mb-2" style="color: var(--text-muted); font-size: 15px; font-weight: bold;">🎧 সাপোর্ট সার্ভিস শীঘ্রই আসছে (Coming Soon)...</p>
-        </div>
-    </div>
-
-    <!-- 4. REFERRAL TAB -->
-    <div id="tab-referral" class="tab-content">
-        <div class="header">
-            <h1>রেফার (Referral)</h1>
-            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Invite & Earn</p>
-        </div>
-        
-        <div class="card">
-            <h2>👥 বন্ধুদের রেফার করুন এবং ইনকাম করুন</h2>
-            <p class="mb-2" style="color: var(--text-muted); font-size: 14px; text-align: center;">প্রতি সফল রেফারে পাবেন ১০০ Points (১ টাকা) + ১০% লাইফটাইম কমিশন!</p>
-            
-            <label style="color: var(--text-muted); font-size: 13px; margin-bottom: 5px; display: block;">আপনার রেফারেল লিংক:</label>
-            <div class="copy-box">
-                <input type="text" id="ref-link" readonly value="https://t.me/Incomlb_bot?start=">
-                <button onclick="copyRefLink()">লিংক কপি</button>
-            </div>
-            <button class="btn btn-outline" onclick="shareRefLink()">শেয়ার করুন</button>
-        </div>
-        
-        <div class="card">
-            <h2>📋 রেফার করা বন্ধুদের তালিকা - মোট: <span id="ref-total-count">0</span></h2>
-            <div class="data-list" id="ref-list-container" style="margin-top: 15px;">
-                <!-- Injected via JS -->
-                <p style="text-align: center; color: var(--text-muted); font-size: 14px;">কোনো রেফার পাওয়া যায়নি।</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- NEW ADS / EARN TAB -->
+    <!-- 3. ADS TAB -->
     <div id="tab-ads" class="tab-content">
-        <div class="header">
-            <h1>অ্যাড দেখুন (Watch Ads)</h1>
-            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Earn points by watching ads</p>
+        <div class="header"><h1>▶️ অ্যাড দেখুন</h1><p style="color:var(--text-muted);font-size:13px;">Earn points by watching ads</p></div>
+        <div class="counter-grid">
+            <div class="counter-pill green"><p class="label">আজকে দেখা হয়েছে</p><p class="value"><span id="ads-watched-today">0</span>/<span id="ads-daily-limit">15</span></p></div>
+            <div class="counter-pill blue"><p class="label">আজ আর বাকি আছে</p><p class="value"><span id="ads-remaining-today">15</span></p></div>
         </div>
-        
-        <!-- Live Ad Counter Cards -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
-            <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 14px; text-align: center;">
-                <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 6px;">আজকে দেখা হয়েছে</p>
-                <p style="font-size: 20px; font-weight: 800; color: #10b981;"><span id="ads-watched-today">0</span> / <span id="ads-daily-limit">15</span></p>
-                <p style="color: var(--text-muted); font-size: 11px; margin-top: 2px;">টি</p>
+        <div class="card" style="text-align:center;">
+            <h2 style="color:var(--primary-color);">▶️ ওয়াচ অ্যাড</h2>
+            <div style="background:rgba(16,185,129,0.1);border:1px dashed rgba(16,185,129,0.4);padding:9px;border-radius:9px;margin-bottom:13px;display:inline-block;">
+                <span id="ad-reward-banner" style="color:#10b981;font-weight:bold;font-size:14px;">🔥 প্রতি অ্যাডে পাবেন 15 Points!</span>
             </div>
-            <div style="background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.3); border-radius: 12px; padding: 14px; text-align: center;">
-                <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 6px;">আজ আর বাকি আছে</p>
-                <p style="font-size: 20px; font-weight: 800; color: #60a5fa;"><span id="ads-remaining-today">15</span></p>
-                <p style="color: var(--text-muted); font-size: 11px; margin-top: 2px;">টি</p>
-            </div>
-        </div>
-        
-        <div class="card" style="text-align: center;">
-            <h2 style="color: var(--primary-color);">▶️ ওয়াচ অ্যাড (Watch Ad)</h2>
-            <div style="background: rgba(16, 185, 129, 0.1); border: 1px dashed rgba(16, 185, 129, 0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; display: inline-block;">
-                <span id="ad-reward-banner" style="color: #10b981; font-weight: bold; font-size: 15px;">🔥 অফার: প্রতি অ্যাড দেখলে পাবেন 15 Points!</span>
-            </div>
-            <p id="ad-instruction" style="color: #cbd5e1; font-size: 15px; margin-bottom: 20px;">
-                নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। অ্যাড চলাকালীন অ্যাপ মিনিমাইজ করলে বা অন্য কোনো পেজে গেলে অ্যাড বাতিল হয়ে যাবে! (দৈনিক লিমিট: <span id="ad-limit-text">15</span> টি)
-            </p>
-            
-
-            
+            <p id="ad-instruction" style="color:#cbd5e1;font-size:13px;margin-bottom:16px;">নিচের বাটনে ক্লিক করুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। (লিমিট: <span id="ad-limit-text">15</span> টি)</p>
             <button class="btn btn-primary" id="start-ad-btn" onclick="playHybridAd()">Watch Ad (+15 Pts)</button>
-            
-            <div style="margin-top: 20px; padding: 12px; background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; border-radius: 6px; color: #cbd5e1; font-size: 14px; text-align: left;">
-                💡 টিপস: ১৫ সেকেন্ডের অ্যাড দেখা শেষে "Continue" বাটনে ক্লিক করলে এবং বোনাস অফারগুলো চেক করলে আপনার ওয়ালেট দ্রুত আপডেট হবে!
-            </div>
-            
-            <div style="margin-top: 20px; font-size: 14px; color: var(--text-muted);">
-                সর্বমোট অ্যাড দেখা হয়েছে: <strong id="total-ads-count" style="color: white;">0</strong> টি
-            </div>
+            <div style="margin-top:16px;padding:10px;background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;border-radius:6px;color:#cbd5e1;font-size:13px;text-align:left;">💡 ১৫ সেকেন্ড পর "Continue" ক্লিক করুন।</div>
+            <div style="margin-top:15px;font-size:13px;color:var(--text-muted);">সর্বমোট অ্যাড: <strong id="total-ads-count" style="color:white;">0</strong> টি</div>
         </div>
     </div>
 
-    <!-- 5. WALLET TAB -->
+    <!-- 4. WALLET TAB -->
     <div id="tab-wallet" class="tab-content">
-        <div class="header">
-            <h1>ওয়ালেট (Wallet)</h1>
-            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Withdraw your earnings</p>
-        </div>
-        
-        <div class="balance-card" style="padding: 20px;">
+        <div class="header"><h1>💳 ওয়ালেট (Wallet)</h1><p style="color:var(--text-muted);font-size:13px;">Withdraw your earnings</p></div>
+        <div class="balance-card" style="padding:18px;">
             <h3>মোট ব্যালেন্স</h3>
             <h1 id="wallet-balance">0 Points</h1>
-            <p style="font-size: 13px; margin-top: 10px; color: #fca5a5; font-weight: bold;">১,০০০ Points = ১০ টাকা (BDT)</p>
-            <button class="btn btn-primary" style="margin-top: 15px; width: auto; display: inline-block; padding: 8px 16px; font-size: 14px;" onclick="fetchPointHistory()">ইনকাম হিস্ট্রি (Point History)</button>
+            <p style="font-size:12px;margin-top:8px;color:#fca5a5;font-weight:bold;">১,০০০ Points = ১০ টাকা (BDT)</p>
+            <button class="btn btn-primary" style="margin-top:13px;width:auto;display:inline-block;padding:7px 14px;font-size:13px;" onclick="fetchPointHistory()">ইনকাম হিস্ট্রি</button>
         </div>
-
         <div class="card">
             <h2>💳 উইথড্র করুন</h2>
-            <div class="input-group">
-                <label>পেমেন্ট মেথড (Payment Method)</label>
-                <select id="withdraw-method" onchange="updateWithdrawalPlaceholder()">
-                    <!-- <option value="Bkash">Bkash (বিকাশ)</option> -->
-                    <option value="Nagad">Nagad (নগদ)</option>
-                    <option value="USDT (BEP-20)">USDT (BEP-20)</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>অ্যাকাউন্ট নম্বর / Address</label>
-                <input type="text" id="account-number" placeholder="01XXXXXXXXX">
-            </div>
-            <div class="input-group">
-                <label>পরিমাণ (Points)</label>
-                <input type="number" id="withdraw-amount" placeholder="Minimum 2000 Points">
-            </div>
-            <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; border-radius: 6px; color: #f87171; font-size: 13px; text-align: left;">
-                💳 উইথড্র ফি নোটিশ: প্রতিটি সফল উইথড্র রিকোয়েস্টে ৫০০ পয়েন্ট (৫ টাকা) সার্ভিস ও প্রসেসিং ফি হিসেবে কাটা হবে।
-            </div>
-            <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; border-radius: 6px; color: #93c5fd; font-size: 13px; text-align: left;">
-                💳 পেমেন্ট সময়: ৫ থেকে ৭ কার্যদিবস। প্রথম উইথড্র করার জন্য অন্তত ৩টি রেফার ও সব টাস্ক সম্পন্ন করতে হবে।
-            </div>
+            <div class="input-group"><label>পেমেন্ট মেথড</label><select id="withdraw-method" onchange="updateWithdrawalPlaceholder()"><option value="Nagad">Nagad (নগদ)</option><option value="USDT (BEP-20)">USDT (BEP-20)</option></select></div>
+            <div class="input-group"><label>অ্যাকাউন্ট নম্বর / Address</label><input type="text" id="account-number" placeholder="01XXXXXXXXX"></div>
+            <div class="input-group"><label>পরিমাণ (Points)</label><input type="number" id="withdraw-amount" placeholder="Minimum 2000 Points"></div>
+            <div style="margin:12px 0;padding:9px;background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;border-radius:6px;color:#f87171;font-size:12px;">💳 প্রতি উইথড্রে ৫০০ পয়েন্ট (৫ টাকা) সার্ভিস ফি কাটা হবে।</div>
+            <div style="margin-bottom:12px;padding:9px;background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;border-radius:6px;color:#93c5fd;font-size:12px;">💳 পেমেন্ট সময়: ৫-৭ কার্যদিবস। প্রথম উইথড্রে ৩টি রেফার ও সব টাস্ক সম্পন্ন করতে হবে।</div>
             <button class="btn btn-success" onclick="attemptWithdrawForm()">রিকোয়েস্ট পাঠান</button>
-            <div id="withdrawal-notice" style="margin-top: 10px; font-size: 13px; color: var(--danger-color); display: none;"></div>
+            <div id="withdrawal-notice" style="margin-top:9px;font-size:12px;color:var(--danger-color);display:none;"></div>
         </div>
-        
         <div class="card">
-            <h2>📜 উইথড্র হিস্ট্রি (History)</h2>
-            <div class="data-list" id="withdrawal-history-container" style="margin-top: 15px;">
-                <!-- Injected via JS -->
-                <p style="text-align: center; color: var(--text-muted); font-size: 14px;">কোনো উইথড্র রেকর্ড নেই।</p>
-            </div>
+            <h2>📜 উইথড্র হিস্ট্রি</h2>
+            <div class="data-list" id="withdrawal-history-container" style="margin-top:12px;"><p style="text-align:center;color:var(--text-muted);font-size:13px;">কোনো উইথড্র রেকর্ড নেই।</p></div>
         </div>
+        <div class="card" id="income-history-card" style="display:none;margin-top:16px;">
+            <h2>💰 ইনকাম হিস্ট্রি</h2>
+            <div class="data-list" id="income-history-container" style="margin-top:12px;"><p style="text-align:center;color:var(--text-muted);font-size:13px;">লোড হচ্ছে...</p></div>
+        </div>
+    </div>
 
-        <div class="card" id="income-history-card" style="display: none; margin-top: 20px;">
-            <h2>💰 ইনকাম হিস্ট্রি (Income History)</h2>
-            <div class="data-list" id="income-history-container" style="margin-top: 15px;">
-                <p style="text-align: center; color: var(--text-muted); font-size: 14px;">লোড হচ্ছে...</p>
-            </div>
+    <!-- 5. MORE TAB -->
+    <div id="tab-more" class="tab-content">
+        <div class="header"><h1>👥 মোর (More)</h1><p style="color:var(--text-muted);font-size:13px;">Referral & Support</p></div>
+        <div class="card">
+            <h2>👥 বন্ধুদের রেফার করুন</h2>
+            <p class="mb-2" style="color:var(--text-muted);font-size:12px;text-align:center;">প্রতি রেফারে ১০০ Points + ১০% লাইফটাইম কমিশন!</p>
+            <label style="color:var(--text-muted);font-size:11px;margin-bottom:4px;display:block;">আপনার রেফারেল লিংক:</label>
+            <div class="copy-box"><input type="text" id="ref-link" readonly value="https://t.me/Incomlb_bot?start="><button onclick="copyRefLink()">কপি</button></div>
+            <button class="btn btn-outline" onclick="shareRefLink()">📤 শেয়ার করুন</button>
+        </div>
+        <div class="card">
+            <h2>📋 রেফার তালিকা - মোট: <span id="ref-total-count">0</span></h2>
+            <div class="data-list" id="ref-list-container" style="margin-top:12px;"><p style="text-align:center;color:var(--text-muted);font-size:13px;">কোনো রেফার পাওয়া যায়নি।</p></div>
+        </div>
+        <div class="card text-center">
+            <i class="fas fa-headset" style="font-size:38px;color:var(--secondary-color);margin-bottom:14px;"></i>
+            <h2>সাপোর্ট সার্ভিস</h2>
+            <p style="color:var(--text-muted);font-size:13px;margin-top:8px;">🎧 সাপোর্ট শীঘ্রই আসছে (Coming Soon)...</p>
         </div>
     </div>
 
     <!-- 6. ADMIN TAB -->
     <div id="tab-admin" class="tab-content">
-        <div class="header">
-            <h1 style="color: var(--danger-color);">এডমিন প্যানেল</h1>
-            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Admin Control Center</p>
-        </div>
-
-        <div id="admin-auth-view" class="card" style="display: none; text-align: center;">
-            <h2>🔒 Admin Authentication</h2>
-            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">Enter the Secret API Key to access the dashboard</p>
-            <div class="input-group">
-                <input type="password" id="admin-secret-key-input" placeholder="Secret API Key">
-            </div>
+        <div class="header"><h1 style="color:var(--danger-color);">🛡️ এডমিন প্যানেল</h1><p style="color:var(--text-muted);font-size:13px;">Admin Control Center</p></div>
+        <div id="admin-auth-view" class="card" style="display:none;text-align:center;">
+            <h2>🔒 Admin Auth</h2>
+            <p class="mb-2" style="color:var(--text-muted);font-size:13px;">Secret API Key দিয়ে লগিন করুন</p>
+            <div class="input-group"><input type="password" id="admin-secret-key-input" placeholder="Secret API Key"></div>
             <button class="btn btn-primary" onclick="adminWebLogin()">Login</button>
         </div>
-        
         <div id="admin-content-view">
-            <div class="stats-grid" id="admin-stats-grid">
-            <div class="stat-item"><h4>Total Users</h4><p id="astat-users">0</p></div>
-            <div class="stat-item"><h4>Active Today</h4><p id="astat-active">0</p></div>
-            <div class="stat-item"><h4>Ads Today</h4><p id="astat-ads">0</p></div>
-            <div class="stat-item"><h4>Pending WD</h4><p id="astat-wd">0</p></div>
-            <div class="stat-item"><h4>Total Points</h4><p id="astat-points">0</p></div>
-            <div class="stat-item"><h4>Total Paid (BDT)</h4><p id="astat-paid">0</p></div>
-        </div>
-
-        <div class="card">
-            <h2>👤 User Management</h2>
-            <div class="input-group">
-                <input type="text" id="admin-search-user" placeholder="User ID or Username">
+            <div class="stats-grid">
+                <div class="stat-item"><h4>Total Users</h4><p id="astat-users">0</p></div>
+                <div class="stat-item"><h4>Active Today</h4><p id="astat-active">0</p></div>
+                <div class="stat-item"><h4>Ads Today</h4><p id="astat-ads">0</p></div>
+                <div class="stat-item"><h4>Pending WD</h4><p id="astat-wd">0</p></div>
+                <div class="stat-item"><h4>Total Points</h4><p id="astat-points">0</p></div>
+                <div class="stat-item"><h4>Total Paid</h4><p id="astat-paid">0</p></div>
             </div>
-            <button class="btn btn-primary" onclick="adminSearchUser()">Search</button>
-            <div id="admin-user-details" style="display: none; margin-top: 15px; text-align: left;">
-                <p><strong>ID:</strong> <span id="adetail-id"></span></p>
-                <p><strong>Username:</strong> <span id="adetail-uname"></span></p>
-                <p><strong>Points:</strong> <span id="adetail-points"></span></p>
-                <p><strong>Ads:</strong> <span id="adetail-ads"></span></p>
-                <p><strong>Refs:</strong> <span id="adetail-refs"></span></p>
-                <div class="input-group" style="margin-top: 10px;">
-                    <label>Set Points</label>
-                    <input type="number" id="admin-set-points">
+            <div class="card">
+                <h2>👤 User Management</h2>
+                <div class="input-group"><input type="text" id="admin-search-user" placeholder="User ID or Username"></div>
+                <button class="btn btn-primary" onclick="adminSearchUser()">Search</button>
+                <div id="admin-user-details" style="display:none;margin-top:13px;text-align:left;">
+                    <p><strong>ID:</strong> <span id="adetail-id"></span></p><p><strong>Username:</strong> <span id="adetail-uname"></span></p><p><strong>Points:</strong> <span id="adetail-points"></span></p><p><strong>Ads:</strong> <span id="adetail-ads"></span></p><p><strong>Refs:</strong> <span id="adetail-refs"></span></p>
+                    <div class="input-group" style="margin-top:9px;"><label>Set Points</label><input type="number" id="admin-set-points"></div>
+                    <button class="btn btn-success" onclick="adminUpdateUserPoints()">Update Points</button>
+                    <button class="btn" style="background:var(--danger-color);color:white;width:100%;padding:12px;border-radius:11px;border:none;font-weight:bold;margin-bottom:9px;" onclick="adminToggleBan()" id="admin-ban-btn">Ban User</button>
                 </div>
-                <button class="btn btn-success" onclick="adminUpdateUserPoints()">Update Points</button>
-                <button class="btn btn-danger" style="background: var(--danger-color); color: white; width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: bold; margin-bottom: 12px;" onclick="adminToggleBan()" id="admin-ban-btn">Ban User</button>
+                <div style="margin-top:16px;"><button class="btn btn-outline" onclick="adminLoadAllUsers()">Load All Users</button><div style="overflow-x:auto;margin-top:13px;"><table style="width:100%;text-align:left;border-collapse:collapse;display:none;" id="admin-users-table"><thead><tr style="border-bottom:1px solid #334155;"><th style="padding:9px;">ID</th><th style="padding:9px;">Username</th><th style="padding:9px;">Points</th><th style="padding:9px;">Action</th></tr></thead><tbody id="admin-users-list"></tbody></table></div></div>
             </div>
-            <div style="margin-top: 20px;">
-                <button class="btn btn-outline" onclick="adminLoadAllUsers()">Load All Users</button>
-                <div style="overflow-x: auto; margin-top: 15px;">
-                    <table style="width: 100%; text-align: left; border-collapse: collapse; display: none;" id="admin-users-table">
-                        <thead>
-                            <tr style="border-bottom: 1px solid #334155;">
-                                <th style="padding: 10px;">ID</th>
-                                <th style="padding: 10px;">Username</th>
-                                <th style="padding: 10px;">Points</th>
-                                <th style="padding: 10px;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-users-list"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>💳 Pending Withdrawals</h2>
-            <button class="btn btn-outline" onclick="adminLoadWithdrawals()">Refresh List</button>
-            <div class="data-list" id="admin-wd-list" style="margin-top: 15px;"></div>
-        </div>
-
-        <div class="card">
-            <h2>⚙️ System Settings</h2>
-            <button class="btn btn-outline" onclick="adminLoadSettings()">Load Settings</button>
-            <div id="admin-settings-container" style="margin-top: 15px;"></div>
-            <button class="btn btn-success" onclick="adminSaveSettings()" style="margin-top: 15px; display: none;" id="admin-save-settings-btn">Save Settings</button>
-        </div>
-
-        <div class="card">
-            <h2>📢 Broadcast</h2>
-            <div class="input-group">
-                <textarea id="admin-broadcast-msg" rows="4" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 15px;" placeholder="Message to all active users..."></textarea>
-            </div>
-            <button class="btn btn-primary" onclick="adminSendBroadcast()">Send Broadcast</button>
-        </div>
+            <div class="card"><h2>💳 Pending Withdrawals</h2><button class="btn btn-outline" onclick="adminLoadWithdrawals()">Refresh</button><div class="data-list" id="admin-wd-list" style="margin-top:12px;"></div></div>
+            <div class="card"><h2>⚙️ System Settings</h2><button class="btn btn-outline" onclick="adminLoadSettings()">Load Settings</button><div id="admin-settings-container" style="margin-top:12px;"></div><button class="btn btn-success" onclick="adminSaveSettings()" style="margin-top:12px;display:none;" id="admin-save-settings-btn">Save Settings</button></div>
+            <div class="card"><h2>📢 Broadcast</h2><div class="input-group"><textarea id="admin-broadcast-msg" rows="4" placeholder="Message..."></textarea></div><button class="btn btn-primary" onclick="adminSendBroadcast()">Send Broadcast</button></div>
         </div>
     </div>
 
-    <!-- BOTTOM NAVIGATION -->
+    <!-- BOTTOM NAV: 5 tabs -->
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('home', this)">
-            <i class="fas fa-home"></i>
-            <span>হোম</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('task', this)">
-            <i class="fas fa-tasks"></i>
-            <span>টাস্ক</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('support', this)">
-            <i class="fas fa-headset"></i>
-            <span>সাপোর্ট</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('referral', this)">
-            <i class="fas fa-users"></i>
-            <span>রেফার</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('ads', this)">
-            <i class="fas fa-play-circle"></i>
-            <span>অ্যাড</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('wallet', this)">
-            <i class="fas fa-wallet"></i>
-            <span>ওয়ালেট</span>
-        </div>
-        <div class="nav-item" id="nav-admin" style="display: none;" onclick="switchTab('admin', this); adminLoadStats();">
-            <i class="fas fa-shield-alt" style="color: var(--danger-color);"></i>
-            <span style="color: var(--danger-color);">এডমিন</span>
-        </div>
+        <div class="nav-item active" onclick="switchTab('home',this)"><i class="fas fa-home"></i><span>হোম</span></div>
+        <div class="nav-item" onclick="switchTab('task',this)"><i class="fas fa-bolt"></i><span>টাস্ক</span></div>
+        <div class="nav-item" onclick="switchTab('ads',this)"><i class="fas fa-play-circle"></i><span>অ্যাড</span></div>
+        <div class="nav-item" onclick="switchTab('wallet',this)"><i class="fas fa-wallet"></i><span>ওয়ালেট</span></div>
+        <div class="nav-item" onclick="switchTab('more',this)"><i class="fas fa-users"></i><span>মোর</span></div>
+        <div class="nav-item" id="nav-admin" style="display:none;" onclick="switchTab('admin',this);adminLoadStats();"><i class="fas fa-shield-alt" style="color:var(--danger-color);"></i><span style="color:var(--danger-color);">এডমিন</span></div>
     </div>
 
-    <!-- Master Anti-Cheat Modal -->
+    <!-- Anti-Cheat Modal -->
     <div class="modal-overlay" id="anti-cheat-modal">
         <div class="modal-content">
-            <h3 class="modal-title">⚠️ উইথড্র করার শর্ত</h3>
-            <p class="modal-text" id="modal-text-dynamic">উইথড্র করার জন্য আপনাকে অন্তত ১০টি রেফার এবং ৫০টি অ্যাড দেখতে হবে।</p>
-            <div class="modal-status" id="modal-referral-status">আপনার রেফার: 0/10 | অ্যাড দেখা: 0/50</div>
+            <h3 class="modal-title">⚠️ উইথড্র শর্ত</h3>
+            <p class="modal-text" id="modal-text-dynamic">শর্ত পূরণ করুন।</p>
+            <div class="modal-status" id="modal-referral-status">রেফার: 0/3</div>
             <button class="modal-btn" onclick="closeModal()">বুঝতে পেরেছি</button>
         </div>
     </div>
 
-    
-    <!-- Premium Ad Loading Modal -->
+    <!-- Premium Ad Modal -->
     <div class="premium-modal" id="premium-ad-modal">
         <div class="premium-spinner"></div>
-        <div class="premium-text" id="premium-ad-text">Preparing Premium Ad...</div>
+        <div class="premium-text" id="premium-ad-text">Preparing Ad...</div>
     </div>
 
-    <script>
-        const API_BASE_URL = 'https://income-lab-bot.onrender.com';
-        // Telegram WebApp Initialization
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
-        
-        const isWeb = !tg.initDataUnsafe || !tg.initDataUnsafe.user;
-        const isAdminHash = window.location.hash === '#admin' || window.location.hash.includes('admin');
-        const hasAdminKey = localStorage.getItem('admin_secret_key') === 'telebotads';
-        
-        if (localStorage.getItem('channels_verified') === 'true' || isWeb || isAdminHash || hasAdminKey) {
-            document.getElementById('guard-modal').style.display = 'none';
-            document.getElementById('guard-modal').classList.remove('active');
-        }
+<script>
+const API_BASE_URL='https://income-lab-bot.onrender.com';
+const tg=window.Telegram.WebApp;
+tg.expand();tg.ready();
+const isWeb=!tg.initDataUnsafe||!tg.initDataUnsafe.user;
+const isAdminHash=window.location.hash.includes('admin');
+const hasAdminKey=localStorage.getItem('admin_secret_key')==='telebotads';
+if(localStorage.getItem('channels_verified')==='true'||isWeb||isAdminHash||hasAdminKey){document.getElementById('guard-modal').style.display='none';document.getElementById('guard-modal').classList.remove('active');}
+let userId=123456789,userName='User',firstName='User';
+if(tg.initDataUnsafe&&tg.initDataUnsafe.user){userId=tg.initDataUnsafe.user.id;userName=tg.initDataUnsafe.user.username||'User';firstName=tg.initDataUnsafe.user.first_name||'User';}
+if(typeof show_3439952==='function')show_3439952({type:'preload',ymid:userId});
+document.getElementById('ref-link').value=`https://t.me/Incomlb_bot?start=ref_${userId}`;
+let currentReferrals=0,currentEarned=0,currentPoints=0,totalAdsWatched=0;
+window.successfulWithdrawalsCount=0;
 
-        let userId = 123456789; 
-        let userName = "User";
-        let firstName = "User";
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            userId = tg.initDataUnsafe.user.id;
-            userName = tg.initDataUnsafe.user.username || "User";
-            firstName = tg.initDataUnsafe.user.first_name || "User";
-        }
-        if (typeof show_3439952 === 'function') {
-            show_3439952({ type: 'preload', ymid: userId });
-        }
+function switchTab(tabId,el){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+tabId).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active');fetchUserData();}
 
-        // Set referral link early
-        document.getElementById('ref-link').value = `https://t.me/Incomlb_bot?start=ref_${userId}`;
+async function checkGuardMembership(){const btn=document.getElementById('verify-guard-btn');btn.innerText='অপেক্ষা...';const c=new AbortController();const tid=setTimeout(()=>c.abort(),7000);try{const r=await fetch(`${API_BASE_URL}/api/check_membership`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId}),signal:c.signal});const d=await r.json();if(d.is_verified){localStorage.setItem('channels_verified','true');document.getElementById('guard-modal').style.display='none';document.getElementById('guard-modal').classList.remove('active');}else alert('⚠️'+(d.message||'চ্যানেলে জয়েন করেননি!'));}catch(e){alert(e.name==='AbortError'?'⚠️ টাইমআউট!':'⚠️ নেটওয়ার্ক সমস্যা.');}finally{clearTimeout(tid);btn.innerText='ভেরিফাই করুন';}}
 
-        // Global State
-        let currentReferrals = 0;
-        let currentEarned = 0;
-        let currentPoints = 0;
-        window.successfulWithdrawalsCount = 0;
-        let totalAdsWatched = 0;
-        
-        
-        
-        // Tab Switching Logic
-        function switchTab(tabId, element) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            // Show target tab
-            document.getElementById('tab-' + tabId).classList.add('active');
-            
-            // Update nav styling
-            document.querySelectorAll('.nav-item').forEach(nav => {
-                nav.classList.remove('active');
-            });
-            element.classList.add('active');
-            
-            // Refresh data when switching tabs if needed
-            fetchUserData();
-        }
+async function dailyCheckin(){const btn=document.getElementById('claim-bonus-btn');btn.disabled=true;btn.innerText='অপেক্ষা...';try{const r=await fetch(`${API_BASE_URL}/api/daily_checkin`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId})});const d=await r.json();if(d.success){alert(d.message);fetchUserData();}else{alert('⚠️'+d.message);btn.disabled=true;btn.innerText='আজকের বোনাস ক্লেইম হয়েছে ✅';btn.style.background='#059669';}}catch{alert('নেটওয়ার্ক সমস্যা।');btn.disabled=false;btn.innerText="Claim Today's Bonus / ১০ পয়েন্ট নিন";}}
 
-        async function checkGuardMembership() {
-            const btn = document.getElementById('verify-guard-btn');
-            btn.innerText = "অপেক্ষা করুন...";
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 7000);
-            
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/check_membership`, {
-                    method: 'POST',
-                    credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify({ user_id: userId }),
-                    signal: controller.signal
-                });
-                const data = await res.json();
-                
-                if (data.is_verified) {
-                    localStorage.setItem('channels_verified', 'true');
-                    document.getElementById('guard-modal').style.display = 'none';
-                    document.getElementById('guard-modal').classList.remove('active');
-                } else {
-                    let msg = data.message || data.error || "আপনি এখনো ২টি চ্যানেলে জয়েন করেননি!";
-                    alert(`⚠️ ${msg}`);
-                }
-            } catch (e) {
-                if (e.name === 'AbortError') {
-                    alert("⚠️ সার্ভার কানেকশন টাইমআউট! দয়া করে আবার চেষ্টা করুন।");
-                } else {
-                    alert("⚠️ নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।");
-                }
-            } finally {
-                clearTimeout(timeoutId);
-                btn.innerText = "ভেরিফাই করুন";
-            }
-        }
+async function fetchUserData(){try{const r=await fetch(`${API_BASE_URL}/api/user_data`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({user_id:userId,username:userName,first_name:firstName})});const d=await r.json();if(!r.ok)return;
+if(d.is_banned){document.body.innerHTML="<h1 style='color:red;text-align:center;margin-top:50px;'>⚠️ Banned.</h1>";return;}
+if(d.is_admin)document.getElementById('nav-admin').style.display='flex';
+currentEarned=d.earned||0;window.successfulWithdrawalsCount=d.successful_withdrawals_count||0;
+window.shortlinkRewardPoints=d.shortlink_reward_points||50;
+const jwt=document.getElementById('jackpot-reward-text');if(jwt)jwt.innerText=window.shortlinkRewardPoints;
+const jcm=document.getElementById('jackpot-claimed-msg'),jcs=document.getElementById('jackpot-claim-section');
+if(d.shortlink_claimed_today){if(jcm)jcm.style.display='block';if(jcs)jcs.style.display='none';}else{if(jcm)jcm.style.display='none';if(jcs)jcs.style.display='block';}
+window.todayShortlinkUrl=d.today_shortlink_url;
+window.adRewardPoints=d.ad_reward_points||15;window.dailyAdLimit=d.daily_ad_limit||15;
+window.adsRemaining=d.ads_remaining!==undefined?d.ads_remaining:window.dailyAdLimit;window.adsToday=d.ads_today||0;
+const awt=document.getElementById('ads-watched-today'),adl=document.getElementById('ads-daily-limit'),art=document.getElementById('ads-remaining-today'),alt2=document.getElementById('ad-limit-text');
+if(awt)awt.innerText=window.adsToday;if(adl)adl.innerText=window.dailyAdLimit;if(art)art.innerText=window.adsRemaining;if(alt2)alt2.innerText=window.dailyAdLimit;
+const ab=document.getElementById('ad-reward-banner');if(ab)ab.innerText=`🔥 প্রতি অ্যাডে পাবেন ${window.adRewardPoints} Points!`;
+const adBtn=document.getElementById('start-ad-btn');if(adBtn){if(window.adsRemaining<=0){adBtn.disabled=true;adBtn.className='btn btn-disabled';adBtn.innerText='🚫 লিমিট শেষ';}else{adBtn.disabled=false;adBtn.className='btn btn-primary';adBtn.innerText=`Watch Ad (+${window.adRewardPoints} Pts)`;}}
+currentPoints=d.points||0;localStorage.setItem('user_balance',currentPoints);document.getElementById('home-balance').innerText=`${currentPoints} Points`;document.getElementById('wallet-balance').innerText=`${currentPoints} Points`;
+currentReferrals=d.referral_count||d.total_referrals||0;totalAdsWatched=d.ads_watched||d.total_ads_watched||0;localStorage.setItem('ads_watched',totalAdsWatched);
+const ac=document.getElementById('total-ads-count');if(ac)ac.innerText=totalAdsWatched;const ha=document.getElementById('home-ads');if(ha)ha.innerText=totalAdsWatched;
+if(d.last_checkin_date){const today=new Date().toISOString().split('T')[0];const cb=document.getElementById('claim-bonus-btn');if(d.last_checkin_date===today){cb.disabled=true;cb.innerText='আজকের বোনাস ক্লেইম হয়েছে ✅';cb.style.background='#059669';}else{cb.disabled=false;cb.innerText="Claim Today's Bonus / ১০ পয়েন্ট নিন";}}
+document.getElementById('home-refs').innerText=currentReferrals;document.getElementById('ref-total-count').innerText=currentReferrals;
+let tc=0;const vb1=document.getElementById('verify-btn-1');if(d.task_status==='COMPLETED'){vb1.innerText='✅ সম্পন্ন';vb1.className='btn btn-disabled';vb1.disabled=true;tc++;}
+const vb2=document.getElementById('verify-btn-2');if(d.task2_status==='COMPLETED'){vb2.innerText='✅ সম্পন্ন';vb2.className='btn btn-disabled';vb2.disabled=true;tc++;}
+const vb3=document.getElementById('verify-btn-3');if(vb3&&d.task3_status==='COMPLETED'){vb3.innerText='✅ সম্পন্ন';vb3.className='btn btn-disabled';vb3.disabled=true;tc++;}
+document.getElementById('home-tasks').innerText=tc;
+const rc=document.getElementById('ref-list-container');if(d.referrals_list&&d.referrals_list.length>0){rc.innerHTML='';d.referrals_list.forEach(rf=>{const dt=new Date(rf.joined_at).toLocaleDateString('bn-BD');rc.innerHTML+=`<div class="data-item"><div class="left"><span class="title">${rf.first_name||'User'}</span><span class="subtitle">${dt}</span></div><div class="right" style="color:var(--primary-color);">+100 Pts</div></div>`;});}else rc.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">কোনো রেফার নেই।</p>';
+const wc=document.getElementById('withdrawal-history-container');if(d.withdrawal_history&&d.withdrawal_history.length>0){wc.innerHTML='';d.withdrawal_history.forEach(w=>{const dt=new Date(w.created_at).toLocaleDateString('bn-BD');const sc=w.status==='PENDING'?'status-pending':(w.status==='APPROVED'?'status-approved':'status-rejected');wc.innerHTML+=`<div class="data-item"><div class="left"><span class="title">${w.method} - ${w.amount} BDT</span><span class="subtitle">${dt}</span></div><div class="right ${sc}">${w.status}</div></div>`;});}else wc.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">কোনো উইথড্র রেকর্ড নেই।</p>';
+}catch(e){console.error('fetchUserData:',e);}}
 
-        async function dailyCheckin() {
-            const btn = document.getElementById('claim-bonus-btn');
-            btn.disabled = true;
-            btn.innerText = "অপেক্ষা করুন...";
-            
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/daily_checkin`, {
-                    method: 'POST',
-                    credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify({ user_id: userId })
-                });
-                const data = await res.json();
-                
-                if (data.success) {
-                    alert(data.message);
-                    fetchUserData(); 
-                } else {
-                    alert(`⚠️ ${data.message}`);
-                    btn.disabled = true;
-                    btn.innerText = "আজকের বোনাস ক্লেইম করা হয়েছে ✅";
-                    btn.style.background = "#059669";
-                }
-            } catch (e) {
-                console.error("Daily Checkin Error:", e);
-                alert("নেটওয়ার্ক সমস্যা।");
-                btn.disabled = false;
-                btn.innerText = "Claim Today's Bonus / ১০ পয়েন্ট নিন";
-            }
-        }
+function openSecretCodeLink(){const today=new Date().toISOString().split('T')[0];openTgLink(window.todayShortlinkUrl||`https://income-lab-bot.onrender.com/secret-landing/${today}`);}
+async function claimSecretCode(){const code=document.getElementById('secret-code-input').value;if(!code)return tg.showAlert('সিক্রেট কোড লিখুন');try{const r=await fetch(`${API_BASE_URL}/api/verify_secret_code`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,code})});const d=await r.json();if(d.success){tg.showAlert(d.message);fetchUserData();}else tg.showAlert(d.message||d.error||'Error');}catch{tg.showAlert('Network Error');}}
 
-        async function fetchUserData() {
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/user_data`, {
-                    method: 'POST',
-                    credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify({ user_id: userId, username: userName, first_name: firstName })
-                });
-                
-                const data = await res.json();
-                
-                if (res.ok) {
-                    if (data.is_banned) {
-                        document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:50px;'>⚠️ Your account has been banned.</h1>";
-                        return;
-                    }
-                    if (data.is_admin) {
-                        document.getElementById('nav-admin').style.display = 'flex';
-                    }
-                    
-                    currentEarned = data.earned || 0;
-                    window.successfulWithdrawalsCount = data.successful_withdrawals_count || 0;
-                    
-                    window.shortlinkRewardPoints = data.shortlink_reward_points || 50;
-                    const jackpotRewardText = document.getElementById('jackpot-reward-text');
-                    if (jackpotRewardText) {
-                        jackpotRewardText.innerText = window.shortlinkRewardPoints;
-                    }
-                    
-                    const jackpotClaimedMsg = document.getElementById('jackpot-claimed-msg');
-                    const jackpotClaimSection = document.getElementById('jackpot-claim-section');
-                    if (data.shortlink_claimed_today) {
-                        if(jackpotClaimedMsg) jackpotClaimedMsg.style.display = 'block';
-                        if(jackpotClaimSection) jackpotClaimSection.style.display = 'none';
-                    } else {
-                        if(jackpotClaimedMsg) jackpotClaimedMsg.style.display = 'none';
-                        if(jackpotClaimSection) jackpotClaimSection.style.display = 'block';
-                    }
-                    
-                    window.todayShortlinkUrl = data.today_shortlink_url;
-                    window.adRewardPoints = data.ad_reward_points || 15;
-                    window.dailyAdLimit = data.daily_ad_limit || 15;
-                    window.adsRemaining = (data.ads_remaining !== undefined) ? data.ads_remaining : window.dailyAdLimit;
-                    window.adsToday = data.ads_today || 0;
-                    
-                    // Update live ad counter cards
-                    const adsWatchedTodayEl = document.getElementById('ads-watched-today');
-                    const adsDailyLimitEl = document.getElementById('ads-daily-limit');
-                    const adsRemainingEl = document.getElementById('ads-remaining-today');
-                    const adLimitText = document.getElementById('ad-limit-text');
-                    if (adsWatchedTodayEl) adsWatchedTodayEl.innerText = window.adsToday;
-                    if (adsDailyLimitEl) adsDailyLimitEl.innerText = window.dailyAdLimit;
-                    if (adsRemainingEl) adsRemainingEl.innerText = window.adsRemaining;
-                    if (adLimitText) adLimitText.innerText = window.dailyAdLimit;
-                    
-                    // Update ad button state
-                    const adBtn = document.getElementById('start-ad-btn');
-                    if (adBtn) {
-                        if (window.adsRemaining <= 0) {
-                            adBtn.disabled = true;
-                            adBtn.className = 'btn btn-disabled';
-                            adBtn.innerText = `🚫 আজকের লিমিট শেষ (০ টি বাকি)`;
-                        } else {
-                            adBtn.disabled = false;
-                            adBtn.className = 'btn btn-primary';
-                            adBtn.innerText = `Watch Ad (+${window.adRewardPoints} Pts)`;
-                        }
-                    }
-                    
-                    const adBanner = document.getElementById('ad-reward-banner');
-                    if (adBanner) {
-                        adBanner.innerText = `🔥 অফার: প্রতি অ্যাড দেখলে পাবেন ${window.adRewardPoints} Points!`;
-                    }
-                    
-                    const adInstr = document.getElementById('ad-instruction');
-                    if (adInstr) {
-                        adInstr.innerHTML = `নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। (দৈনিক লিমিট: ${window.dailyAdLimit} টি)`;
-                    }
-                    
-                    const wdInput = document.getElementById('withdraw-amount');
-                    const wdNotice = document.getElementById('withdrawal-notice');
-                    if (wdInput) {
-                        if (window.successfulWithdrawalsCount === 0) {
-                            wdInput.placeholder = "সর্বনিম্ন ১০,০০০ পয়েন্ট (১০০ টাকা)";
-                            if (wdNotice) {
-                                wdNotice.innerText = "⚠️ নোট: প্রথমবার উইথড্র করার জন্য সর্বনিম্ন ১০০ টাকা (১০,০০০ পয়েন্ট) প্রয়োজন। পরবর্তী যেকোনো উইথড্র মাত্র ২০ টাকা (২,০০০ পয়েন্ট) হলেই করতে পারবেন।";
-                                wdNotice.style.display = "block";
-                            }
-                        } else {
-                            wdInput.placeholder = "সর্বনিম্ন ২,০০০ পয়েন্ট (২০ টাকা)";
-                            if (wdNotice) {
-                                wdNotice.style.display = "none";
-                            }
-                        }
-                    }
-                    
-                    currentPoints = data.points || 0;
-                    localStorage.setItem('user_balance', currentPoints);
-                    document.getElementById('home-balance').innerText = `${currentPoints} Points`;
-                    document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
-                    
-                    currentReferrals = data.referral_count || data.total_referrals || 0;
-                    totalAdsWatched = data.ads_watched || data.total_ads_watched || 0;
-                    localStorage.setItem('ads_watched', totalAdsWatched);
-                    const adsCountEl = document.getElementById('total-ads-count');
-                    if (adsCountEl) adsCountEl.innerText = totalAdsWatched;
-                    const homeAdsEl = document.getElementById('home-ads');
-                    if (homeAdsEl) homeAdsEl.innerText = totalAdsWatched;
-                    
-                    if (data.last_checkin_date) {
-                        const today = new Date().toISOString().split('T')[0];
-                        const btn = document.getElementById('claim-bonus-btn');
-                        if (data.last_checkin_date === today) {
-                            btn.disabled = true;
-                            btn.innerText = "আজকের বোনাস ক্লেইম করা হয়েছে ✅";
-                            btn.style.background = "#059669";
-                        } else {
-                            btn.disabled = false;
-                            btn.innerText = "Claim Today's Bonus / ১০ পয়েন্ট নিন";
-                        }
-                    }
-                    
-                    // Update Home & Wallet Balances
-                    document.getElementById('home-balance').innerText = `${currentPoints} Points`;
-                    document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
-                    
-                    // Update Stats
-                    document.getElementById('home-refs').innerText = currentReferrals;
-                    document.getElementById('ref-total-count').innerText = currentReferrals;
-                    document.getElementById('total-ads-count').innerText = totalAdsWatched;
-                    const homeAdsEl2 = document.getElementById('home-ads');
-                    if (homeAdsEl2) homeAdsEl2.innerText = totalAdsWatched;
-                    
-                    // Update Task Status
-                    let totalTasksCompleted = 0;
-                    const vBtn1 = document.getElementById('verify-btn-1');
-                    if (data.task_status === 'COMPLETED') {
-                        vBtn1.innerText = "✅ ভেরিফাই সম্পন্ন";
-                        vBtn1.classList.replace('btn-success', 'btn-disabled');
-                        vBtn1.disabled = true;
-                        totalTasksCompleted++;
-                    }
-                    
-                    const vBtn2 = document.getElementById('verify-btn-2');
-                    if (data.task2_status === 'COMPLETED') {
-                        vBtn2.innerText = "✅ ভেরিফাই সম্পন্ন";
-                        vBtn2.classList.replace('btn-success', 'btn-disabled');
-                        vBtn2.disabled = true;
-                        totalTasksCompleted++;
-                    }
-                    
-                    const vBtn3 = document.getElementById('verify-btn-3');
-                    if (vBtn3 && data.task3_status === 'COMPLETED') {
-                        vBtn3.innerText = "✅ ভেরিফাই সম্পন্ন";
-                        vBtn3.classList.replace('btn-success', 'btn-disabled');
-                        vBtn3.disabled = true;
-                        totalTasksCompleted++;
-                    }
-                    
-                    document.getElementById('home-tasks').innerText = totalTasksCompleted;
-                    
-                    // Populate Referrals List
-                    const refContainer = document.getElementById('ref-list-container');
-                    if (data.referrals_list && data.referrals_list.length > 0) {
-                        refContainer.innerHTML = '';
-                        data.referrals_list.forEach(ref => {
-                            const date = new Date(ref.joined_at).toLocaleDateString('bn-BD');
-                            refContainer.innerHTML += `
-                                <div class="data-item">
-                                    <div class="left">
-                                        <span class="title">${ref.first_name || 'User'}</span>
-                                        <span class="subtitle">Join Date: ${date}</span>
-                                    </div>
-                                    <div class="right" style="color: var(--primary-color);">+50 Points</div>
-                                </div>
-                            `;
-                        });
-                    } else {
-                        refContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 14px;">কোনো রেফার পাওয়া যায়নি।</p>';
-                    }
-                    
-                    // Populate Withdrawal History
-                    const wContainer = document.getElementById('withdrawal-history-container');
-                    if (data.withdrawal_history && data.withdrawal_history.length > 0) {
-                        wContainer.innerHTML = '';
-                        data.withdrawal_history.forEach(w => {
-                            const date = new Date(w.created_at).toLocaleDateString('bn-BD');
-                            let statusColor = w.status === 'PENDING' ? 'status-pending' : (w.status === 'APPROVED' ? 'status-approved' : 'status-rejected');
-                            wContainer.innerHTML += `
-                                <div class="data-item">
-                                    <div class="left">
-                                        <span class="title">${w.method} - ${w.amount} BDT</span>
-                                        <span class="subtitle">${date}</span>
-                                    </div>
-                                    <div class="right ${statusColor}">${w.status}</div>
-                                </div>
-                            `;
-                        });
-                    } else {
-                        wContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 14px;">কোনো উইথড্র রেকর্ড নেই।</p>';
-                    }
-                }
-            } catch (err) {
-                console.error("Failed to fetch user data:", err);
-            }
-        }
+async function verifyTask(id){const btn=document.getElementById('verify-btn-'+id);if(btn.disabled)return;const orig=btn.innerText;btn.innerText='অপেক্ষা...';try{const r=await fetch(`${API_BASE_URL}/api/verify_task`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({user_id:userId,task_id:id})});const d=await r.json();if(d.success){tg.showAlert(d.message);fetchUserData();}else{tg.showAlert(d.message||'ভেরিফিকেশন ব্যর্থ!');btn.innerText=orig;}}catch{tg.showAlert('Network error.');btn.disabled=false;btn.innerText=orig;}}
 
-        function openSecretCodeLink() {
-            const todayStr = new Date().toISOString().split('T')[0];
-            const link = window.todayShortlinkUrl || `https://income-lab-bot.onrender.com/secret-landing/${todayStr}`;
-            openTgLink(link);
-        }
+function triggerAntiCheatCheck(){if(currentReferrals<3||totalAdsWatched<30){let msg='উইথড্রের জন্য ';const rr=Math.max(0,3-currentReferrals),ra=Math.max(0,30-totalAdsWatched);if(rr>0&&ra>0)msg+=`৩ রেফার ও ৩০ অ্যাড দেখতে হবে।`;else if(rr>0)msg+=`৩টি রেফার করতে হবে।`;else msg+=`৩০টি অ্যাড দেখতে হবে।`;document.getElementById('modal-text-dynamic').innerText=msg;document.getElementById('modal-referral-status').innerText=`রেফার:${currentReferrals}/3 | অ্যাড:${totalAdsWatched}/30`;document.getElementById('anti-cheat-modal').classList.add('active');return false;}if(currentPoints<2000){tg.showAlert('⚠️ সর্বনিম্ন ২০০০ পয়েন্ট প্রয়োজন।');return false;}return true;}
+function attemptWithdraw(){if(triggerAntiCheatCheck())switchTab('wallet',document.querySelectorAll('.nav-item')[3]);}
+function updateWithdrawalPlaceholder(){const m=document.getElementById('withdraw-method').value,i=document.getElementById('account-number');i.placeholder=m==='USDT (BEP-20)'?'0x...':'01XXXXXXXXX';i.type=m==='USDT (BEP-20)'?'text':'number';}
+function attemptWithdrawForm(){if(!triggerAntiCheatCheck())return;const method=document.getElementById('withdraw-method').value,account=document.getElementById('account-number').value,amount=parseInt(document.getElementById('withdraw-amount').value||currentPoints);if(!account||account.length<11){tg.showAlert('সঠিক নম্বর দিন।');return;}if(amount<2000){tg.showAlert('সর্বনিম্ন ২০০০ পয়েন্ট।');return;}if(amount>currentPoints){tg.showAlert('ব্যালেন্স কম!');return;}submitWithdrawal(method,account,amount);}
+async function submitWithdrawal(m,acc,amt){try{const r=await fetch(`${API_BASE_URL}/api/withdraw`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({user_id:userId,method:m,account:acc,amount:amt})});const d=await r.json();if(d.success){tg.showAlert(d.message);fetchUserData();document.getElementById('account-number').value='';document.getElementById('withdraw-amount').value='';}else tg.showAlert(d.error||'Error.');}catch{tg.showAlert('Network error.');}}
+function closeModal(){document.getElementById('anti-cheat-modal').classList.remove('active');}
+function showPremiumModal(t){document.getElementById('premium-ad-text').innerText=t;document.getElementById('premium-ad-modal').classList.add('active');}
+function hidePremiumModal(){document.getElementById('premium-ad-modal').classList.remove('active');}
 
-        async function claimSecretCode() {
-            const codeInput = document.getElementById('secret-code-input').value;
-            if(!codeInput) return tg.showAlert("অনুগ্রহ করে সিক্রেট কোড লিখুন");
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/verify_secret_code`, {
-                    method: 'POST', credentials: 'omit',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ userId: userId, code: codeInput })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    tg.showAlert(data.message);
-                    fetchUserData();
-                } else {
-                    tg.showAlert(data.message || data.error || "Something went wrong");
-                }
-            } catch(e) {
-                tg.showAlert("Network Error");
-            }
-        }
-        
-        async function verifyTask(taskId) {
-            const vBtn = document.getElementById('verify-btn-' + taskId);
-            if (vBtn.disabled) return;
-            
-            const originalText = vBtn.innerText;
-            vBtn.innerText = "অপেক্ষা করুন...";
-            
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/verify_task`, {
-                    method: 'POST',
-                    credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify({ user_id: userId, task_id: taskId })
-                });
-                const data = await res.json();
-                
-                if (data.success) {
-                    tg.showAlert(data.message);
-                    fetchUserData();
-                } else {
-                    tg.showAlert(data.message || "⚠️ ভেরিফিকেশন ব্যর্থ হয়েছে!");
-                    vBtn.innerText = originalText;
-                }
-            } catch (err) {
-                console.error("verifyTask Error:", err);
-                tg.showAlert("Network error. Try again.");
-                vBtn.disabled = false;
-                vBtn.innerText = originalText;
-            }
-        }
+async function rewardUserPoints(pts,reason=''){try{currentPoints+=pts;document.getElementById('home-balance').innerText=`${currentPoints} Points`;document.getElementById('wallet-balance').innerText=`${currentPoints} Points`;tg.showAlert(`✅ +${pts} Points যোগ হয়েছে!`);hidePremiumModal();const r=await fetch(`${API_BASE_URL}/api/add-points`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({userId,points:pts,reason})});const d=await r.json();if(d&&d.limit_reached){tg.showAlert(d.message||'⚠️ লিমিট শেষ!');currentPoints-=pts;document.getElementById('home-balance').innerText=`${currentPoints} Points`;document.getElementById('wallet-balance').innerText=`${currentPoints} Points`;fetchUserData();return;}if(d&&d.new_balance!==undefined){currentPoints=d.new_balance;localStorage.setItem('user_balance',currentPoints);document.getElementById('home-balance').innerText=`${currentPoints} Points`;document.getElementById('wallet-balance').innerText=`${currentPoints} Points`;}if(reason==='ad'&&d){if(d.ads_watched!==undefined){totalAdsWatched=d.ads_watched;localStorage.setItem('ads_watched',totalAdsWatched);const ac=document.getElementById('total-ads-count');if(ac)ac.innerText=totalAdsWatched;const ha=document.getElementById('home-ads');if(ha)ha.innerText=totalAdsWatched;}if(d.ads_today!==undefined){window.adsToday=d.ads_today;window.adsRemaining=d.ads_remaining!==undefined?d.ads_remaining:Math.max(0,(window.dailyAdLimit||15)-window.adsToday);const awt=document.getElementById('ads-watched-today');const art=document.getElementById('ads-remaining-today');if(awt)awt.innerText=window.adsToday;if(art)art.innerText=window.adsRemaining;const adBtn=document.getElementById('start-ad-btn');if(adBtn&&window.adsRemaining<=0){adBtn.disabled=true;adBtn.className='btn btn-disabled';adBtn.innerText='🚫 লিমিট শেষ';}}}}catch(e){console.error(e);}}
 
-        // Master Anti-Cheat function
-        function triggerAntiCheatCheck() {
-            if (currentReferrals < 3 || totalAdsWatched < 30) {
-                let remRefs = Math.max(0, 3 - currentReferrals);
-                let remAds = Math.max(0, 30 - totalAdsWatched);
-                let msg = "উইথড্র করার জন্য আপনাকে অন্তত ";
-                if (remRefs > 0 && remAds > 0) {
-                    msg += `৩টি রেফার এবং ৩০টি অ্যাড দেখতে হবে।`;
-                } else if (remRefs > 0) {
-                    msg += `৩টি রেফার করতে হবে।`;
-                } else {
-                    msg += `৩০টি অ্যাড দেখতে হবে।`;
-                }
-                
-                document.getElementById('modal-text-dynamic').innerText = msg;
-                document.getElementById('modal-referral-status').innerText = `আপনার রেফার: ${currentReferrals}/3 | অ্যাড দেখা: ${totalAdsWatched}/30`;
-                document.getElementById('anti-cheat-modal').classList.add('active');
-                return false;
-            }
-            if (currentPoints < 2000) {
-                tg.showAlert("⚠️ আপনার ব্যালেন্স অপর্যাপ্ত! সর্বনিম্ন উইথড্র পরিমাণ ২০০০ পয়েন্ট (২০ টাকা)।");
-                return false;
-            }
-            return true;
-        }
+const ADSGRAM_UNITS=['41772','41786','41787'];
+async function isAdBlockerOrPrivateDNSActive(){try{await Promise.all([fetch('https://sad.adsgram.ai/js/sad-b.js',{method:'HEAD',mode:'no-cors'}),fetch('https://libtl.com/sdk.js',{method:'HEAD',mode:'no-cors'})]);}catch{return true;}if(typeof window.Adsgram==='undefined'&&typeof window.show_11525199==='undefined')return true;return false;}
 
-        function attemptWithdraw() {
-            if(triggerAntiCheatCheck()) {
-                // If passed, switch to wallet tab
-                const walletNav = document.querySelectorAll('.nav-item')[5]; // Changed index for ads tab addition
-                switchTab('wallet', walletNav);
-            }
-        }
+async function playHybridAd(){const isBlocked=await isAdBlockerOrPrivateDNSActive();if(isBlocked){alert('⚠️ প্রাইভেট DNS/VPN শনাক্ত হয়েছে! বন্ধ করুন।');return;}if(window.Telegram&&window.Telegram.WebApp)window.Telegram.WebApp.ready();let ok=false;if(typeof window.Adsgram!=='undefined'||typeof AdController!=='undefined'){for(let i=0;i<ADSGRAM_UNITS.length;i++){try{const c=window.Adsgram?window.Adsgram.init({blockId:ADSGRAM_UNITS[i],debug:false}):new AdController({blockId:ADSGRAM_UNITS[i]});const r=await c.show();if(r&&(r.done||r.state==='completed')){ok=true;await rewardUserPoints(window.adRewardPoints||15,'ad');return;}}catch(e){console.warn(e);}}}if(!ok&&typeof show_11525199==='function'){try{const tid=window.Telegram?.WebApp?.initDataUnsafe?.user?.id||'guest';await show_11525199({ymid:String(tid)});await rewardUserPoints(window.adRewardPoints||15,'ad');ok=true;return;}catch(e){console.log(e);}}if(!ok)alert('এই মুহূর্তে অ্যাড নেই। পরে চেষ্টা করুন।');}
 
-        function updateWithdrawalPlaceholder() {
-            const method = document.getElementById('withdraw-method').value;
-            const input = document.getElementById('account-number');
-            if (method === 'USDT (BEP-20)') {
-                input.placeholder = "0x...";
-                input.type = "text";
-            } else {
-                input.placeholder = "01XXXXXXXXX";
-                input.type = "number";
-            }
-        }
+// CAPTCHA
+let captchaStep=0,captchaA=0,captchaB=0,captchaAns=0;
+function generateCaptcha(){const ops=['+','-'];const op=ops[Math.floor(Math.random()*2)];captchaA=Math.floor(Math.random()*12)+1;captchaB=Math.floor(Math.random()*12)+1;if(op==='-'&&captchaB>captchaA){const t=captchaA;captchaA=captchaB;captchaB=t;}captchaAns=op==='+'?captchaA+captchaB:captchaA-captchaB;document.getElementById('captcha-question').innerText=`${captchaA} ${op} ${captchaB} = ?`;document.getElementById('captcha-answer').value='';document.getElementById('captcha-status').innerText=`প্রশ্ন ${captchaStep+1}/5`;}
+function checkCaptchaAnswer(){const val=parseInt(document.getElementById('captcha-answer').value);if(isNaN(val))return;if(val===captchaAns){document.getElementById('dot-'+captchaStep).classList.add('done');captchaStep++;if(captchaStep>=5){document.getElementById('captcha-box').style.display='none';document.getElementById('captcha-reward-btn').style.display='block';document.getElementById('captcha-status').innerText='✅ সব ক্যাপচা সম্পন্ন!';}else{generateCaptcha();}}else if(String(document.getElementById('captcha-answer').value).length>3){document.getElementById('captcha-status').innerText='❌ ভুল! আবার চেষ্টা করুন।';document.getElementById('captcha-answer').value='';}}
+async function playCaptchaAd(){const btn=document.getElementById('captcha-reward-btn').querySelector('button');btn.disabled=true;btn.innerText='অ্যাড চলছে...';const isBlocked=await isAdBlockerOrPrivateDNSActive();if(isBlocked){alert('⚠️ VPN বন্ধ করুন।');btn.disabled=false;btn.innerText='🎁 পয়েন্ট ওয়ালেটে জমা করতে অ্যাডটি দেখুন (+3 Pts)';return;}let ok=false;if(typeof window.Adsgram!=='undefined'||typeof AdController!=='undefined'){for(let i=0;i<ADSGRAM_UNITS.length;i++){try{const c=window.Adsgram?window.Adsgram.init({blockId:ADSGRAM_UNITS[i],debug:false}):new AdController({blockId:ADSGRAM_UNITS[i]});const r=await c.show();if(r&&(r.done||r.state==='completed')){ok=true;break;}}catch(e){}}}if(!ok&&typeof show_11525199==='function'){try{await show_11525199({ymid:String(userId)});ok=true;}catch(e){}}if(ok){await rewardUserPoints(3,'captcha');captchaStep=0;document.querySelectorAll('.captcha-dot').forEach(d=>d.classList.remove('done'));document.getElementById('captcha-box').style.display='block';document.getElementById('captcha-reward-btn').style.display='none';generateCaptcha();}else{alert('অ্যাড পাওয়া যায়নি।');btn.disabled=false;btn.innerText='🎁 পয়েন্ট ওয়ালেটে জমা করতে অ্যাডটি দেখুন (+3 Pts)';}}
 
-        function attemptWithdrawForm() {
-            if(!triggerAntiCheatCheck()) return;
+// SPIN WHEEL
+const wheelPrizes=[3,5,10,20,100,500,1000];
+const wheelColors=['#10b981','#3b82f6','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#f97316'];
+let wheelAngle=0,pendingSpinPrize=0,isSpinning=false;
+function drawWheel(angle){const cv=document.getElementById('wheel-canvas');if(!cv)return;const ctx=cv.getContext('2d');const cx=cv.width/2,cy=cv.height/2,r=cx-8,arc=2*Math.PI/wheelPrizes.length;ctx.clearRect(0,0,cv.width,cv.height);wheelPrizes.forEach((prize,i)=>{const start=angle+i*arc-Math.PI/2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,start+arc);ctx.fillStyle=wheelColors[i];ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.12)';ctx.lineWidth=1.5;ctx.stroke();ctx.save();ctx.translate(cx,cy);ctx.rotate(start+arc/2);ctx.textAlign='right';ctx.fillStyle='white';ctx.font=`bold ${prize>=100?'11px':'13px'} Segoe UI`;ctx.fillText(prize+'P',r-8,5);ctx.restore();});ctx.beginPath();ctx.arc(cx,cy,18,0,2*Math.PI);ctx.fillStyle='#090d16';ctx.fill();ctx.strokeStyle='rgba(16,185,129,0.6)';ctx.lineWidth=2;ctx.stroke();}
+async function spinWheel(){if(isSpinning)return;const btn=document.getElementById('spin-btn');btn.disabled=true;btn.innerText='⏳ স্পিন হচ্ছে...';document.getElementById('spin-result').style.display='none';isSpinning=true;let serverPrize=0;try{const r=await fetch(`${API_BASE_URL}/api/spin_wheel`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId})});const d=await r.json();if(d.success)serverPrize=d.prize;else{tg.showAlert(d.message||'স্পিন ব্যর্থ');btn.disabled=false;btn.innerText='🎡 স্পিন করুন!';isSpinning=false;return;}}catch(e){tg.showAlert('নেটওয়ার্ক সমস্যা।');btn.disabled=false;btn.innerText='🎡 স্পিন করুন!';isSpinning=false;return;}pendingSpinPrize=serverPrize;const prizeIdx=wheelPrizes.indexOf(serverPrize);const arc=2*Math.PI/wheelPrizes.length;const targetAngle=-Math.PI/2-(prizeIdx*arc+arc/2);const finalAngle=targetAngle+5*2*Math.PI;const duration=4200;const startAngle=wheelAngle;const startTime=performance.now();function animate(now){const elapsed=now-startTime;const p=Math.min(elapsed/duration,1);const ease=1-Math.pow(1-p,4);wheelAngle=startAngle+(finalAngle-startAngle)*ease;drawWheel(wheelAngle);if(p<1){requestAnimationFrame(animate);}else{wheelAngle=finalAngle%(2*Math.PI);isSpinning=false;btn.disabled=false;btn.innerText='🎡 আবার স্পিন করুন';document.getElementById('spin-prize-text').innerText=`🎉 আপনি জিতেছেন: ${serverPrize} Points!`;document.getElementById('spin-result').style.display='block';}}requestAnimationFrame(animate);}
+async function playSpinAd(){const btn=document.getElementById('spin-claim-btn');btn.disabled=true;btn.innerText='অ্যাড চলছে...';const isBlocked=await isAdBlockerOrPrivateDNSActive();if(isBlocked){alert('⚠️ VPN বন্ধ করুন।');btn.disabled=false;btn.innerText='🎁 পয়েন্ট ক্লেইম করতে অ্যাড দেখুন';return;}let ok=false;if(typeof window.Adsgram!=='undefined'||typeof AdController!=='undefined'){for(let i=0;i<ADSGRAM_UNITS.length;i++){try{const c=window.Adsgram?window.Adsgram.init({blockId:ADSGRAM_UNITS[i],debug:false}):new AdController({blockId:ADSGRAM_UNITS[i]});const r=await c.show();if(r&&(r.done||r.state==='completed')){ok=true;break;}}catch(e){}}}if(!ok&&typeof show_11525199==='function'){try{await show_11525199({ymid:String(userId)});ok=true;}catch(e){}}if(ok){await rewardUserPoints(pendingSpinPrize,'spin');document.getElementById('spin-result').style.display='none';pendingSpinPrize=0;}else{alert('অ্যাড পাওয়া যায়নি।');btn.disabled=false;btn.innerText='🎁 পয়েন্ট ক্লেইম করতে অ্যাড দেখুন';}}
 
-            const method = document.getElementById('withdraw-method').value;
-            const account = document.getElementById('account-number').value;
-            const amount = document.getElementById('withdraw-amount').value || currentPoints;
+function copyRefLink(){const l=document.getElementById('ref-link');l.select();document.execCommand('copy');tg.showAlert('লিংক কপি হয়েছে!');}
+function shareRefLink(){const l=document.getElementById('ref-link').value;const t='Income Lab Bot এ জয়েন করুন!\n\n'+l;if(tg.openTelegramLink)tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(l)}&text=${encodeURIComponent(t)}`);else window.open(`https://t.me/share/url?url=${encodeURIComponent(l)}&text=${encodeURIComponent(t)}`,'_blank');}
+function openTgLink(url){if(tg.openLink)tg.openLink(url);else window.open(url,'_blank');}
 
-            if (!account || account.length < 11) {
-                tg.showAlert("সঠিক অ্যাকাউন্ট নম্বর/অ্যাড্রেস দিন।");
-                return;
-            }
-            
-            if (window.successfulWithdrawalsCount === 0 && amount < 10000) {
-                tg.showAlert("প্রথম উইথড্রয়ালের জন্য সর্বনিম্ন ১০,০০০ পয়েন্ট (১০০ টাকা) প্রয়োজন।");
-                return;
-            }
-            if (window.successfulWithdrawalsCount > 0 && amount < 2000) {
-                tg.showAlert("সর্বনিম্ন ২,০০০ পয়েন্ট (২০ টাকা) প্রয়োজন।");
-                return;
-            }
-            if (amount > currentPoints) {
-                tg.showAlert("আপনার ব্যালেন্স অপর্যাপ্ত!");
-                return;
-            }
+async function fetchPointHistory(){const card=document.getElementById('income-history-card'),con=document.getElementById('income-history-container');if(card.style.display==='block'){card.style.display='none';return;}card.style.display='block';con.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">লোড হচ্ছে...</p>';try{const r=await fetch(`${API_BASE_URL}/api/point_history?telegram_id=${userId}`);const d=await r.json();if(d&&d.history&&d.history.length>0){con.innerHTML='';d.history.forEach(item=>{const a=item.amount>0?`+${item.amount}`:item.amount;const dt=new Date(item.created_at);const ds=!isNaN(dt)?dt.toLocaleString():item.created_at;con.innerHTML+=`<div class="data-item"><div class="left"><span class="title">${item.description||item.type}</span><span class="subtitle">${ds}</span></div><div class="right" style="color:#10b981;">${a} Pts</div></div>`;});}else con.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">কোনো ইনকাম হিস্ট্রি নেই।</p>';}catch{con.innerHTML='<p style="text-align:center;color:var(--danger-color);font-size:13px;">লোড সমস্যা।</p>';}}
 
-            submitWithdrawal(method, account, amount);
-        }
+// ADMIN
+function getAdminPayload(extra={}){return{admin_user_id:userId,admin_username:tg.initDataUnsafe?.user?.username,admin_secret_key:localStorage.getItem('admin_secret_key')||'',...extra};}
+function adminWebLogin(){const k=document.getElementById('admin-secret-key-input').value;if(!k)return tg.showAlert('Key প্রয়োজন।');localStorage.setItem('admin_secret_key',k);document.getElementById('admin-auth-view').style.display='none';document.getElementById('admin-content-view').style.display='block';adminLoadStats();}
+function checkAdminAccess(){if(isWeb||isAdminHash){document.getElementById('nav-admin').style.display='flex';document.getElementById('admin-content-view').style.display='block';document.getElementById('admin-auth-view').style.display='none';}else if(hasAdminKey){document.getElementById('admin-content-view').style.display='block';document.getElementById('admin-auth-view').style.display='none';}else document.getElementById('admin-auth-view').style.display='block';}
+async function adminLoadStats(){try{const r=await fetch(`${API_BASE_URL}/api/admin/stats`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload())});const d=await r.json();if(d.error){tg.showAlert(d.error);return;}document.getElementById('astat-users').innerText=d.total_users||0;document.getElementById('astat-active').innerText=d.active_today||0;document.getElementById('astat-ads').innerText=d.ads_today||0;document.getElementById('astat-wd').innerText=d.pending_withdrawals||0;document.getElementById('astat-points').innerText=d.total_points||0;document.getElementById('astat-paid').innerText=d.total_paid_bdt||0;}catch{}}
+async function adminSearchUser(){const q=document.getElementById('admin-search-user').value;if(!q)return;try{const r=await fetch(`${API_BASE_URL}/api/admin/user`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({query:q}))});const d=await r.json();if(d.error){tg.showAlert(d.error);return;}window.adminCurrentUser=d;document.getElementById('adetail-id').innerText=d.user_id;document.getElementById('adetail-uname').innerText=d.username||'N/A';document.getElementById('adetail-points').innerText=d.points||0;document.getElementById('adetail-ads').innerText=d.total_ads_watched||0;document.getElementById('adetail-refs').innerText=d.referral_count||0;document.getElementById('admin-ban-btn').innerText=d.is_banned?'Unban User':'Ban User';document.getElementById('admin-user-details').style.display='block';}catch{}}
+async function adminUpdateUserPoints(){const pts=document.getElementById('admin-set-points').value;if(!pts||!window.adminCurrentUser)return;try{const r=await fetch(`${API_BASE_URL}/api/admin/user`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({action:'set_points',target_user_id:window.adminCurrentUser.user_id,points:pts}))});const d=await r.json();tg.showAlert(d.message||d.error||'Done');}catch{}}
+async function adminToggleBan(){if(!window.adminCurrentUser)return;try{const r=await fetch(`${API_BASE_URL}/api/admin/user`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({action:'toggle_ban',target_user_id:window.adminCurrentUser.user_id}))});const d=await r.json();tg.showAlert(d.message||d.error||'Done');adminSearchUser();}catch{}}
+async function adminLoadAllUsers(){try{const r=await fetch(`${API_BASE_URL}/api/admin/user`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({action:'list_all'}))});const d=await r.json();if(!d.users)return;const tbl=document.getElementById('admin-users-table'),tbody=document.getElementById('admin-users-list');tbody.innerHTML='';tbl.style.display='table';d.users.forEach(u=>{tbody.innerHTML+=`<tr><td style="padding:8px;">${u.user_id}</td><td style="padding:8px;">${u.username||'N/A'}</td><td style="padding:8px;">${u.points||0}</td><td style="padding:8px;"><button onclick="document.getElementById('admin-search-user').value='${u.user_id}';adminSearchUser();" style="background:var(--secondary-color);color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;">View</button></td></tr>`;});}catch{}}
+async function adminLoadWithdrawals(){try{const r=await fetch(`${API_BASE_URL}/api/admin/withdrawals`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload())});const d=await r.json();const con=document.getElementById('admin-wd-list');con.innerHTML='';if(d.withdrawals&&d.withdrawals.length>0){d.withdrawals.forEach(w=>{con.innerHTML+=`<div class="data-item"><div class="left"><span class="title">User:${w.user_id}|${w.method}</span><span class="subtitle">${w.account_number||''}|${w.amount} BDT</span></div><div style="display:flex;gap:6px;"><button onclick="adminApproveWD(${w.id})" style="background:#10b981;color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px;">Approve</button><button onclick="adminRejectWD(${w.id})" style="background:#ef4444;color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px;">Reject</button></div></div>`;});}else con.innerHTML='<p style="color:var(--text-muted);font-size:13px;">পেন্ডিং নেই।</p>';}catch{}}
+async function adminApproveWD(id){try{const r=await fetch(`${API_BASE_URL}/api/admin/withdrawals`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({action:'approve',withdrawal_id:id}))});const d=await r.json();tg.showAlert(d.message||d.error||'Done');adminLoadWithdrawals();}catch{}}
+async function adminRejectWD(id){try{const r=await fetch(`${API_BASE_URL}/api/admin/withdrawals`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({action:'reject',withdrawal_id:id}))});const d=await r.json();tg.showAlert(d.message||d.error||'Done');adminLoadWithdrawals();}catch{}}
+async function adminLoadSettings(){try{const r=await fetch(`${API_BASE_URL}/api/admin/settings`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({action:'get'}))});const d=await r.json();const con=document.getElementById('admin-settings-container');con.innerHTML='';if(d.settings){for(const[k,v]of Object.entries(d.settings)){con.innerHTML+=`<div class="input-group" style="margin-bottom:9px;"><label>${k}</label><input type="text" id="setting-${k}" value="${String(v).replace(/"/g,'&quot;')}"></div>`;}document.getElementById('admin-save-settings-btn').style.display='block';}}catch{}}
+async function adminSaveSettings(){const inputs=document.querySelectorAll('[id^="setting-"]');let updates={};inputs.forEach(i=>{updates[i.id.replace('setting-','')]=i.value;});try{const r=await fetch(`${API_BASE_URL}/api/admin/settings`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({action:'update',settings:updates}))});const d=await r.json();if(d.success){tg.showAlert('Settings Saved!');fetchUserData();adminLoadSettings();}else tg.showAlert(d.error||'Failed');}catch{tg.showAlert('Error saving.');}}
+async function adminSendBroadcast(){const msg=document.getElementById('admin-broadcast-msg').value;if(!msg)return tg.showAlert('Message দিন।');try{await fetch(`${API_BASE_URL}/api/admin/broadcast`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({message:msg}))});tg.showAlert('Broadcast sent.');document.getElementById('admin-broadcast-msg').value='';}catch{}}
 
-        async function submitWithdrawal(method, account, amount) {
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/withdraw`, {
-                    method: 'POST',
-                    credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify({
-                        user_id: userId,
-                        method: method,
-                        account: account,
-                        amount: amount
-                    })
-                });
-                const data = await res.json();
-                
-                if (data.success) {
-                    tg.showAlert(data.message);
-                    fetchUserData();
-                    document.getElementById('account-number').value = '';
-                    document.getElementById('withdraw-amount').value = '';
-                } else {
-                    tg.showAlert(data.error || "An error occurred.");
-                }
-            } catch (err) {
-                console.error("submitWithdrawal Error:", err);
-                tg.showAlert("Network error. Try again.");
-            }
-        }
-
-        // --- Ad System Scripts (Adsgram) ---
-        async function rewardUserPoints(pointsToAdd, reason = '') {
-            try {
-                currentPoints += pointsToAdd;
-                document.getElementById('home-balance').innerText = `${currentPoints} Points`;
-                document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
-                tg.showAlert(`Ad watched successfully! +${pointsToAdd} Points added.`);
-                hidePremiumModal();
-                const res = await fetch(`${API_BASE_URL}/api/add-points`, {
-                    method: 'POST', credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify({ userId: userId, points: pointsToAdd, reason: reason })
-                });
-                const data = await res.json();
-                
-                // Handle server-side limit rejection
-                if (data && data.limit_reached) {
-                    tg.showAlert(data.message || "⚠️ আজকের অ্যাড লিমিট শেষ!");
-                    // Revert optimistic update
-                    currentPoints -= pointsToAdd;
-                    document.getElementById('home-balance').innerText = `${currentPoints} Points`;
-                    document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
-                    fetchUserData();
-                    return;
-                }
-                
-                if (data && data.new_balance !== undefined) {
-                    currentPoints = data.new_balance;
-                    localStorage.setItem('user_balance', currentPoints);
-                    document.getElementById('home-balance').innerText = `${currentPoints} Points`;
-                    document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
-                }
-                if (reason === 'ad' && data) {
-                    if (data.ads_watched !== undefined) {
-                        totalAdsWatched = data.ads_watched;
-                        localStorage.setItem('ads_watched', totalAdsWatched);
-                        const adsCountEl = document.getElementById('total-ads-count');
-                        if (adsCountEl) adsCountEl.innerText = totalAdsWatched;
-                        const homeAdsEl = document.getElementById('home-ads');
-                        if (homeAdsEl) homeAdsEl.innerText = totalAdsWatched;
-                    }
-                    // Update live counter cards in real-time
-                    if (data.ads_today !== undefined) {
-                        window.adsToday = data.ads_today;
-                        window.adsRemaining = data.ads_remaining !== undefined ? data.ads_remaining : Math.max(0, (window.dailyAdLimit || 15) - window.adsToday);
-                        const adsWatchedTodayEl = document.getElementById('ads-watched-today');
-                        const adsRemainingEl = document.getElementById('ads-remaining-today');
-                        if (adsWatchedTodayEl) adsWatchedTodayEl.innerText = window.adsToday;
-                        if (adsRemainingEl) adsRemainingEl.innerText = window.adsRemaining;
-                        // Disable button if limit hit
-                        const adBtn = document.getElementById('start-ad-btn');
-                        if (adBtn && window.adsRemaining <= 0) {
-                            adBtn.disabled = true;
-                            adBtn.className = 'btn btn-disabled';
-                            adBtn.innerText = `🚫 আজকের লিমিট শেষ (০ টি বাকি)`;
-                        }
-                    }
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        function showPremiumModal(text) {
-            document.getElementById('premium-ad-text').innerText = text;
-            document.getElementById('premium-ad-modal').classList.add('active');
-        }
-
-        function hidePremiumModal() {
-            document.getElementById('premium-ad-modal').classList.remove('active');
-        }
-
-        const ADSGRAM_UNITS = ["41772", "41786", "41787"];
-
-        async function isAdBlockerOrPrivateDNSActive() {
-            // Check 1: Probe Monetag & Adsgram script endpoints directly
-            try {
-                const adsgramCheck = fetch('https://sad.adsgram.ai/js/sad-b.js', { method: 'HEAD', mode: 'no-cors' });
-                const monetagCheck = fetch('https://libtl.com/sdk.js', { method: 'HEAD', mode: 'no-cors' });
-                
-                // If network fails or DNS rejects resolution
-                await Promise.all([adsgramCheck, monetagCheck]);
-            } catch (err) {
-                return true; // Private DNS / AdGuard actively blocked network request
-            }
-
-            // Check 2: Verify global SDK object bindings
-            if (typeof window.Adsgram === 'undefined' && typeof window.show_11525199 === 'undefined') {
-                return true;
-            }
-
-            return false;
-        }
-
-        async function playHybridAd() {
-            const isBlocked = await isAdBlockerOrPrivateDNSActive();
-            if (isBlocked) {
-                alert("⚠️ প্রাইভেট DNS / AdGuard / VPN শনাক্ত হয়েছে!\n\nআপনার ফোন সেটিংস বা VPN থেকে Private DNS অথবা AdGuard বন্ধ করুন এবং অ্যাপটি রিফ্রেশ করে আবার চেষ্টা করুন।");
-                return; // Strictly stop execution here
-            }
-
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.ready();
-            }
-
-            let adSuccess = false;
-
-            // STEP 1: TRY ADSGRAM WATERFALL
-            if (typeof window.Adsgram !== 'undefined' || typeof AdController !== 'undefined') {
-                for (let i = 0; i < ADSGRAM_UNITS.length; i++) {
-                    try {
-                        const blockId = ADSGRAM_UNITS[i];
-                        const controller = window.Adsgram 
-                            ? window.Adsgram.init({ blockId: blockId, debug: false }) 
-                            : new AdController({ blockId: blockId });
-
-                        const result = await controller.show();
-                        if (result && (result.done || result.state === 'completed')) {
-                            adSuccess = true;
-                            await rewardUserPoints(window.adRewardPoints || 15, 'ad');
-                            return;
-                        }
-                    } catch (err) {
-                        console.warn(`Adsgram Block ${ADSGRAM_UNITS[i]} failed. Moving to next...`, err);
-                    }
-                }
-            }
-
-            // STEP 2: FALLBACK TO MONETAG SDK (Zone 11525199)
-            if (!adSuccess && typeof show_11525199 === 'function') {
-                try {
-                    const tgUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || "guest";
-                    await show_11525199({ ymid: String(tgUserId) });
-                    await rewardUserPoints(window.adRewardPoints || 15, 'ad');
-                    adSuccess = true;
-                    return;
-                } catch (mErr) {
-                    console.log('Ad closed early before timer completion:', mErr);
-                }
-            }
-
-            if (!adSuccess) {
-                alert("এই মুহূর্তে কোনো অ্যাড খালি নেই। ১০-১৫ সেকেন্ড পর আবার চেষ্টা করুন।");
-            }
-        }
-
-        async function showWaterfallAd() {
-            if (!window.Telegram || !window.Telegram.WebApp || !window.Telegram.WebApp.initData) {
-                alert("অনুগ্রহ করে টেলিগ্রাম অ্যাপের ভেতর থেকে মিনি অ্যাপটি চালু করুন!");
-                return;
-            }
-
-            window.Telegram.WebApp.ready();
-            if (window.Telegram.WebApp.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-            }
-
-            showPremiumModal("Preparing Premium Ad...");
-
-            async function executeShow() {
-                try {
-                    let adShown = false;
-                    for (let i = 0; i < ADSGRAM_UNITS.length; i++) {
-                        const currentBlockId = ADSGRAM_UNITS[i];
-                        try {
-                            console.log(`Trying Adsgram Block ID: ${currentBlockId}`);
-                            const controller = window.Adsgram 
-                                ? window.Adsgram.init({ blockId: currentBlockId, debug: false }) 
-                                : new AdController({ blockId: currentBlockId });
-
-                            const result = await controller.show();
-                            if (result && (result.done || result.state === 'completed' || result === undefined)) {
-                                adShown = true;
-                                
-                                // Optimistic UI Update
-                                const pts = window.adRewardPoints || 15;
-                                currentPoints += pts;
-                                localStorage.setItem('cachedPoints', currentPoints);
-                                document.getElementById('home-balance').innerText = `${currentPoints} Points`;
-                                document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
-                                
-                                if (window.Telegram.WebApp.HapticFeedback) {
-                                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                                }
-                                tg.showAlert(`Ad watched successfully! +${pts} Points added.`);
-                                
-                                // Silently sync in background
-                                rewardUserPoints(pts, 'ad');
-                                hidePremiumModal();
-                                break;
-                            }
-                        } catch (err) {
-                            console.warn(`Block ID ${currentBlockId} failed or no fill. Error:`, err);
-                        }
-                    }
-
-                    if (!adShown) {
-                        // Fallback attempt: Monetag
-                        if (typeof show_3439952 === 'function') {
-                            show_3439952({ ymid: userId }).then(() => { rewardUserPoints(window.adRewardPoints || 15, 'ad'); hidePremiumModal(); }).catch(() => { alert("এই মুহূর্তে কোনো অ্যাড খালি নেই।"); hidePremiumModal(); });
-                        } else {
-                            alert("এই মুহূর্তে কোনো অ্যাড খালি নেই (No Fill)। ১৫-২০ সেকেন্ড পর আবার চেষ্টা করুন।");
-                            hidePremiumModal();
-                        }
-                    }
-                } catch (e) {
-                    alert("অ্যাড সিস্টেম লোড হতে সমস্যা হয়েছে। অ্যাপটি রিফ্রেশ করুন।");
-                    hidePremiumModal();
-                }
-            }
-
-            if (window.Adsgram || typeof AdController !== 'undefined') {
-                executeShow();
-            } else {
-                let script = document.createElement('script');
-                script.src = "https://sad.adsgram.ai/js/sad-bign.js";
-                script.onload = () => executeShow();
-                script.onerror = () => {
-                    alert("Adsgram SDK লোড হতে ব্যর্থ হয়েছে। ২ সেকেন্ড পর চেষ্টা করুন।");
-                    hidePremiumModal();
-                };
-                document.head.appendChild(script);
-            }
-        }
-
-        function closeModal() {
-            document.getElementById('anti-cheat-modal').classList.remove('active');
-        }
-
-        function copyRefLink() {
-            const link = document.getElementById('ref-link');
-            link.select();
-            document.execCommand("copy");
-            tg.showAlert("লিংক কপি করা হয়েছে!");
-        }
-
-        function shareRefLink() {
-            const link = document.getElementById('ref-link').value;
-            const text = "Income Lab Bot এ জয়েন করুন আর প্রতিদিন আয় করুন!\n\n" + link;
-            if (tg.openTelegramLink) {
-                tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
-            } else {
-                window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`, "_blank");
-            }
-        }
-        
-        function openTgLink(url) {
-            if (tg.openLink) {
-                tg.openLink(url);
-            } else {
-                window.open(url, "_blank");
-            }
-        }
-
-        // === ADMIN FUNCTIONS ===
-        function getAdminPayload(extra = {}) {
-            return {
-                admin_user_id: userId,
-                admin_username: window.Telegram.WebApp.initDataUnsafe?.user?.username,
-                admin_secret_key: localStorage.getItem('admin_secret_key') || '',
-                ...extra
-            };
-        }
-
-        function adminWebLogin() {
-            const key = document.getElementById('admin-secret-key-input').value;
-            if (!key) return tg.showAlert("Please enter the Secret API Key.");
-            localStorage.setItem('admin_secret_key', key);
-            document.getElementById('admin-auth-view').style.display = 'none';
-            document.getElementById('admin-content-view').style.display = 'block';
-            adminLoadStats();
-        }
-
-        function checkAdminAccess() {
-            const isWeb = !tg.initDataUnsafe || !tg.initDataUnsafe.user;
-            if (isWeb || window.location.hash.includes('admin')) {
-                document.getElementById('nav-admin').style.display = 'flex';
-                const hasKey = localStorage.getItem('admin_secret_key');
-                if (!hasKey) {
-                    document.getElementById('admin-content-view').style.display = 'none';
-                    document.getElementById('admin-auth-view').style.display = 'block';
-                    if(window.location.hash.includes('admin')) {
-                        switchTab('admin', document.getElementById('nav-admin'));
-                    }
-                } else if(window.location.hash.includes('admin')) {
-                    switchTab('admin', document.getElementById('nav-admin'));
-                    adminLoadStats();
-                }
-            }
-        }
-        
-        checkAdminAccess();
-
-        async function adminLoadStats() {
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/admin/stats`, {
-                    method: 'POST', credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify(getAdminPayload())
-                });
-                const data = await res.json();
-                if(data.error) return;
-                document.getElementById('astat-users').innerText = data.total_users;
-                document.getElementById('astat-active').innerText = data.active_today;
-                document.getElementById('astat-ads').innerText = data.ads_today;
-                document.getElementById('astat-wd').innerText = data.pending_withdrawals;
-                document.getElementById('astat-points').innerText = data.total_points;
-                document.getElementById('astat-paid').innerText = data.total_paid;
-            } catch(e) {}
-        }
-
-        let adminCurrentTargetUser = null;
-        async function adminLoadAllUsers() {
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/admin/user`, {
-                    method: 'POST', credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify(getAdminPayload({action: 'list_all'}))
-                });
-                const users = await res.json();
-                if(users.error) return tg.showAlert(users.error);
-                
-                const table = document.getElementById('admin-users-table');
-                const list = document.getElementById('admin-users-list');
-                list.innerHTML = '';
-                table.style.display = 'table';
-                
-                users.forEach(u => {
-                    list.innerHTML += `
-                        <tr style="border-bottom: 1px solid #334155;">
-                            <td style="padding: 10px;">${u.user_id}</td>
-                            <td style="padding: 10px;">${u.username || 'N/A'}</td>
-                            <td style="padding: 10px;">${u.points}</td>
-                            <td style="padding: 10px;">
-                                <button class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; margin: 0;" onclick="document.getElementById('admin-search-user').value = '${u.user_id}'; adminSearchUser();">Select</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } catch (err) {
-                console.error(err);
-                tg.showAlert("Failed to load users");
-            }
-        }
-
-        async function adminSearchUser() {
-            const q = document.getElementById('admin-search-user').value;
-            if(!q) return tg.showAlert("Enter User ID or Username");
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/admin/user`, {
-                    method: 'POST', credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify(getAdminPayload({action: 'search', target_user_id: q}))
-                });
-                const data = await res.json();
-                if(data.error) {
-                    tg.showAlert("User not found");
-                    document.getElementById('admin-user-details').style.display = 'none';
-                    return;
-                }
-                adminCurrentTargetUser = data;
-                document.getElementById('adetail-id').innerText = data.user_id;
-                document.getElementById('adetail-uname').innerText = data.username || 'N/A';
-                document.getElementById('adetail-points').innerText = data.points || 0;
-                document.getElementById('adetail-ads').innerText = data.total_ads_watched || 0;
-                document.getElementById('adetail-refs').innerText = data.total_referrals || 0;
-                document.getElementById('admin-set-points').value = data.points || 0;
-                
-                const banBtn = document.getElementById('admin-ban-btn');
-                banBtn.innerText = data.is_banned ? "Unban User" : "Ban User";
-                banBtn.style.background = data.is_banned ? "#10b981" : "var(--danger-color)";
-                
-                document.getElementById('admin-user-details').style.display = 'block';
-            } catch(e) {}
-        }
-
-        async function adminUpdateUserPoints() {
-            if(!adminCurrentTargetUser) return;
-            const pts = document.getElementById('admin-set-points').value;
-            try {
-                await fetch(`${API_BASE_URL}/api/admin/user`, {
-                    method: 'POST', credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify(getAdminPayload({action: 'update', target_user_id: adminCurrentTargetUser.user_id, points: parseInt(pts)}))
-                });
-                tg.showAlert("Points updated successfully!");
-                adminSearchUser();
-            } catch(e) {}
-        }
-
-        async function adminToggleBan() {
-            if(!adminCurrentTargetUser) return;
-            const newBanStatus = adminCurrentTargetUser.is_banned ? false : true;
-            try {
-                await fetch(`${API_BASE_URL}/api/admin/user`, {
-                    method: 'POST', credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify(getAdminPayload({action: 'update', target_user_id: adminCurrentTargetUser.user_id, is_banned: newBanStatus}))
-                });
-                tg.showAlert(newBanStatus ? "User Banned!" : "User Unbanned!");
-                adminSearchUser();
-            } catch(e) {}
-        }
-
-        async function adminLoadWithdrawals() {
-            const list = document.getElementById('admin-wd-list');
-            list.innerHTML = 'Loading...';
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/admin/withdrawals`, {
-                    method: 'POST', credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify(getAdminPayload({action: 'list'}))
-                });
-                const data = await res.json();
-                if(data.error || data.length === 0) {
-                    list.innerHTML = 'No pending withdrawals.';
-                    return;
-                }
-                list.innerHTML = '';
-                data.forEach(w => {
-                    list.innerHTML += `
-                        <div class="data-item" style="flex-direction: column; align-items: flex-start; gap: 10px;">
-                            <div>
-                                <strong>User ID:</strong> ${w.user_id}<br>
-                                <strong>Method:</strong> ${w.method}<br>
-                                <strong>Account:</strong> ${w.account_details || w.account_number}<br>
-                                <strong>Amount:</strong> ${w.bdt_amount} BDT (${w.points_requested || w.amount} Pts)
-                            </div>
-                            <div style="display: flex; gap: 10px; width: 100%;">
-                                <button class="btn btn-success" style="flex: 1; font-size: 14px;" onclick="adminProcessWd(${w.id}, 'approve')">Approve</button>
-                                <button class="btn btn-danger" style="flex: 1; font-size: 14px; background: var(--danger-color); border: none; border-radius: 8px; color: white;" onclick="adminProcessWd(${w.id}, 'reject')">Reject</button>
-                            </div>
-                        </div>
-                    `;
-                });
-            } catch(e) {}
-        }
-
-        async function adminProcessWd(id, action) {
-            if(!confirm(`Are you sure you want to ${action} this withdrawal?`)) return;
-            try {
-                await fetch(`${API_BASE_URL}/api/admin/withdrawals`, {
-                    method: 'POST', credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify(getAdminPayload({action: action, withdrawal_id: id}))
-                });
-                tg.showAlert("Processed successfully.");
-                adminLoadWithdrawals();
-                adminLoadStats();
-            } catch(e) {}
-        }
-
-        async function adminLoadSettings() {
-            const container = document.getElementById('admin-settings-container');
-            container.innerHTML = 'Loading...';
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/admin/settings`, {
-                    method: 'POST', credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify(getAdminPayload({action: 'get'}))
-                });
-                const data = await res.json();
-                if(data.error) return;
-                
-                container.innerHTML = '';
-                for(const [k, v] of Object.entries(data)) {
-                    container.innerHTML += `
-                        <div class="input-group" style="margin-bottom: 10px;">
-                            <label>${k}</label>
-                            <input type="text" id="setting-${k}" value='${v}'>
-                        </div>
-                    `;
-                }
-                document.getElementById('admin-save-settings-btn').style.display = 'block';
-            } catch(e) {}
-        }
-
-        async function adminSaveSettings() {
-            const inputs = document.querySelectorAll('[id^="setting-"]');
-            let updates = {};
-            inputs.forEach(inp => {
-                const key = inp.id.replace('setting-', '');
-                updates[key] = inp.value;
-            });
-            try {
-                const payload = getAdminPayload({action: 'update', settings: updates});
-                if (!payload.admin_user_id) payload.admin_user_id = userId;
-                if (!payload.admin_secret_key) payload.admin_secret_key = localStorage.getItem('admin_secret_key') || '';
-                
-                const response = await fetch(`${API_BASE_URL}/api/admin/settings`, {
-                    method: 'POST', credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify(payload)
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    tg.showAlert("Settings Saved!");
-                    if (typeof fetchUserData === 'function') {
-                        fetchUserData();
-                    }
-                    if (typeof adminLoadSettings === 'function') {
-                        adminLoadSettings();
-                    }
-                } else {
-                    tg.showAlert(data.error || "Failed to save settings");
-                }
-            } catch(e) {
-                tg.showAlert("Error saving settings");
-            }
-        }
-
-        async function adminSendBroadcast() {
-            const msg = document.getElementById('admin-broadcast-msg').value;
-            if(!msg) return tg.showAlert("Please enter a message");
-            try {
-                await fetch(`${API_BASE_URL}/api/admin/broadcast`, {
-                    method: 'POST', credentials: 'omit',
-                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                    body: JSON.stringify(getAdminPayload({message: msg}))
-                });
-                tg.showAlert("Broadcast initiated in background.");
-                document.getElementById('admin-broadcast-msg').value = '';
-            } catch(e) {}
-        }
-
-        
-        async function fetchUserBalance() {
-            const cached = localStorage.getItem('user_balance');
-            if (cached !== null) {
-                currentPoints = parseInt(cached);
-                document.getElementById('home-balance').innerText = `${currentPoints} Points`;
-                document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
-            }
-            const cachedAds = localStorage.getItem('ads_watched');
-            if (cachedAds !== null) {
-                totalAdsWatched = parseInt(cachedAds);
-                const homeAdsEl = document.getElementById('home-ads');
-                if (homeAdsEl) homeAdsEl.innerText = totalAdsWatched;
-                const totalAdsCountEl = document.getElementById('total-ads-count');
-                if (totalAdsCountEl) totalAdsCountEl.innerText = totalAdsWatched;
-            }
-        }
-        
-        async function fetchPointHistory() {
-            const card = document.getElementById('income-history-card');
-            const container = document.getElementById('income-history-container');
-            if (card.style.display === 'block') {
-                card.style.display = 'none';
-                return;
-            }
-            card.style.display = 'block';
-            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 14px;">লোড হচ্ছে...</p>';
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/point_history?telegram_id=${userId}`);
-                const data = await res.json();
-                if (data && data.history && data.history.length > 0) {
-                    container.innerHTML = '';
-                    data.history.forEach(item => {
-                        const amountStr = item.amount > 0 ? `+${item.amount}` : item.amount;
-                        const dateObj = new Date(item.created_at);
-                        const dateStr = !isNaN(dateObj) ? dateObj.toLocaleString() : item.created_at;
-                        container.innerHTML += `
-                            <div class="data-item">
-                                <div class="details">
-                                    <strong>${item.description || item.type}</strong>
-                                    <span>${dateStr}</span>
-                                </div>
-                                <div class="status" style="color: #10b981; font-weight: bold;">${amountStr} Pts</div>
-                            </div>
-                        `;
-                    });
-                } else {
-                    container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 14px;">কোনো ইনকাম হিস্ট্রি নেই।</p>';
-                }
-            } catch (err) {
-                console.error('Point History fetch error:', err);
-                container.innerHTML = '<p style="text-align: center; color: var(--danger-color); font-size: 14px;">হিস্ট্রি লোড করতে সমস্যা হয়েছে।</p>';
-            }
-        }
-
-        // Initialize App on load
-        fetchUserBalance().then(() => fetchUserData());
-
-    </script>
+(async function init(){checkAdminAccess();generateCaptcha();drawWheel(0);await fetchUserData();})();
+</script>
 </body>
 </html>
