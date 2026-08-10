@@ -88,12 +88,14 @@
 
         /* Card Layout */
         .card {
-            background-color: var(--surface-color);
+            background-color: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             padding: 22px;
             border-radius: 16px;
             margin-bottom: 20px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .card h2 {
             font-size: 18px;
@@ -334,6 +336,21 @@
         </div>
         
         <div class="card">
+            <h2>🎁 দৈনিক সিক্রেট লিঙ্ক জ্যাকপট (Daily Bonus)</h2>
+            <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">🔥 আজকের বিশেষ অফার: <span id="jackpot-reward-text">50</span> Points!</p>
+            <div id="jackpot-claim-section">
+                <button class="btn btn-primary" onclick="openTgLink('https://telebot-steel.vercel.app/secret-landing/' + new Date().toISOString().split('T')[0])">১. সিক্রেট কোড সংগ্রহ করুন</button>
+                <div class="input-group" style="margin-top: 15px;">
+                    <input type="text" id="secret-code-input" placeholder="এখানে সিক্রেট কোড লিখুন" style="margin-bottom: 10px;">
+                </div>
+                <button class="btn btn-success" onclick="claimSecretCode()">২. ভেরিফাই ও ক্লেইম করুন</button>
+            </div>
+            <div id="jackpot-claimed-msg" style="display: none; margin-top: 15px; padding: 10px; background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; border-radius: 6px; color: #34d399; font-size: 14px; text-align: center;">
+                ✅ আজকের সিক্রেট বোনাস ক্লেইম করা হয়েছে
+            </div>
+        </div>
+        
+        <div class="card">
             <h2>✅ কাজ ১ (Task 1)</h2>
             <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">অফিসিয়াল চ্যানেলে জয়েন করুন এবং ভেরিফাই বাটনে ক্লিক করে ৫০ Points বোনাস নিন।</p>
             <button class="btn btn-primary" id="join-btn-1" onclick="openTgLink('https://t.me/BotIncomeLab')">১. অফিসিয়াল চ্যানেলে জয়েন করুন</button>
@@ -465,6 +482,9 @@
             </div>
             <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; border-radius: 6px; color: #f87171; font-size: 13px; text-align: left;">
                 💳 উইথড্র ফি নোটিশ: প্রতিটি সফল উইথড্র রিকোয়েস্টে ৫০০ পয়েন্ট (৫ টাকা) সার্ভিস ও প্রসেসিং ফি হিসেবে কাটা হবে।
+            </div>
+            <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; border-radius: 6px; color: #93c5fd; font-size: 13px; text-align: left;">
+                💳 পেমেন্ট সময়: ৫ থেকে ৭ কার্যদিবস। প্রথম উইথড্র করার জন্য অন্তত ৩টি রেফার ও সব টাস্ক সম্পন্ন করতে হবে।
             </div>
             <button class="btn btn-success" onclick="attemptWithdrawForm()">রিকোয়েস্ট পাঠান</button>
             <div id="withdrawal-notice" style="margin-top: 10px; font-size: 13px; color: var(--danger-color); display: none;"></div>
@@ -770,6 +790,22 @@
                     currentEarned = data.earned || 0;
                     window.successfulWithdrawalsCount = data.successful_withdrawals_count || 0;
                     
+                    window.shortlinkRewardPoints = data.shortlink_reward_points || 50;
+                    const jackpotRewardText = document.getElementById('jackpot-reward-text');
+                    if (jackpotRewardText) {
+                        jackpotRewardText.innerText = window.shortlinkRewardPoints;
+                    }
+                    
+                    const jackpotClaimedMsg = document.getElementById('jackpot-claimed-msg');
+                    const jackpotClaimSection = document.getElementById('jackpot-claim-section');
+                    if (data.shortlink_claimed_today) {
+                        if(jackpotClaimedMsg) jackpotClaimedMsg.style.display = 'block';
+                        if(jackpotClaimSection) jackpotClaimSection.style.display = 'none';
+                    } else {
+                        if(jackpotClaimedMsg) jackpotClaimedMsg.style.display = 'none';
+                        if(jackpotClaimSection) jackpotClaimSection.style.display = 'block';
+                    }
+                    
                     window.adRewardPoints = data.ad_reward_points || 15;
                     window.dailyAdLimit = data.daily_ad_limit || 15;
                     
@@ -916,6 +952,28 @@
             }
         }
 
+        async function claimSecretCode() {
+            const codeInput = document.getElementById('secret-code-input').value;
+            if(!codeInput) return tg.showAlert("অনুগ্রহ করে সিক্রেট কোড লিখুন");
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/verify_secret_code`, {
+                    method: 'POST', credentials: 'omit',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ userId: userId, code: codeInput })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    tg.showAlert(data.message);
+                    fetchUserData();
+                } else {
+                    tg.showAlert(data.message || data.error || "Something went wrong");
+                }
+            } catch(e) {
+                tg.showAlert("Network Error");
+            }
+        }
+        
         async function verifyTask(taskId) {
             const vBtn = document.getElementById('verify-btn-' + taskId);
             if (vBtn.disabled) return;
