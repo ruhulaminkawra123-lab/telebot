@@ -339,7 +339,7 @@
             <h2>🎁 দৈনিক সিক্রেট লিঙ্ক জ্যাকপট (Daily Bonus)</h2>
             <p class="mb-2" style="color: var(--text-muted); font-size: 14px;">🔥 আজকের বিশেষ অফার: <span id="jackpot-reward-text">50</span> Points!</p>
             <div id="jackpot-claim-section">
-                <button class="btn btn-primary" onclick="openTgLink('https://telebot-steel.vercel.app/secret-landing/' + new Date().toISOString().split('T')[0])">১. সিক্রেট কোড সংগ্রহ করুন</button>
+                <button class="btn btn-primary" onclick="openSecretCodeLink()">১. সিক্রেট কোড সংগ্রহ করুন</button>
                 <div class="input-group" style="margin-top: 15px;">
                     <input type="text" id="secret-code-input" placeholder="এখানে সিক্রেট কোড লিখুন" style="margin-bottom: 10px;">
                 </div>
@@ -806,6 +806,7 @@
                         if(jackpotClaimSection) jackpotClaimSection.style.display = 'block';
                     }
                     
+                    window.todayShortlinkUrl = data.today_shortlink_url;
                     window.adRewardPoints = data.ad_reward_points || 15;
                     window.dailyAdLimit = data.daily_ad_limit || 15;
                     
@@ -950,6 +951,12 @@
             } catch (err) {
                 console.error("Failed to fetch user data:", err);
             }
+        }
+
+        function openSecretCodeLink() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const link = window.todayShortlinkUrl || `https://income-lab-bot.onrender.com/secret-landing/${todayStr}`;
+            openTgLink(link);
         }
 
         async function claimSecretCode() {
