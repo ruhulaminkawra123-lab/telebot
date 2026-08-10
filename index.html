@@ -425,13 +425,27 @@
             <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Earn points by watching ads</p>
         </div>
         
+        <!-- Live Ad Counter Cards -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+            <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 14px; text-align: center;">
+                <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 6px;">আজকে দেখা হয়েছে</p>
+                <p style="font-size: 20px; font-weight: 800; color: #10b981;"><span id="ads-watched-today">0</span> / <span id="ads-daily-limit">15</span></p>
+                <p style="color: var(--text-muted); font-size: 11px; margin-top: 2px;">টি</p>
+            </div>
+            <div style="background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.3); border-radius: 12px; padding: 14px; text-align: center;">
+                <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 6px;">আজ আর বাকি আছে</p>
+                <p style="font-size: 20px; font-weight: 800; color: #60a5fa;"><span id="ads-remaining-today">15</span></p>
+                <p style="color: var(--text-muted); font-size: 11px; margin-top: 2px;">টি</p>
+            </div>
+        </div>
+        
         <div class="card" style="text-align: center;">
             <h2 style="color: var(--primary-color);">▶️ ওয়াচ অ্যাড (Watch Ad)</h2>
             <div style="background: rgba(16, 185, 129, 0.1); border: 1px dashed rgba(16, 185, 129, 0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; display: inline-block;">
                 <span id="ad-reward-banner" style="color: #10b981; font-weight: bold; font-size: 15px;">🔥 অফার: প্রতি অ্যাড দেখলে পাবেন 15 Points!</span>
             </div>
             <p id="ad-instruction" style="color: #cbd5e1; font-size: 15px; margin-bottom: 20px;">
-                নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। অ্যাড চলাকালীন অ্যাপ মিনিমাইজ করলে বা অন্য কোনো পেজে গেলে অ্যাড বাতিল হয়ে যাবে! (দৈনিক লিমিট: 15 টি)
+                নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। অ্যাড চলাকালীন অ্যাপ মিনিমাইজ করলে বা অন্য কোনো পেজে গেলে অ্যাড বাতিল হয়ে যাবে! (দৈনিক লিমিট: <span id="ad-limit-text">15</span> টি)
             </p>
             
 
@@ -809,20 +823,41 @@
                     window.todayShortlinkUrl = data.today_shortlink_url;
                     window.adRewardPoints = data.ad_reward_points || 15;
                     window.dailyAdLimit = data.daily_ad_limit || 15;
+                    window.adsRemaining = (data.ads_remaining !== undefined) ? data.ads_remaining : window.dailyAdLimit;
+                    window.adsToday = data.ads_today || 0;
+                    
+                    // Update live ad counter cards
+                    const adsWatchedTodayEl = document.getElementById('ads-watched-today');
+                    const adsDailyLimitEl = document.getElementById('ads-daily-limit');
+                    const adsRemainingEl = document.getElementById('ads-remaining-today');
+                    const adLimitText = document.getElementById('ad-limit-text');
+                    if (adsWatchedTodayEl) adsWatchedTodayEl.innerText = window.adsToday;
+                    if (adsDailyLimitEl) adsDailyLimitEl.innerText = window.dailyAdLimit;
+                    if (adsRemainingEl) adsRemainingEl.innerText = window.adsRemaining;
+                    if (adLimitText) adLimitText.innerText = window.dailyAdLimit;
+                    
+                    // Update ad button state
+                    const adBtn = document.getElementById('start-ad-btn');
+                    if (adBtn) {
+                        if (window.adsRemaining <= 0) {
+                            adBtn.disabled = true;
+                            adBtn.className = 'btn btn-disabled';
+                            adBtn.innerText = `🚫 আজকের লিমিট শেষ (০ টি বাকি)`;
+                        } else {
+                            adBtn.disabled = false;
+                            adBtn.className = 'btn btn-primary';
+                            adBtn.innerText = `Watch Ad (+${window.adRewardPoints} Pts)`;
+                        }
+                    }
                     
                     const adBanner = document.getElementById('ad-reward-banner');
                     if (adBanner) {
                         adBanner.innerText = `🔥 অফার: প্রতি অ্যাড দেখলে পাবেন ${window.adRewardPoints} Points!`;
                     }
                     
-                    const adBtn = document.getElementById('start-ad-btn');
-                    if (adBtn) {
-                        adBtn.innerText = `Watch Ad (+${window.adRewardPoints} Pts)`;
-                    }
-                    
                     const adInstr = document.getElementById('ad-instruction');
                     if (adInstr) {
-                        adInstr.innerHTML = `নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। অ্যাড চলাকালীন অ্যাপ মিনিমাইজ করলে বা অন্য কোনো পেজে গেলে অ্যাড বাতিল হয়ে যাবে! (দৈনিক লিমিট: ${window.dailyAdLimit} টি)`;
+                        adInstr.innerHTML = `নিচের বাটনে ক্লিক করে অ্যাড দেখুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। (দৈনিক লিমিট: ${window.dailyAdLimit} টি)`;
                     }
                     
                     const wdInput = document.getElementById('withdraw-amount');
@@ -1129,19 +1164,49 @@
                     body: JSON.stringify({ userId: userId, points: pointsToAdd, reason: reason })
                 });
                 const data = await res.json();
+                
+                // Handle server-side limit rejection
+                if (data && data.limit_reached) {
+                    tg.showAlert(data.message || "⚠️ আজকের অ্যাড লিমিট শেষ!");
+                    // Revert optimistic update
+                    currentPoints -= pointsToAdd;
+                    document.getElementById('home-balance').innerText = `${currentPoints} Points`;
+                    document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
+                    fetchUserData();
+                    return;
+                }
+                
                 if (data && data.new_balance !== undefined) {
                     currentPoints = data.new_balance;
                     localStorage.setItem('user_balance', currentPoints);
                     document.getElementById('home-balance').innerText = `${currentPoints} Points`;
                     document.getElementById('wallet-balance').innerText = `${currentPoints} Points`;
                 }
-                if (reason === 'ad' && data && data.ads_watched !== undefined) {
-                    totalAdsWatched = data.ads_watched;
-                    localStorage.setItem('ads_watched', totalAdsWatched);
-                    const adsCountEl = document.getElementById('total-ads-count');
-                    if (adsCountEl) adsCountEl.innerText = totalAdsWatched;
-                    const homeAdsEl = document.getElementById('home-ads');
-                    if (homeAdsEl) homeAdsEl.innerText = totalAdsWatched;
+                if (reason === 'ad' && data) {
+                    if (data.ads_watched !== undefined) {
+                        totalAdsWatched = data.ads_watched;
+                        localStorage.setItem('ads_watched', totalAdsWatched);
+                        const adsCountEl = document.getElementById('total-ads-count');
+                        if (adsCountEl) adsCountEl.innerText = totalAdsWatched;
+                        const homeAdsEl = document.getElementById('home-ads');
+                        if (homeAdsEl) homeAdsEl.innerText = totalAdsWatched;
+                    }
+                    // Update live counter cards in real-time
+                    if (data.ads_today !== undefined) {
+                        window.adsToday = data.ads_today;
+                        window.adsRemaining = data.ads_remaining !== undefined ? data.ads_remaining : Math.max(0, (window.dailyAdLimit || 15) - window.adsToday);
+                        const adsWatchedTodayEl = document.getElementById('ads-watched-today');
+                        const adsRemainingEl = document.getElementById('ads-remaining-today');
+                        if (adsWatchedTodayEl) adsWatchedTodayEl.innerText = window.adsToday;
+                        if (adsRemainingEl) adsRemainingEl.innerText = window.adsRemaining;
+                        // Disable button if limit hit
+                        const adBtn = document.getElementById('start-ad-btn');
+                        if (adBtn && window.adsRemaining <= 0) {
+                            adBtn.disabled = true;
+                            adBtn.className = 'btn btn-disabled';
+                            adBtn.innerText = `🚫 আজকের লিমিট শেষ (০ টি বাকি)`;
+                        }
+                    }
                 }
             } catch (e) {
                 console.error(e);
