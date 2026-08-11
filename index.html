@@ -429,18 +429,22 @@ async function fetchUserNotifications() {
         const res = await fetch(`${API_BASE_URL}/api/user_notifications?user_id=${userId}`);
         const data = await res.json();
         const container = document.getElementById('user-inbox-container');
-        if (container && data.notifications && data.notifications.length > 0) {
-            container.innerHTML = '';
-            data.notifications.forEach(n => {
-                const date = new Date(n.created_at).toLocaleDateString('bn-BD');
-                container.innerHTML += `
-                    <div class="data-item" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                        <span class="title" style="color: #38bdf8; font-size: 14px;">📢 ${n.title || 'নোটিফিকেশন'}</span>
-                        <span style="font-size: 13px; color: #f8fafc;">${n.message}</span>
-                        <span class="subtitle">${date}</span>
-                    </div>
-                `;
-            });
+        if (container) {
+            if (data.notifications && data.notifications.length > 0) {
+                container.innerHTML = '';
+                data.notifications.forEach(n => {
+                    const date = new Date(n.created_at).toLocaleDateString('bn-BD');
+                    container.innerHTML += `
+                        <div class="data-item" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <span class="title" style="color: #38bdf8; font-size: 14px;">📢 ${n.title || 'নোটিফিকেশন'}</span>
+                            <span style="font-size: 13px; color: #f8fafc;">${n.message}</span>
+                            <span class="subtitle">${date}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 14px;">কোনো নোটিফিকেশন নেই।</p>';
+            }
         }
     } catch (e) {
         console.error("Inbox fetch error:", e);
