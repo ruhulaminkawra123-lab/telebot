@@ -164,7 +164,7 @@
 
         <!-- B) Math Captcha -->
         <div class="card">
-            <h2>🔢 ম্যাথ ক্যাপচা টাস্ক (+30 Pts)</h2>
+            <h2>ম্যাথ ক্যাপচা ভেরিফিকেশন</h2>
             <p style="color:var(--text-muted);font-size:12px;margin-bottom:12px;">৫টি সহজ গণিত সমাধান করুন, তারপর অ্যাড দেখে পয়েন্ট নিন।</p>
             <div class="captcha-progress" id="captcha-progress">
                 <div class="captcha-dot" id="dot-0"></div><div class="captcha-dot" id="dot-1"></div><div class="captcha-dot" id="dot-2"></div><div class="captcha-dot" id="dot-3"></div><div class="captcha-dot" id="dot-4"></div>
@@ -174,7 +174,7 @@
                 <input class="captcha-input" id="captcha-answer" type="number" placeholder="উত্তর লিখুন" oninput="checkCaptchaAnswer()">
             </div>
             <div id="captcha-reward-btn" style="display:none;">
-                <button class="btn btn-success" onclick="playCaptchaAd()">🎁 পয়েন্ট ওয়ালেটে জমা করতে অ্যাডটি দেখুন (+30 Pts)</button>
+                <button class="btn btn-success" onclick="playCaptchaAd()">অ্যাড দেখে ভেরিফাই করুন এবং পয়েন্ট নিন</button>
             </div>
             <div id="captcha-status" style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:7px;"></div>
         </div>
@@ -227,6 +227,7 @@
             <div style="background:rgba(16,185,129,0.1);border:1px dashed rgba(16,185,129,0.4);padding:9px;border-radius:9px;margin-bottom:13px;display:inline-block;">
                 <span id="ad-reward-banner" style="color:#10b981;font-weight:bold;font-size:14px;">🔥 প্রতি অ্যাডে পাবেন 15 Points!</span>
             </div>
+            <div style="margin:12px 0;padding:9px;background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;border-radius:6px;color:#f87171;font-size:12px;">উইথড্র ফী বাবদ অতিরিক্ত ৫০ পয়েন্ট (০.৫০ টাকা) প্রযোজ্য যা মূল ব্যালেন্স থেকে কাটা হবে।</div>
             <p id="ad-instruction" style="color:#cbd5e1;font-size:13px;margin-bottom:16px;">নিচের বাটনে ক্লিক করুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। (লিমিট: <span id="ad-limit-text">15</span> টি)</p>
             <button class="btn btn-primary" id="start-ad-btn" onclick="playHybridAd()">Watch Ad (+15 Pts)</button>
             <div style="margin-top:16px;padding:10px;background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;border-radius:6px;color:#cbd5e1;font-size:13px;text-align:left;">💡 ১৫ সেকেন্ড পর "Continue" ক্লিক করুন।</div>
@@ -240,17 +241,16 @@
         <div class="balance-card" style="padding:18px;">
             <h3>মোট ব্যালেন্স</h3>
             <h1 id="wallet-balance">0 Points</h1>
-            <p style="font-size:12px;margin-top:8px;color:#fca5a5;font-weight:bold;">১,০০০ Points = ১০০ টাকা (BDT)</p>
+            <p style="font-size:12px;margin-top:8px;color:#fca5a5;font-weight:bold;">১০০ Points = ১ টাকা (BDT)</p>
             <button class="btn btn-primary" style="margin-top:13px;width:auto;display:inline-block;padding:7px 14px;font-size:13px;" onclick="fetchPointHistory()">ইনকাম হিস্ট্রি</button>
         </div>
         <div class="card">
             <h2>💳 উইথড্র করুন</h2>
             <div class="input-group"><label>পেমেন্ট মেথড</label><select id="withdraw-method" onchange="updateWithdrawalPlaceholder()"><option value="Nagad">Nagad (নগদ)</option><option value="USDT (BEP-20)">USDT (BEP-20)</option></select></div>
             <div class="input-group"><label>অ্যাকাউন্ট নম্বর / Address</label><input type="text" id="account-number" placeholder="01XXXXXXXXX"></div>
-            <div class="input-group"><label>পরিমাণ (Points)</label><input type="number" id="withdraw-amount" placeholder="Minimum 20000 Points"></div>
-            <div style="margin:12px 0;padding:9px;background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;border-radius:6px;color:#f87171;font-size:12px;">💳 প্রতি উইথড্রয়ে ১,০০০ পয়েন্ট (১০০ টাকা) সার্ভিস ফি কাটা হবে।</div>
-            <div style="margin-bottom:12px;padding:9px;background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;border-radius:6px;color:#93c5fd;font-size:12px;">💳 পেমেন্ট সময়: ৫-৭ কার্যদিবস। প্রথম উইথড্রয়ে ৫টি রেফার ও ১০০টি অ্যাড সম্পূর্ণ করতে হবে।</div>
-<div style="margin-bottom:12px;padding:9px;background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;border-radius:6px;color:#fca5a5;font-size:12px;">⚠️ সততা সতর্কতা: ভিপিএন ব্যবহার, ফেক রেফারেল বা অ্যাডে পর্যাপ্ত সময় না দিলে উইথড্র বাতিলসহ ব্যালেন্স পেনাল্টি হিসেবে কেটে নেওয়া হবে।</div>
+            <div class="input-group"><label>পরিমাণ (Points)</label><input type="number" id="withdraw-amount" placeholder="Minimum 5000 Points"></div>
+            <div style="margin:12px 0;padding:9px;background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;border-radius:6px;color:#f87171;font-size:12px;">💳 প্রতি উইথড্রয়ে ৫০ পয়েন্ট (০.৫০ টাকা) সার্ভিস ফি কাটা হবে।</div>
+            <div style="margin-bottom:12px;padding:9px;background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;border-radius:6px;color:#93c5fd;font-size:12px;">💳 পেমেন্ট সময়: ৫-৭ কার্যদিবস। প্রথম উইথড্রয়ে ৩টি রেফার ও ৫০টি অ্যাড সম্পূর্ণ করতে হবে।</div>
             <button class="btn btn-success" onclick="attemptWithdrawForm()">রিকোয়েস্ট পাঠান</button>
             <div id="withdrawal-notice" style="margin-top:9px;font-size:12px;color:var(--danger-color);display:none;"></div>
         </div>
@@ -269,7 +269,7 @@
         <div class="header"><h1>👥 মোর (More)</h1><p style="color:var(--text-muted);font-size:13px;">Referral & Support</p></div>
         <div class="card">
             <h2>👥 বন্ধুদের রেফার করুন</h2>
-            <p class="mb-2" style="color:var(--text-muted);font-size:12px;text-align:center;">প্রতি রেফারে ১,০০০ Points + ২০% লাইফটাইম কমিশন!</p>
+            <p class="mb-2" style="color:var(--text-muted);font-size:12px;text-align:center;">প্রতি রেফারে <span id="ref-reward-text">50</span> Points + ১০% লাইফটাইম কমিশন পাবেন!</p>
             <label style="color:var(--text-muted);font-size:11px;margin-bottom:4px;display:block;">আপনার রেফারেল লিংক:</label>
             <div class="copy-box"><input type="text" id="ref-link" readonly value="https://t.me/Incomlb_bot?start="><button onclick="copyRefLink()">কপি</button></div>
             <button class="btn btn-outline" onclick="shareRefLink()">📤 শেয়ার করুন</button>
@@ -300,7 +300,7 @@
             <div class="input-group"><input type="password" id="admin-secret-key-input" placeholder="Secret API Key"></div>
             <button class="btn btn-primary" onclick="adminWebLogin()">Login</button>
         </div>
-        <div id="admin-content-view">
+        <div id="admin-content-view" style="display:none;">
             <div class="stats-grid">
                 <div class="stat-item"><h4>Total Users</h4><p id="astat-users">0</p></div>
                 <div class="stat-item"><h4>Active Today</h4><p id="astat-active">0</p></div>
@@ -314,15 +314,16 @@
                 <div class="input-group"><input type="text" id="admin-search-user" placeholder="User ID or Username"></div>
                 <button class="btn btn-primary" onclick="adminSearchUser()">Search</button>
                 <div id="admin-user-details" style="display:none;margin-top:13px;text-align:left;">
-                    <p><strong>ID:</strong> <span id="adetail-id"></span></p><p><strong>Username:</strong> <span id="adetail-uname"></span></p><p><strong>Points:</strong> <span id="adetail-points"></span></p><p><strong>Ads:</strong> <span id="adetail-ads"></span></p><p><strong>Refs:</strong> <span id="adetail-refs"></span></p>
-                    <div class="input-group" style="margin-top:9px;"><label>Set Points</label><input type="number" id="admin-set-points"></div>
-                    <button class="btn btn-success" onclick="adminUpdateUserPoints()">Update Points</button>
-                    <button class="btn" style="background:var(--danger-color);color:white;width:100%;padding:12px;border-radius:11px;border:none;font-weight:bold;margin-bottom:9px;" onclick="adminToggleBan()" id="admin-ban-btn">Ban User</button>
                 </div>
-                <div style="margin-top:16px;"><button class="btn btn-outline" onclick="adminLoadAllUsers()">Load All Users</button><div style="overflow-x:auto;margin-top:13px;"><table style="width:100%;text-align:left;border-collapse:collapse;display:none;" id="admin-users-table"><thead><tr style="border-bottom:1px solid #334155;"><th style="padding:9px;">ID</th><th style="padding:9px;">Username</th><th style="padding:9px;">Points</th><th style="padding:9px;">Action</th></tr></thead><tbody id="admin-users-list"></tbody></table></div></div>
             </div>
             <div class="card"><h2>💳 Pending Withdrawals</h2><button class="btn btn-outline" onclick="adminLoadWithdrawals()">Refresh</button><div class="data-list" id="admin-wd-list" style="margin-top:12px;"></div></div>
-            <div class="card"><h2>⚙️ System Settings</h2><button class="btn btn-outline" onclick="adminLoadSettings()">Load Settings</button><div id="admin-settings-container" style="margin-top:12px;"></div><button class="btn btn-success" onclick="adminSaveSettings()" style="margin-top:12px;display:none;" id="admin-save-settings-btn">Save Settings</button></div>
+            <div class="card">
+                <h2>⚙️ পয়েন্ট ও রিওয়ার্ড কনফিগারেশন</h2>
+                <div id="admin-settings-container" style="margin-top:12px;">
+                </div>
+                <button class="btn btn-outline" onclick="adminLoadSettings()">Load Current DB Settings</button>
+                <button class="btn btn-success" onclick="adminSaveSettings()" style="margin-top:12px;display:none;" id="admin-save-settings-btn">💾 সেটিং আপডেট করুন</button>
+            </div>
             <div class="card"><h2>📢 Broadcast</h2><div class="input-group"><textarea id="admin-broadcast-msg" rows="4" placeholder="Message..."></textarea></div><button class="btn btn-primary" onclick="adminSendBroadcast()">Send Broadcast</button></div>
         </div>
     </div>
@@ -371,11 +372,10 @@ window.successfulWithdrawalsCount=0;
 function switchTab(tabId,el){
     if (tabId === 'admin' && !window.isAdminUser) {
         tg.showAlert("⚠️ আপনার এই সেকশনে প্রবেশের অনুমতি নেই");
-        document.getElementById('tab-admin').innerHTML = '<h2 style="text-align:center;color:var(--danger-color);margin-top:50px;">⚠️ আপনার এই সেকশনে প্রবেশের অনুমতি নেই</h2>';
         document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-        document.getElementById('tab-'+tabId).classList.add('active');
+        document.getElementById('tab-home').classList.add('active');
         document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-        el.classList.add('active');
+        document.querySelector('.nav-item').classList.add('active');
         return;
     }
     document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
@@ -398,9 +398,6 @@ if(d.is_admin){
 } else {
     document.getElementById('nav-admin').style.display='none';
     window.isAdminUser = false;
-    if(document.getElementById('tab-admin').classList.contains('active')) {
-        document.getElementById('tab-admin').innerHTML = '<h2 style="text-align:center;color:var(--danger-color);margin-top:50px;">⚠️ আপনার এই সেকশনে প্রবেশের অনুমতি নেই</h2>';
-    }
 }
 currentEarned=d.earned||0;window.successfulWithdrawalsCount=d.successful_withdrawals_count||0;
 window.shortlinkRewardPoints=d.shortlink_reward_points||50;
@@ -408,7 +405,14 @@ const jwt=document.getElementById('jackpot-reward-text');if(jwt)jwt.innerText=wi
 const jcm=document.getElementById('jackpot-claimed-msg'),jcs=document.getElementById('jackpot-claim-section');
 if(d.shortlink_claimed_today){if(jcm)jcm.style.display='block';if(jcs)jcs.style.display='none';}else{if(jcm)jcm.style.display='none';if(jcs)jcs.style.display='block';}
 window.todayShortlinkUrl=d.today_shortlink_url;
-window.adRewardPoints=d.ad_reward_points||15;window.dailyAdLimit=d.daily_ad_limit||15;
+window.adRewardPoints=d.ad_reward_points||2;window.dailyAdLimit=d.daily_ad_limit||20;
+window.captchaRewardPoints=d.captcha_reward_points||10;
+window.socialTaskReward=d.social_task_reward||15;
+window.referralReward=d.referral_reward||50;
+window.spinAvgReward=d.spin_avg_reward||7;
+window.dailyCheckinReward=d.daily_checkin_reward||5;
+window.dailyCheckinD7=d.daily_checkin_d7||25;
+const rrt=document.getElementById('ref-reward-text');if(rrt)rrt.innerText=window.referralReward;
 if (d.ads_today !== undefined && d.ads_today >= (window.adsToday || 0)) { window.adsToday = d.ads_today; } else if (window.adsToday === undefined) { window.adsToday = 0; }
 window.adsRemaining = d.ads_remaining !== undefined ? d.ads_remaining : Math.max(0, (window.dailyAdLimit || 15) - window.adsToday);
 const awt=document.getElementById('ads-watched-today'),adl=document.getElementById('ads-daily-limit'),art=document.getElementById('ads-remaining-today'),alt2=document.getElementById('ad-limit-text');
@@ -425,7 +429,7 @@ let tc=0;const vb1=document.getElementById('verify-btn-1');if(d.task_status==='C
 const vb2=document.getElementById('verify-btn-2');if(d.task2_status==='COMPLETED'){vb2.innerText='✅ সম্পন্ন';vb2.className='btn btn-disabled';vb2.disabled=true;tc++;}
 const vb3=document.getElementById('verify-btn-3');if(vb3&&d.task3_status==='COMPLETED'){vb3.innerText='✅ সম্পন্ন';vb3.className='btn btn-disabled';vb3.disabled=true;tc++;}
 document.getElementById('home-tasks').innerText=tc;
-const rc=document.getElementById('ref-list-container');if(d.referrals_list&&d.referrals_list.length>0){rc.innerHTML='';d.referrals_list.forEach(rf=>{const dt=new Date(rf.joined_at).toLocaleDateString('bn-BD');rc.innerHTML+=`<div class="data-item"><div class="left"><span class="title">${rf.first_name||'User'}</span><span class="subtitle">${dt}</span></div><div class="right" style="color:var(--primary-color);">+1000 Pts</div></div>`;});}else rc.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">কোনো রেফার নেই।</p>';
+const rc=document.getElementById('ref-list-container');if(d.referrals_list&&d.referrals_list.length>0){rc.innerHTML='';d.referrals_list.forEach(rf=>{const dt=new Date(rf.joined_at).toLocaleDateString('bn-BD');rc.innerHTML+=`<div class="data-item"><div class="left"><span class="title">${rf.first_name||'User'}</span><span class="subtitle">${dt}</span></div><div class="right" style="color:var(--primary-color);">+${window.referralReward||50} Pts</div></div>`;});}else rc.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">কোনো রেফার নেই</p>';
 const wc=document.getElementById('withdrawal-history-container');if(d.withdrawal_history&&d.withdrawal_history.length>0){wc.innerHTML='';d.withdrawal_history.forEach(w=>{const dt=new Date(w.created_at).toLocaleDateString('bn-BD');const sc=w.status==='PENDING'?'status-pending':(w.status==='APPROVED'?'status-approved':'status-rejected');let h_html = `<div class="data-item" style="flex-direction:column;align-items:flex-start;"><div style="display:flex;justify-content:space-between;width:100%;"><div class="left"><span class="title">${w.method} - ${w.amount} BDT</span><span class="subtitle">${dt}</span></div><div class="right ${sc}">${w.status}</div></div>`;
 if (w.status === 'REJECTED' && w.rejection_reason) {
     h_html += `<div style="margin-top:6px;font-size:11px;color:#fca5a5;background:rgba(239,68,68,0.1);padding:4px 8px;border-radius:4px;border:1px dashed #ef4444;">❌ রিজেক্টের কারণ: ${w.rejection_reason}</div>`;
@@ -439,10 +443,10 @@ async function claimSecretCode(){const code=document.getElementById('secret-code
 
 async function verifyTask(id){const btn=document.getElementById('verify-btn-'+id);if(btn.disabled)return;const orig=btn.innerText;btn.innerText='অপেক্ষা...';try{const r=await fetch(`${API_BASE_URL}/api/verify_task`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({user_id:userId,task_id:id})});const d=await r.json();if(d.success){tg.showAlert(d.message);fetchUserData();}else{tg.showAlert(d.message||'ভেরিফিকেশন ব্যর্থ!');btn.innerText=orig;}}catch{tg.showAlert('Network error.');btn.disabled=false;btn.innerText=orig;}}
 
-function triggerAntiCheatCheck(){if(currentReferrals<5||totalAdsWatched<100){document.getElementById('modal-text-dynamic').innerText='উইথড্র করার জন্য আপনাকে অন্তত ৫টি রেফার এবং ১০০টি অ্যাড দেখতে হবে।';document.getElementById('modal-referral-status').innerText=`আপনার রেফার: ${currentReferrals}/5 | অ্যাড দেখা: ${totalAdsWatched}/100`;document.getElementById('anti-cheat-modal').classList.add('active');return false;}if(currentPoints<20000){tg.showAlert('⚠️ সর্বনিম্ন ২০,০০০ পয়েন্ট প্রয়োজন।');return false;}return true;}
+function triggerAntiCheatCheck(){if(currentReferrals<3||totalAdsWatched<50){document.getElementById('modal-text-dynamic').innerText='উইথড্র করার জন্য অন্তত ৩টি রেফার এবং ৫০টি অ্যাড দেখা প্রয়োজন।';document.getElementById('modal-referral-status').innerText=`রেফার হয়েছে: ${currentReferrals}/3 | অ্যাড দেখা হয়েছে: ${totalAdsWatched}/50`;document.getElementById('anti-cheat-modal').classList.add('active');return false;}const method=document.getElementById('withdraw-method').value;const minPts=method.includes('USDT')?5000:1000;if(currentPoints<minPts){tg.showAlert(`⚠️ সর্বনিম্ন ${minPts} পয়েন্ট প্রয়োজন`);return false;}return true;}
 function attemptWithdraw(){if(triggerAntiCheatCheck())switchTab('wallet',document.querySelectorAll('.nav-item')[3]);}
 function updateWithdrawalPlaceholder(){const m=document.getElementById('withdraw-method').value,i=document.getElementById('account-number');i.placeholder=m==='USDT (BEP-20)'?'0x...':'01XXXXXXXXX';i.type=m==='USDT (BEP-20)'?'text':'number';}
-function attemptWithdrawForm(){if(!triggerAntiCheatCheck())return;const method=document.getElementById('withdraw-method').value,account=document.getElementById('account-number').value,amount=parseInt(document.getElementById('withdraw-amount').value||currentPoints);if(!account||account.length<11){tg.showAlert('সঠিক নম্বর দিন।');return;}if(amount<2000){tg.showAlert('সর্বনিম্ন ২০০০ পয়েন্ট।');return;}if(amount>currentPoints){tg.showAlert('ব্যালেন্স কম!');return;}submitWithdrawal(method,account,amount);}
+function attemptWithdrawForm(){if(!triggerAntiCheatCheck())return;const method=document.getElementById('withdraw-method').value,account=document.getElementById('account-number').value,amount=parseInt(document.getElementById('withdraw-amount').value||currentPoints);if(!account||account.length<11){tg.showAlert('সঠিক নম্বর দিন।');return;}if(amount<1000){tg.showAlert('সর্বনিম্ন ১০০০ পয়েন্ট।');return;}if(amount>currentPoints){tg.showAlert('ব্যালেন্স কম!');return;}submitWithdrawal(method,account,amount);}
 async function submitWithdrawal(m,acc,amt){try{const r=await fetch(`${API_BASE_URL}/api/withdraw`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({user_id:userId,method:m,account:acc,amount:amt})});const d=await r.json();if(d.success){tg.showAlert(d.message);fetchUserData();document.getElementById('account-number').value='';document.getElementById('withdraw-amount').value='';}else tg.showAlert(d.error||'Error.');}catch{tg.showAlert('Network error.');}}
 function closeModal(){document.getElementById('anti-cheat-modal').classList.remove('active');}
 function showPremiumModal(t){document.getElementById('premium-ad-text').innerText=t;document.getElementById('premium-ad-modal').classList.add('active');}
@@ -490,7 +494,7 @@ function checkCaptchaAnswer(){const val=parseInt(document.getElementById('captch
 async function playCaptchaAd(){const btn=document.getElementById('captcha-reward-btn').querySelector('button');btn.disabled=true;btn.innerText='অ্যাড চলছে...';const isBlocked=await isAdBlockerOrPrivateDNSActive();if(isBlocked){alert('⚠️ VPN বন্ধ করুন।');btn.disabled=false;btn.innerText='🎁 পয়েন্ট ওয়ালেটে জমা করতে অ্যাডটি দেখুন (+30 Pts)';return;}let ok=false;if(typeof window.Adsgram!=='undefined'||typeof AdController!=='undefined'){for(let i=0;i<ADSGRAM_UNITS.length;i++){try{const c=window.Adsgram?window.Adsgram.init({blockId:ADSGRAM_UNITS[i],debug:false}):new AdController({blockId:ADSGRAM_UNITS[i]});const r=await c.show();if(r&&(r.done||r.state==='completed')){ok=true;break;}}catch(e){}}}if(!ok&&typeof show_11525199==='function'){try{await show_11525199({ymid:String(userId)});ok=true;}catch(e){}}if(ok){await rewardUserPoints(30,'captcha');captchaStep=0;document.querySelectorAll('.captcha-dot').forEach(d=>d.classList.remove('done'));document.getElementById('captcha-box').style.display='block';document.getElementById('captcha-reward-btn').style.display='none';generateCaptcha();btn.disabled=false;btn.innerText='🎁 পয়েন্ট ওয়ালেটে জমা করতে অ্যাডটি দেখুন (+30 Pts)';fetchUserData();}else{alert('অ্যাড পাওয়া যায়নি।');btn.disabled=false;btn.innerText='🎁 পয়েন্ট ওয়ালেটে জমা করতে অ্যাডটি দেখুন (+30 Pts)';}}
 
 // SPIN WHEEL
-const wheelPrizes=[30,50,100,200,300,500,1000];
+const wheelPrizes=[3,5,7,10,15,25,50];
 const wheelColors=['#10b981','#3b82f6','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#f97316'];
 let wheelAngle=0,pendingSpinPrize=0,isSpinning=false;
 function drawWheel(angle){const cv=document.getElementById('wheel-canvas');if(!cv)return;const ctx=cv.getContext('2d');const cx=cv.width/2,cy=cv.height/2,r=cx-8,arc=2*Math.PI/wheelPrizes.length;ctx.clearRect(0,0,cv.width,cv.height);wheelPrizes.forEach((prize,i)=>{const start=angle+i*arc-Math.PI/2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,start+arc);ctx.fillStyle=wheelColors[i];ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.12)';ctx.lineWidth=1.5;ctx.stroke();ctx.save();ctx.translate(cx,cy);ctx.rotate(start+arc/2);ctx.textAlign='right';ctx.fillStyle='white';ctx.font=`bold ${prize>=100?'11px':'13px'} Segoe UI`;ctx.fillText(prize+'P',r-8,5);ctx.restore();});ctx.beginPath();ctx.arc(cx,cy,18,0,2*Math.PI);ctx.fillStyle='#090d16';ctx.fill();ctx.strokeStyle='rgba(16,185,129,0.6)';ctx.lineWidth=2;ctx.stroke();}
