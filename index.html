@@ -368,7 +368,22 @@ document.getElementById('ref-link').value=`https://t.me/Incomlb_bot?start=ref_${
 let currentReferrals=0,currentEarned=0,currentPoints=0,totalAdsWatched=0;
 window.successfulWithdrawalsCount=0;
 
-function switchTab(tabId,el){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+tabId).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active');fetchUserData();}
+function switchTab(tabId,el){
+    if (tabId === 'admin' && !window.isAdminUser) {
+        tg.showAlert("⚠️ আপনার এই সেকশনে প্রবেশের অনুমতি নেই");
+        document.getElementById('tab-admin').innerHTML = '<h2 style="text-align:center;color:var(--danger-color);margin-top:50px;">⚠️ আপনার এই সেকশনে প্রবেশের অনুমতি নেই</h2>';
+        document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+        document.getElementById('tab-'+tabId).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+        el.classList.add('active');
+        return;
+    }
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    document.getElementById('tab-'+tabId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    el.classList.add('active');
+    fetchUserData();
+}
 
 async function checkGuardMembership(){const btn=document.getElementById('verify-guard-btn');btn.innerText='অপেক্ষা...';const c=new AbortController();const tid=setTimeout(()=>c.abort(),7000);try{const r=await fetch(`${API_BASE_URL}/api/check_membership`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId}),signal:c.signal});const d=await r.json();if(d.is_verified){localStorage.setItem('channels_verified','true');document.getElementById('guard-modal').style.display='none';document.getElementById('guard-modal').classList.remove('active');}else alert('⚠️'+(d.message||'চ্যানেলে জয়েন করেননি!'));}catch(e){alert(e.name==='AbortError'?'⚠️ টাইমআউট!':'⚠️ নেটওয়ার্ক সমস্যা.');}finally{clearTimeout(tid);btn.innerText='ভেরিফাই করুন';}}
 
@@ -376,7 +391,17 @@ async function dailyCheckin(){const btn=document.getElementById('claim-bonus-btn
 
 async function fetchUserData(){try{const r=await fetch(`${API_BASE_URL}/api/user_data`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({user_id:userId,username:userName,first_name:firstName})});const d=await r.json();if(!r.ok)return;
 if(d.is_banned){document.body.innerHTML="<h1 style='color:red;text-align:center;margin-top:50px;'>⚠️ Banned.</h1>";return;}
-if(d.is_admin)document.getElementById('nav-admin').style.display='flex';
+if(d.is_admin){
+    document.getElementById('nav-admin').style.display='flex';
+    window.isAdminUser = true;
+    checkAdminAccess();
+} else {
+    document.getElementById('nav-admin').style.display='none';
+    window.isAdminUser = false;
+    if(document.getElementById('tab-admin').classList.contains('active')) {
+        document.getElementById('tab-admin').innerHTML = '<h2 style="text-align:center;color:var(--danger-color);margin-top:50px;">⚠️ আপনার এই সেকশনে প্রবেশের অনুমতি নেই</h2>';
+    }
+}
 currentEarned=d.earned||0;window.successfulWithdrawalsCount=d.successful_withdrawals_count||0;
 window.shortlinkRewardPoints=d.shortlink_reward_points||50;
 const jwt=document.getElementById('jackpot-reward-text');if(jwt)jwt.innerText=window.shortlinkRewardPoints;
@@ -479,9 +504,22 @@ function openTgLink(url){if(tg.openLink)tg.openLink(url);else window.open(url,'_
 async function fetchPointHistory(){const card=document.getElementById('income-history-card'),con=document.getElementById('income-history-container');if(card.style.display==='block'){card.style.display='none';return;}card.style.display='block';con.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">লোড হচ্ছে...</p>';try{const r=await fetch(`${API_BASE_URL}/api/point_history?telegram_id=${userId}`);const d=await r.json();if(d&&d.history&&d.history.length>0){con.innerHTML='';d.history.forEach(item=>{const a=item.amount>0?`+${item.amount}`:item.amount;const dt=new Date(item.created_at);const ds=!isNaN(dt)?dt.toLocaleString():item.created_at;con.innerHTML+=`<div class="data-item"><div class="left"><span class="title">${item.description||item.type}</span><span class="subtitle">${ds}</span></div><div class="right" style="color:#10b981;">${a} Pts</div></div>`;});}else con.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">কোনো ইনকাম হিস্ট্রি নেই।</p>';}catch{con.innerHTML='<p style="text-align:center;color:var(--danger-color);font-size:13px;">লোড সমস্যা।</p>';}}
 
 // ADMIN
-function getAdminPayload(extra={}){return{admin_user_id:userId,admin_username:tg.initDataUnsafe?.user?.username,admin_secret_key:localStorage.getItem('admin_secret_key')||'telebotads',...extra};}
+function getAdminPayload(extra={}){return{admin_user_id:userId,admin_username:tg.initDataUnsafe?.user?.username,admin_secret_key:localStorage.getItem('admin_secret_key'),...extra};}
 function adminWebLogin(){const k=document.getElementById('admin-secret-key-input').value;if(!k)return tg.showAlert('Key প্রয়োজন।');localStorage.setItem('admin_secret_key',k);document.getElementById('admin-auth-view').style.display='none';document.getElementById('admin-content-view').style.display='block';adminLoadStats();}
-function checkAdminAccess(){if(isWeb||isAdminHash){document.getElementById('nav-admin').style.display='flex';document.getElementById('admin-content-view').style.display='block';document.getElementById('admin-auth-view').style.display='none';}else if(hasAdminKey){document.getElementById('admin-content-view').style.display='block';document.getElementById('admin-auth-view').style.display='none';}else document.getElementById('admin-auth-view').style.display='block';}
+function checkAdminAccess(){
+    if (window.isAdminUser) {
+        if (localStorage.getItem('admin_secret_key')) {
+            document.getElementById('admin-content-view').style.display='block';
+            document.getElementById('admin-auth-view').style.display='none';
+        } else {
+            document.getElementById('admin-auth-view').style.display='block';
+            document.getElementById('admin-content-view').style.display='none';
+        }
+    } else {
+        document.getElementById('admin-content-view').style.display='none';
+        document.getElementById('admin-auth-view').style.display='none';
+    }
+}
 async function adminLoadStats(){try{const r=await fetch(`${API_BASE_URL}/api/admin/stats`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload())});const d=await r.json();if(d.error){tg.showAlert(d.error);return;}document.getElementById('astat-users').innerText=d.total_users||0;document.getElementById('astat-active').innerText=d.active_today||0;document.getElementById('astat-ads').innerText=d.ads_today||0;document.getElementById('astat-wd').innerText=d.pending_withdrawals||0;document.getElementById('astat-points').innerText=d.total_points||0;document.getElementById('astat-paid').innerText=d.total_paid_bdt||0;}catch{}}
 async function adminSearchUser(){const q=document.getElementById('admin-search-user').value.trim();if(!q)return tg.showAlert("Please enter User ID or Username");document.getElementById('admin-user-details').style.display='block';document.getElementById('admin-user-details').innerHTML='<p style="text-align:center;padding:15px;color:var(--text-muted);">Searching user...</p>';try{const r=await fetch(`${API_BASE_URL}/api/admin/user`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({action:'search',target_user_id:q}))});const d=await r.json();if(d.error){tg.showAlert("User not found!");document.getElementById('admin-user-details').innerHTML='<p style="text-align:center;padding:15px;color:var(--danger-color);">User not found!</p>';return;}window.adminCurrentUser=d;document.getElementById('admin-user-details').innerHTML=`<div style="background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.05);"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--text-muted);font-size:12px;">ID:</span><span style="font-weight:bold;">${d.user_id}</span></div><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--text-muted);font-size:12px;">Username:</span><span style="font-weight:bold;">${d.username||'N/A'}</span></div><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--text-muted);font-size:12px;">Points:</span><span style="font-weight:bold;color:var(--primary-color);">${d.points||0}</span></div><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--text-muted);font-size:12px;">Ads Watched:</span><span style="font-weight:bold;">${d.total_ads_watched||0}</span></div><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--text-muted);font-size:12px;">Total Refs:</span><span style="font-weight:bold;">${d.total_referrals||0}</span></div><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--text-muted);font-size:12px;">Secret Codes Claimed:</span><span style="font-weight:bold;color:#f59e0b;">${d.total_secret_claims||0}</span></div>
                 <div class="input-group" style="margin-top:15px;margin-bottom:10px;"><input type="number" id="admin-set-points" placeholder="New Points Balance"></div><div style="display:flex;gap:10px;"><button onclick="adminUpdateUserPoints()" class="btn btn-outline" style="flex:1;border:1px solid var(--primary-color);color:var(--primary-color);background:transparent;">Update Points</button><button id="admin-ban-btn" onclick="adminToggleBan()" class="btn" style="flex:1;background:${d.is_banned?'var(--secondary-color)':'var(--danger-color)'};color:white;border:none;">${d.is_banned?'Unban User':'Ban User'}</button></div>
@@ -520,7 +558,7 @@ async function adminLoadSettings(){const con=document.getElementById('admin-sett
 async function adminSaveSettings(){const inputs=document.querySelectorAll('[id^="setting-"]');let updates={};inputs.forEach(i=>{updates[i.id.replace('setting-','')]=i.value;});try{const r=await fetch(`${API_BASE_URL}/api/admin/settings`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({action:'update',settings:updates}))});const d=await r.json();if(d.success){tg.showAlert('Settings Saved!');fetchUserData();adminLoadSettings();}else tg.showAlert(d.error||'Failed');}catch{tg.showAlert('Error saving.');}}
 async function adminSendBroadcast(){const msg=document.getElementById('admin-broadcast-msg').value;if(!msg)return tg.showAlert('Message দিন।');try{await fetch(`${API_BASE_URL}/api/admin/broadcast`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({message:msg}))});tg.showAlert('Broadcast sent.');document.getElementById('admin-broadcast-msg').value='';}catch{}}
 
-(async function init(){checkAdminAccess();generateCaptcha();drawWheel(0);await fetchUserData();})();
+(async function init(){generateCaptcha();drawWheel(0);await fetchUserData();})();
 </script>
 </body>
 </html>
