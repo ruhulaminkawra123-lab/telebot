@@ -196,20 +196,20 @@
 
         <!-- D) Channel Tasks -->
         <div class="card">
-            <h2>✅ কাজ ১ (Task 1)</h2>
-            <p class="mb-2" style="color:var(--text-muted);font-size:12px;">অফিসিয়াল চ্যানেলে জয়েন করুন ও ২০০ Points নিন।</p>
-            <button class="btn btn-primary" id="join-btn-1" onclick="openTgLink('https://t.me/BotIncomeLab')">১. অফিসিয়াল চ্যানেলে জয়েন করুন</button>
+            <h2>📢 টাস্ক ১ (Task 1)</h2>
+            <p class="mb-2" style="color:var(--text-muted);font-size:12px;">অফিসিয়াল টেলিগ্রাম চ্যানেলে যুক্ত হলে <span class="task-reward-txt">200</span> Points পাবেন</p>
+            <button class="btn btn-primary" id="join-btn-1" onclick="openTgLink('https://t.me/BotIncomeLab')">১. অফিসিয়াল টেলিগ্রাম চ্যানেলে যুক্ত হোন</button>
             <button class="btn btn-success" id="verify-btn-1" onclick="verifyTask(1)">২. ভেরিফাই করুন</button>
         </div>
         <div class="card">
-            <h2>✅ কাজ ২ (Task 2)</h2>
-            <p class="mb-2" style="color:var(--text-muted);font-size:12px;">পেমেন্ট চ্যানেলে জয়েন করুন ও ২০০ Points নিন।</p>
-            <button class="btn btn-primary" id="join-btn-2" onclick="openTgLink('https://t.me/Incomelb_bot_payment')">১. পেমেন্ট চ্যানেলে জয়েন করুন</button>
+            <h2>📢 টাস্ক ২ (Task 2)</h2>
+            <p class="mb-2" style="color:var(--text-muted);font-size:12px;">পেমেন্ট চ্যানেলে যুক্ত হলে <span class="task-reward-txt">200</span> Points পাবেন</p>
+            <button class="btn btn-primary" id="join-btn-2" onclick="openTgLink('https://t.me/Incomelb_bot_payment')">১. পেমেন্ট টেলিগ্রাম চ্যানেলে যুক্ত হোন</button>
             <button class="btn btn-success" id="verify-btn-2" onclick="verifyTask(2)">২. ভেরিফাই করুন</button>
         </div>
         <div class="card">
-            <h2>✅ কাজ ৩ (Task 3)</h2>
-            <p class="mb-2" style="color:var(--text-muted);font-size:12px;">ফেসবুক পেজ ফলো করুন ও ২০০ Points নিন।</p>
+            <h2>📢 টাস্ক ৩ (Task 3)</h2>
+            <p class="mb-2" style="color:var(--text-muted);font-size:12px;">ফেসবুক পেজ ফলো করলে <span class="task-reward-txt">200</span> Points পাবেন</p>
             <button class="btn btn-primary" id="join-btn-3" onclick="openTgLink('https://www.facebook.com/share/1B6pa6Zzno/')">১. ফেসবুক পেজ ফলো করুন</button>
             <button class="btn btn-success" id="verify-btn-3" onclick="verifyTask(3)">২. ভেরিফাই করুন</button>
         </div>
@@ -227,7 +227,6 @@
             <div style="background:rgba(16,185,129,0.1);border:1px dashed rgba(16,185,129,0.4);padding:9px;border-radius:9px;margin-bottom:13px;display:inline-block;">
                 <span id="ad-reward-banner" style="color:#10b981;font-weight:bold;font-size:14px;">🔥 প্রতি অ্যাডে পাবেন 15 Points!</span>
             </div>
-            <div style="margin:12px 0;padding:9px;background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;border-radius:6px;color:#f87171;font-size:12px;">উইথড্র ফী বাবদ অতিরিক্ত ৫০ পয়েন্ট (০.৫০ টাকা) প্রযোজ্য যা মূল ব্যালেন্স থেকে কাটা হবে।</div>
             <p id="ad-instruction" style="color:#cbd5e1;font-size:13px;margin-bottom:16px;">নিচের বাটনে ক্লিক করুন। অ্যাডটি টানা <strong>১৫ সেকেন্ড</strong> দেখতে হবে। (লিমিট: <span id="ad-limit-text">15</span> টি)</p>
             <button class="btn btn-primary" id="start-ad-btn" onclick="playHybridAd()">Watch Ad (+15 Pts)</button>
             <div style="margin-top:16px;padding:10px;background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;border-radius:6px;color:#cbd5e1;font-size:13px;text-align:left;">💡 ১৫ সেকেন্ড পর "Continue" ক্লিক করুন।</div>
@@ -320,6 +319,16 @@
             <div class="card">
                 <h2>⚙️ পয়েন্ট ও রিওয়ার্ড কনফিগারেশন</h2>
                 <div id="admin-settings-container" style="margin-top:12px;">
+                    <div class="input-group" style="margin-bottom:9px;"><label>task_reward</label><input type="text" id="setting-task_reward" value="200"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>captcha_reward</label><input type="text" id="setting-captcha_reward" value="30"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>ad_reward</label><input type="text" id="setting-ad_reward" value="2"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>shortlink_reward</label><input type="text" id="setting-shortlink_reward" value="20"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>referral_reward</label><input type="text" id="setting-referral_reward" value="50"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>min_wd_recharge</label><input type="text" id="setting-min_wd_recharge" value="1000"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>min_wd_bkash</label><input type="text" id="setting-min_wd_bkash" value="5000"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>min_ref_req</label><input type="text" id="setting-min_ref_req" value="3"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>min_ads_req</label><input type="text" id="setting-min_ads_req" value="50"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>wd_fee</label><input type="text" id="setting-wd_fee" value="50"></div>
                 </div>
                 <button class="btn btn-outline" onclick="adminLoadSettings()">Load Current DB Settings</button>
                 <button class="btn btn-success" onclick="adminSaveSettings()" style="margin-top:12px;display:none;" id="admin-save-settings-btn">💾 সেটিং আপডেট করুন</button>
@@ -412,7 +421,18 @@ window.referralReward=d.referral_reward||50;
 window.spinAvgReward=d.spin_avg_reward||7;
 window.dailyCheckinReward=d.daily_checkin_reward||5;
 window.dailyCheckinD7=d.daily_checkin_d7||25;
+window.taskReward=d.task_reward||200;
+window.minWdRecharge=d.min_wd_recharge||1000;
+window.minWdBkash=d.min_wd_bkash||5000;
+window.wdFee=d.wd_fee||50;
+window.minRefReq=d.min_ref_req||3;
+window.minAdsReq=d.min_ads_req||50;
 const rrt=document.getElementById('ref-reward-text');if(rrt)rrt.innerText=window.referralReward;
+const wdFeeTxt=document.getElementById('wd-fee-text');if(wdFeeTxt)wdFeeTxt.innerText=window.wdFee;
+const wdFeeBdt=document.getElementById('wd-fee-bdt');if(wdFeeBdt)wdFeeBdt.innerText=(window.wdFee/100).toFixed(2);
+const wdMinRef=document.getElementById('wd-min-ref');if(wdMinRef)wdMinRef.innerText=window.minRefReq;
+const wdMinAds=document.getElementById('wd-min-ads');if(wdMinAds)wdMinAds.innerText=window.minAdsReq;
+document.querySelectorAll('.task-reward-txt').forEach(e=>e.innerText=window.taskReward);
 if (d.ads_today !== undefined && d.ads_today >= (window.adsToday || 0)) { window.adsToday = d.ads_today; } else if (window.adsToday === undefined) { window.adsToday = 0; }
 window.adsRemaining = d.ads_remaining !== undefined ? d.ads_remaining : Math.max(0, (window.dailyAdLimit || 15) - window.adsToday);
 const awt=document.getElementById('ads-watched-today'),adl=document.getElementById('ads-daily-limit'),art=document.getElementById('ads-remaining-today'),alt2=document.getElementById('ad-limit-text');
@@ -443,10 +463,10 @@ async function claimSecretCode(){const code=document.getElementById('secret-code
 
 async function verifyTask(id){const btn=document.getElementById('verify-btn-'+id);if(btn.disabled)return;const orig=btn.innerText;btn.innerText='অপেক্ষা...';try{const r=await fetch(`${API_BASE_URL}/api/verify_task`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({user_id:userId,task_id:id})});const d=await r.json();if(d.success){tg.showAlert(d.message);fetchUserData();}else{tg.showAlert(d.message||'ভেরিফিকেশন ব্যর্থ!');btn.innerText=orig;}}catch{tg.showAlert('Network error.');btn.disabled=false;btn.innerText=orig;}}
 
-function triggerAntiCheatCheck(){if(currentReferrals<3||totalAdsWatched<50){document.getElementById('modal-text-dynamic').innerText='উইথড্র করার জন্য অন্তত ৩টি রেফার এবং ৫০টি অ্যাড দেখা প্রয়োজন।';document.getElementById('modal-referral-status').innerText=`রেফার হয়েছে: ${currentReferrals}/3 | অ্যাড দেখা হয়েছে: ${totalAdsWatched}/50`;document.getElementById('anti-cheat-modal').classList.add('active');return false;}const method=document.getElementById('withdraw-method').value;const minPts=method.includes('USDT')?5000:1000;if(currentPoints<minPts){tg.showAlert(`⚠️ সর্বনিম্ন ${minPts} পয়েন্ট প্রয়োজন`);return false;}return true;}
+function triggerAntiCheatCheck(){if(currentReferrals<window.minRefReq||totalAdsWatched<window.minAdsReq){document.getElementById('modal-text-dynamic').innerText=`উইথড্র করার জন্য অন্তত ${window.minRefReq}টি রেফার এবং ${window.minAdsReq}টি অ্যাড দেখা প্রয়োজন।`;document.getElementById('modal-referral-status').innerText=`রেফার হয়েছে: ${currentReferrals}/${window.minRefReq} | অ্যাড দেখা হয়েছে: ${totalAdsWatched}/${window.minAdsReq}`;document.getElementById('anti-cheat-modal').classList.add('active');return false;}const method=document.getElementById('withdraw-method').value;const minPts=method.includes('USDT')?window.minWdBkash:window.minWdRecharge;if(currentPoints<minPts){tg.showAlert(`⚠️ সর্বনিম্ন ${minPts} পয়েন্ট প্রয়োজন`);return false;}return true;}
 function attemptWithdraw(){if(triggerAntiCheatCheck())switchTab('wallet',document.querySelectorAll('.nav-item')[3]);}
-function updateWithdrawalPlaceholder(){const m=document.getElementById('withdraw-method').value,i=document.getElementById('account-number');i.placeholder=m==='USDT (BEP-20)'?'0x...':'01XXXXXXXXX';i.type=m==='USDT (BEP-20)'?'text':'number';}
-function attemptWithdrawForm(){if(!triggerAntiCheatCheck())return;const method=document.getElementById('withdraw-method').value,account=document.getElementById('account-number').value,amount=parseInt(document.getElementById('withdraw-amount').value||currentPoints);if(!account||account.length<11){tg.showAlert('সঠিক নম্বর দিন।');return;}if(amount<1000){tg.showAlert('সর্বনিম্ন ১০০০ পয়েন্ট।');return;}if(amount>currentPoints){tg.showAlert('ব্যালেন্স কম!');return;}submitWithdrawal(method,account,amount);}
+function updateWithdrawalPlaceholder(){const m=document.getElementById('withdraw-method').value,i=document.getElementById('account-number');i.placeholder=m==='USDT (BEP-20)'?'0x...':'01XXXXXXXXX';i.type=m==='USDT (BEP-20)'?'text':'number';const a=document.getElementById('withdraw-amount');if(a){a.placeholder=`Minimum ${m==='USDT (BEP-20)'?window.minWdBkash:window.minWdRecharge} Points`;}}
+function attemptWithdrawForm(){if(!triggerAntiCheatCheck())return;const method=document.getElementById('withdraw-method').value,account=document.getElementById('account-number').value,amount=parseInt(document.getElementById('withdraw-amount').value||currentPoints);if(!account||account.length<11){tg.showAlert('সঠিক নম্বর দিন।');return;}const minPts=method.includes('USDT')?window.minWdBkash:window.minWdRecharge;if(amount<minPts){tg.showAlert(`সর্বনিম্ন ${minPts} পয়েন্ট।`);return;}if(amount>currentPoints){tg.showAlert('ব্যালেন্স কম!');return;}submitWithdrawal(method,account,amount);}
 async function submitWithdrawal(m,acc,amt){try{const r=await fetch(`${API_BASE_URL}/api/withdraw`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({user_id:userId,method:m,account:acc,amount:amt})});const d=await r.json();if(d.success){tg.showAlert(d.message);fetchUserData();document.getElementById('account-number').value='';document.getElementById('withdraw-amount').value='';}else tg.showAlert(d.error||'Error.');}catch{tg.showAlert('Network error.');}}
 function closeModal(){document.getElementById('anti-cheat-modal').classList.remove('active');}
 function showPremiumModal(t){document.getElementById('premium-ad-text').innerText=t;document.getElementById('premium-ad-modal').classList.add('active');}
