@@ -340,6 +340,14 @@
                     </table>
                 </div>
             </div>
+            <div class="card">
+                <h2>🎁 সকল ইউজারকে পয়েন্ট গিফট দিন</h2>
+                <div class="input-group">
+                    <label>পয়েন্ট পরিমাণ (Amount)</label>
+                    <input type="number" id="admin-gift-amount" placeholder="e.g. 1000">
+                </div>
+                <button class="btn btn-primary" onclick="adminGiftAllUsers()">🎁 পয়েন্ট উপহার পাঠান</button>
+            </div>
             <div class="card"><h2>💳 Pending Withdrawals</h2><button class="btn btn-outline" onclick="adminLoadWithdrawals()">Refresh</button><div class="data-list" id="admin-wd-list" style="margin-top:12px;"></div></div>
             <div class="card">
                 <h2>⚙️ পয়েন্ট ও রিওয়ার্ড কনফিগারেশন</h2>
@@ -618,6 +626,23 @@ async function adminSendUserMsg() {
 
 async function adminUpdateUserPoints(){const pts=document.getElementById('admin-set-points').value;if(!pts||!window.adminCurrentUser)return;try{const r=await fetch(`${API_BASE_URL}/api/admin/user`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({action:'set_points',target_user_id:window.adminCurrentUser.user_id,points:pts}))});const d=await r.json();tg.showAlert(d.message||d.error||'Done');}catch{}}
 async function adminToggleBan(){if(!window.adminCurrentUser)return;try{const r=await fetch(`${API_BASE_URL}/api/admin/user`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({action:'toggle_ban',target_user_id:window.adminCurrentUser.user_id}))});const d=await r.json();tg.showAlert(d.message||d.error||'Done');adminSearchUser();}catch{}}
+async function adminGiftAllUsers() {
+    const amt = parseInt(document.getElementById('admin-gift-amount').value);
+    if (!amt || amt <= 0) return tg.showAlert("সঠিক পয়েন্ট দিন");
+    if (!confirm(`আপনি কি সত্যিই সকল ইউজারকে ${amt} পয়েন্ট গিফট করতে চান?`)) return;
+    try {
+        const r = await fetch(`${API_BASE_URL}/api/admin/gift_all_users`, {
+            method: 'POST', credentials: 'omit',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ admin_user_id: userId, admin_secret_key: localStorage.getItem('admin_secret_key'), gift_amount: amt })
+        });
+        const d = await r.json();
+        if (d.success) {
+            tg.showAlert(d.message);
+            document.getElementById('admin-gift-amount').value = "";
+        } else tg.showAlert(d.error || 'Error');
+    } catch { tg.showAlert('Network error.'); }
+}
 async function adminLoadAllUsers(){const tbl=document.getElementById('admin-users-table'),tbody=document.getElementById('admin-users-list');tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:15px;color:var(--text-muted);">Loading users...</td></tr>';tbl.style.display='table';try{const r=await fetch(`${API_BASE_URL}/api/admin/user`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({action:'list_all'}))});const d=await r.json();if(d.error){tg.showAlert(d.error);tbody.innerHTML=`<tr><td colspan="4" style="color:var(--danger-color);text-align:center;padding:15px;">${d.error}</td></tr>`;return;}let users=d.users||d;if(!Array.isArray(users)){tg.showAlert("Failed to load users");tbody.innerHTML='<tr><td colspan="4" style="color:var(--danger-color);text-align:center;padding:15px;">Failed to load users data</td></tr>';return;}tbody.innerHTML='';users.forEach(u=>{tbody.innerHTML+=`<tr><td style="padding:8px;">${u.user_id}</td><td style="padding:8px;">${u.username||'N/A'}</td><td style="padding:8px;">${u.points||0}</td><td style="padding:8px;"><button onclick="document.getElementById('admin-search-user').value='${u.user_id}';adminSearchUser();" style="background:var(--secondary-color);color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;">View</button></td></tr>`;});}catch(e){tg.showAlert(e.message||"Failed to load users");tbody.innerHTML='<tr><td colspan="4" style="color:var(--danger-color);text-align:center;padding:15px;">Error loading users</td></tr>';}}
 async function adminLoadWithdrawals(){try{const r=await fetch(`${API_BASE_URL}/api/admin/withdrawals`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload())});const d=await r.json();const con=document.getElementById('admin-wd-list');con.innerHTML='';if(d.withdrawals&&d.withdrawals.length>0){d.withdrawals.forEach(w=>{con.innerHTML+=`<div class="data-item"><div class="left"><span class="title">User:${w.user_id}|${w.method}</span><span class="subtitle">${w.account_number||''}|${w.amount} BDT</span></div><div style="display:flex;gap:6px;"><button onclick="adminApproveWD(${w.id})" style="background:#10b981;color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px;">Approve</button><button onclick="adminRejectWD(${w.id})" style="background:#ef4444;color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px;">Reject</button></div></div>`;});}else con.innerHTML='<p style="color:var(--text-muted);font-size:13px;">পেন্ডিং নেই।</p>';}catch{}}
 async function adminApproveWD(id){try{const r=await fetch(`${API_BASE_URL}/api/admin/withdrawals`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(getAdminPayload({action:'approve',withdrawal_id:id}))});const d=await r.json();tg.showAlert(d.message||d.error||'Done');adminLoadWithdrawals();}catch{}}
@@ -634,15 +659,26 @@ async function adminSendBroadcast(){const msg=document.getElementById('admin-bro
     </div>
     <script>
     const fakeNames = ["Sabbir", "Rahim", "Tania", "Hasib", "Nusrat", "Arif", "Mehedi", "Sumaiya", "Rakib", "Imran", "Mim", "Riya"];
-    const fakeMethods = ["bKash", "Nagad", "Mobile Recharge", "USDT"];
+    const fakeMethods = ["Bkash", "Nagad", "Mobile Recharge", "USDT (BEP-20)"];
     function showSocialProof() {
         const t = document.getElementById('social-proof-toast');
         if(!t) return;
         const name = fakeNames[Math.floor(Math.random() * fakeNames.length)];
-        const num = "01" + Math.floor(Math.random() * 9 + 1) + "***";
         const method = fakeMethods[Math.floor(Math.random() * fakeMethods.length)];
-        const amount = Math.floor(Math.random() * 20 + 2) * 10;
-        document.getElementById('social-proof-text').innerHTML = `<b>${name} (${num})</b> just withdrew ${amount} BDT via ${method}!`;
+        
+        let num, amount;
+        if (method.includes("USDT")) {
+            const hex = Math.random().toString(16).slice(2, 6);
+            num = "0x7a" + hex + "...";
+            amount = Math.floor(Math.random() * 5 + 1) + " USDT";
+        } else {
+            const prefixes = ["017", "018", "019", "013", "016"];
+            const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            num = prefix + "***";
+            amount = Math.floor(Math.random() * 20 + 2) * 10 + " BDT";
+        }
+        
+        document.getElementById('social-proof-text').innerHTML = `<b>${name} (${num})</b> just withdrew ${amount} via ${method}!`;
         t.style.bottom = "80px";
         t.style.opacity = "1";
         setTimeout(() => {
