@@ -253,7 +253,14 @@
         </div>
         <div class="card">
             <h2>💳 উইথড্র করুন</h2>
-            <div class="input-group"><label>পেমেন্ট মেথড</label><select id="withdraw-method" onchange="updateWithdrawalPlaceholder()"><option value="Nagad">Nagad (নগদ)</option><option value="USDT (BEP-20)">USDT (BEP-20)</option></select></div>
+            <div class="input-group"><label>পেমেন্ট মেথড</label>
+                <select id="withdraw-method" onchange="updateWithdrawalPlaceholder()">
+                    <option value="Bkash">Bkash (বিকাশ)</option>
+                    <option value="Nagad">Nagad (নগদ)</option>
+                    <option value="Mobile Recharge">Mobile Recharge (মোবাইল রিচার্জ)</option>
+                    <option value="USDT (BEP-20)">USDT (BEP-20)</option>
+                </select>
+            </div>
             <div class="input-group"><label>অ্যাকাউন্ট নম্বর / Address</label><input type="text" id="account-number" placeholder="01XXXXXXXXX"></div>
             <div class="input-group"><label>পরিমাণ (Points)</label><input type="number" id="withdraw-amount" placeholder="Minimum 5000 Points"></div>
             <div style="margin:12px 0;padding:9px;background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;border-radius:6px;color:#f87171;font-size:12px;">💳 প্রতি উইথড্রয়ে ৫০ পয়েন্ট (০.৫০ টাকা) সার্ভিস ফি কাটা হবে।</div>
@@ -566,7 +573,7 @@ function checkCaptchaAnswer(){const val=parseInt(document.getElementById('captch
 async function playCaptchaAd(){const btn=document.getElementById('captcha-reward-btn').querySelector('button');btn.disabled=true;btn.innerText='অ্যাড চলছে...';const isBlocked=await isAdBlockerOrPrivateDNSActive();if(isBlocked){alert('⚠️ VPN বন্ধ করুন।');btn.disabled=false;btn.innerText=`🎁 পয়েন্ট ওয়ালেটে জমা করতে অ্যাডটি দেখুন (+${window.captchaRewardPoints||3} Pts)`;return;}let ok=false;if(typeof window.Adsgram!=='undefined'||typeof AdController!=='undefined'){for(let i=0;i<ADSGRAM_UNITS.length;i++){try{const c=window.Adsgram?window.Adsgram.init({blockId:ADSGRAM_UNITS[i],debug:false}):new AdController({blockId:ADSGRAM_UNITS[i]});const r=await c.show();if(r&&(r.done||r.state==='completed')){ok=true;break;}}catch(e){}}}if(!ok&&typeof show_11525199==='function'){try{await show_11525199({ymid:String(userId)});ok=true;}catch(e){}}if(ok){await rewardUserPoints(window.captchaRewardPoints||3,'captcha');captchaStep=0;document.querySelectorAll('.captcha-dot').forEach(d=>d.classList.remove('done'));document.getElementById('captcha-box').style.display='block';document.getElementById('captcha-reward-btn').style.display='none';generateCaptcha();btn.disabled=false;btn.innerText=`🎁 পয়েন্ট ওয়ালেটে জমা করতে অ্যাডটি দেখুন (+${window.captchaRewardPoints||3} Pts)`;fetchUserData();}else{alert('অ্যাড পাওয়া যায়নি।');btn.disabled=false;btn.innerText=`🎁 পয়েন্ট ওয়ালেটে জমা করতে অ্যাডটি দেখুন (+${window.captchaRewardPoints||3} Pts)`;}}
 
 // SPIN WHEEL
-const wheelPrizes=[3,5,7,10,15,25,50];
+const wheelPrizes=[5,10,15,20,30,50,100];
 const wheelColors=['#10b981','#3b82f6','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#f97316'];
 let wheelAngle=0,pendingSpinPrize=0,isSpinning=false;
 function drawWheel(angle){const cv=document.getElementById('wheel-canvas');if(!cv)return;const ctx=cv.getContext('2d');const cx=cv.width/2,cy=cv.height/2,r=cx-8,arc=2*Math.PI/wheelPrizes.length;ctx.clearRect(0,0,cv.width,cv.height);wheelPrizes.forEach((prize,i)=>{const start=angle+i*arc-Math.PI/2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,start+arc);ctx.fillStyle=wheelColors[i];ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.12)';ctx.lineWidth=1.5;ctx.stroke();ctx.save();ctx.translate(cx,cy);ctx.rotate(start+arc/2);ctx.textAlign='right';ctx.fillStyle='white';ctx.font=`bold ${prize>=100?'11px':'13px'} Segoe UI`;ctx.fillText(prize+'P',r-8,5);ctx.restore();});ctx.beginPath();ctx.arc(cx,cy,18,0,2*Math.PI);ctx.fillStyle='#090d16';ctx.fill();ctx.strokeStyle='rgba(16,185,129,0.6)';ctx.lineWidth=2;ctx.stroke();}
