@@ -96,6 +96,8 @@
         .text-center { text-align: center; } .mb-2 { margin-bottom: 13px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes glowPulse { 0% { box-shadow: 0 0 5px rgba(16,185,129,0.2); } 50% { box-shadow: 0 0 20px rgba(16,185,129,0.8); } 100% { box-shadow: 0 0 5px rgba(16,185,129,0.2); } }
+        .task-complete-glow { animation: glowPulse 2s infinite; border-color: #10b981 !important; transition: all 0.3s ease; }
     </style>
     <script src="https://alwingulla.com/88/tag.min.js" data-zone="3439952" async data-cfasync="false"></script>
 </head>
@@ -241,6 +243,12 @@
             <h3>মোট ব্যালেন্স</h3>
             <h1 id="wallet-balance">0 Points</h1>
             <p style="font-size:12px;margin-top:8px;color:#fca5a5;font-weight:bold;">১০০ Points = ১ টাকা (BDT)</p>
+            <div style="margin-top: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px; border: 1px solid rgba(255,255,255,0.05); text-align: left;">
+                <p id="wd-progress-text" style="font-size: 11px; margin-bottom: 6px; color: var(--text-muted);">🎯 উইথড্র লক্ষ্যমাত্রা: 0% সম্পন্ন! আর মাত্র 0 পয়েন্ট বাকি।</p>
+                <div style="width: 100%; background: rgba(255,255,255,0.1); border-radius: 4px; height: 8px; overflow: hidden;">
+                    <div id="wd-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.5s ease;"></div>
+                </div>
+            </div>
             <button class="btn btn-primary" style="margin-top:13px;width:auto;display:inline-block;padding:7px 14px;font-size:13px;" onclick="fetchPointHistory()">ইনকাম হিস্ট্রি</button>
         </div>
         <div class="card">
@@ -309,10 +317,27 @@
                 <div class="stat-item"><h4>Total Paid</h4><p id="astat-paid">0</p></div>
             </div>
             <div class="card">
-                <h2>👤 User Management</h2>
+                <h2>⚙️ User Management</h2>
                 <div class="input-group"><input type="text" id="admin-search-user" placeholder="User ID or Username"></div>
                 <button class="btn btn-primary" onclick="adminSearchUser()">Search</button>
                 <div id="admin-user-details" style="display:none;margin-top:13px;text-align:left;">
+                </div>
+            </div>
+            <div class="card">
+                <h2>👥 সকল ইউজার তালিকা (User Management)</h2>
+                <button class="btn btn-outline" onclick="adminLoadAllUsers()">📋 ইউজার তালিকা লোড করুন</button>
+                <div style="overflow-x:auto; margin-top:10px;">
+                    <table style="width:100%; text-align:left; font-size:12px; color:var(--text-muted); border-collapse:collapse; display:none;" id="admin-users-table">
+                        <thead>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                                <th style="padding:8px;">User ID</th>
+                                <th style="padding:8px;">Username</th>
+                                <th style="padding:8px;">Points</th>
+                                <th style="padding:8px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-list"></tbody>
+                    </table>
                 </div>
             </div>
             <div class="card"><h2>💳 Pending Withdrawals</h2><button class="btn btn-outline" onclick="adminLoadWithdrawals()">Refresh</button><div class="data-list" id="admin-wd-list" style="margin-top:12px;"></div></div>
@@ -403,7 +428,7 @@ function switchTab(tabId,el){
 
 async function checkGuardMembership(){const btn=document.getElementById('verify-guard-btn');btn.innerText='অপেক্ষা...';const c=new AbortController();const tid=setTimeout(()=>c.abort(),7000);try{const r=await fetch(`${API_BASE_URL}/api/check_membership`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId}),signal:c.signal});const d=await r.json();if(d.is_verified){localStorage.setItem('channels_verified','true');document.getElementById('guard-modal').style.display='none';document.getElementById('guard-modal').classList.remove('active');}else alert('⚠️'+(d.message||'চ্যানেলে জয়েন করেননি!'));}catch(e){alert(e.name==='AbortError'?'⚠️ টাইমআউট!':'⚠️ নেটওয়ার্ক সমস্যা.');}finally{clearTimeout(tid);btn.innerText='ভেরিফাই করুন';}}
 
-async function dailyCheckin(){const btn=document.getElementById('claim-bonus-btn');btn.disabled=true;btn.innerText='অপেক্ষা...';try{const r=await fetch(`${API_BASE_URL}/api/daily_checkin`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId})});const d=await r.json();if(d.success){alert(d.message);fetchUserData();}else{alert('⚠️'+d.message);btn.disabled=true;btn.innerText='আজকের বোনাস ক্লেইম হয়েছে ✅';btn.style.background='#059669';}}catch{alert('নেটওয়ার্ক সমস্যা।');btn.disabled=false;btn.innerText="Claim Today's Bonus / ১০০ পয়েন্ট নিন";}}
+async function dailyCheckin(){const btn=document.getElementById('claim-bonus-btn');btn.disabled=true;btn.innerText='অপেক্ষা...';try{const r=await fetch(`${API_BASE_URL}/api/daily_checkin`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId})});const d=await r.json();if(d.success){if(tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');btn.classList.add('task-complete-glow');alert(d.message);fetchUserData();}else{alert('⚠️'+d.message);btn.disabled=true;btn.innerText='আজকের বোনাস ক্লেইম হয়েছে ✅';btn.style.background='#059669';}}catch{alert('নেটওয়ার্ক সমস্যা।');btn.disabled=false;btn.innerText=`Claim Today's Bonus / ${window.dailyCheckinReward||5} পয়েন্ট নিন`;}}
 
 async function fetchUserData(){try{const r=await fetch(`${API_BASE_URL}/api/user_data`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({user_id:userId,username:userName,first_name:firstName})});const d=await r.json();if(!r.ok)return;
 if(d.is_banned){document.body.innerHTML="<h1 style='color:red;text-align:center;margin-top:50px;'>⚠️ Banned.</h1>";return;}
@@ -450,6 +475,13 @@ if(awt)awt.innerText=window.adsToday;if(adl)adl.innerText=window.dailyAdLimit;if
 const ab=document.getElementById('ad-reward-banner');if(ab)ab.innerText=`🔥 প্রতি অ্যাডে পাবেন ${window.adRewardPoints} Points!`;
 const adBtn=document.getElementById('start-ad-btn');if(adBtn){if(window.adsRemaining<=0){adBtn.disabled=true;adBtn.className='btn btn-disabled';adBtn.innerText='🚫 লিমিট শেষ';}else{adBtn.disabled=false;adBtn.className='btn btn-primary';adBtn.innerText=`Watch Ad (+${window.adRewardPoints} Pts)`;}}
 currentPoints=d.points||0;document.getElementById('home-balance').innerText=`${currentPoints} Points`;document.getElementById('wallet-balance').innerText=`${currentPoints} Points`;
+const wdMinPts = window.minWdBkash || 5000;
+const wdPct = Math.min(100, Math.floor((currentPoints / wdMinPts) * 100));
+const wdRem = Math.max(0, wdMinPts - currentPoints);
+const wdPBar = document.getElementById('wd-progress-bar');
+const wdPTxt = document.getElementById('wd-progress-text');
+if(wdPBar) wdPBar.style.width = wdPct + '%';
+if(wdPTxt) wdPTxt.innerText = `🎯 উইথড্র লক্ষ্যমাত্রা: ${wdPct}% সম্পন্ন! ${wdRem > 0 ? `আর মাত্র ${wdRem} পয়েন্ট বাকি।` : 'উইথড্র করার জন্য প্রস্তুত!'}`;
 currentReferrals=d.referral_count||d.total_referrals||0;totalAdsWatched=d.ads_watched||d.total_ads_watched||0;
 const ac=document.getElementById('total-ads-count');if(ac)ac.innerText=totalAdsWatched;const ha=document.getElementById('home-ads');if(ha)ha.innerText=totalAdsWatched;
 if(d.last_checkin_date){const today=new Date().toISOString().split('T')[0];const cb=document.getElementById('claim-bonus-btn');if(d.last_checkin_date===today){cb.disabled=true;cb.innerText='আজকের বোনাস ক্লেইম হয়েছে ✅';cb.style.background='#059669';}else{cb.disabled=false;cb.innerText=`Claim Today's Bonus / ${window.dailyCheckinReward} পয়েন্ট নিন`;}}
@@ -473,7 +505,7 @@ wc.innerHTML += h_html;});}else wc.innerHTML='<p style="text-align:center;color:
 function openSecretCodeLink(){const today=new Date().toISOString().split('T')[0];openTgLink(window.todayShortlinkUrl||`https://income-lab-bot.onrender.com/secret-landing/${today}`);}
 async function claimSecretCode(){const code=document.getElementById('secret-code-input').value;if(!code)return tg.showAlert('সিক্রেট কোড লিখুন');try{const r=await fetch(`${API_BASE_URL}/api/verify_secret_code`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,code})});const d=await r.json();if(d.success){tg.showAlert(d.message);fetchUserData();}else tg.showAlert(d.message||d.error||'Error');}catch{tg.showAlert('Network Error');}}
 
-async function verifyTask(id){const btn=document.getElementById('verify-btn-'+id);if(btn.disabled)return;const orig=btn.innerText;btn.innerText='অপেক্ষা...';try{const r=await fetch(`${API_BASE_URL}/api/verify_task`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({user_id:userId,task_id:id})});const d=await r.json();if(d.success){tg.showAlert(d.message);fetchUserData();}else{tg.showAlert(d.message||'ভেরিফিকেশন ব্যর্থ!');btn.innerText=orig;}}catch{tg.showAlert('Network error.');btn.disabled=false;btn.innerText=orig;}}
+async function verifyTask(id){const btn=document.getElementById('verify-btn-'+id);if(btn.disabled)return;const orig=btn.innerText;btn.innerText='অপেক্ষা...';try{const r=await fetch(`${API_BASE_URL}/api/verify_task`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({user_id:userId,task_id:id})});const d=await r.json();if(d.success){if(tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');btn.classList.add('task-complete-glow');tg.showAlert(d.message);fetchUserData();}else{tg.showAlert(d.message||'ভেরিফিকেশন ব্যর্থ!');btn.innerText=orig;}}catch{tg.showAlert('Network error.');btn.disabled=false;btn.innerText=orig;}}
 
 function triggerAntiCheatCheck(){if(currentReferrals<window.minRefReq||totalAdsWatched<window.minAdsReq){document.getElementById('modal-text-dynamic').innerText=`উইথড্র করার জন্য অন্তত ${window.minRefReq}টি রেফার এবং ${window.minAdsReq}টি অ্যাড দেখা প্রয়োজন।`;document.getElementById('modal-referral-status').innerText=`রেফার হয়েছে: ${currentReferrals}/${window.minRefReq} | অ্যাড দেখা হয়েছে: ${totalAdsWatched}/${window.minAdsReq}`;document.getElementById('anti-cheat-modal').classList.add('active');return false;}const method=document.getElementById('withdraw-method').value;const minPts=method.includes('USDT')?window.minWdBkash:window.minWdRecharge;if(currentPoints<minPts){tg.showAlert(`⚠️ সর্বনিম্ন ${minPts} পয়েন্ট প্রয়োজন`);return false;}return true;}
 function attemptWithdraw(){if(triggerAntiCheatCheck())switchTab('wallet',document.querySelectorAll('.nav-item')[3]);}
@@ -484,7 +516,7 @@ function closeModal(){document.getElementById('anti-cheat-modal').classList.remo
 function showPremiumModal(t){document.getElementById('premium-ad-text').innerText=t;document.getElementById('premium-ad-modal').classList.add('active');}
 function hidePremiumModal(){document.getElementById('premium-ad-modal').classList.remove('active');}
 
-async function rewardUserPoints(pts,reason=''){try{currentPoints+=pts;document.getElementById('home-balance').innerText=`${currentPoints} Points`;document.getElementById('wallet-balance').innerText=`${currentPoints} Points`;tg.showAlert(`✅ +${pts} Points যোগ হয়েছে!`);hidePremiumModal();const r=await fetch(`${API_BASE_URL}/api/add-points`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({userId,points:pts,reason})});const d=await r.json();if(d&&d.limit_reached){tg.showAlert(d.message||'⚠️ লিমিট শেষ!');currentPoints-=pts;document.getElementById('home-balance').innerText=`${currentPoints} Points`;document.getElementById('wallet-balance').innerText=`${currentPoints} Points`;fetchUserData();return;}if(d&&d.new_balance!==undefined){currentPoints=d.new_balance;document.getElementById('home-balance').innerText=`${currentPoints} Points`;document.getElementById('wallet-balance').innerText=`${currentPoints} Points`;}if(reason==='ad'&&d){if(d.ads_watched!==undefined){totalAdsWatched=d.ads_watched;const ac=document.getElementById('total-ads-count');if(ac)ac.innerText=totalAdsWatched;const ha=document.getElementById('home-ads');if(ha)ha.innerText=totalAdsWatched;}if(d.ads_today!==undefined){window.adsToday=d.ads_today;window.adsRemaining=d.ads_remaining!==undefined?d.ads_remaining:Math.max(0,(window.dailyAdLimit||15)-window.adsToday);const awt=document.getElementById('ads-watched-today');const art=document.getElementById('ads-remaining-today');if(awt)awt.innerText=window.adsToday;if(art)art.innerText=window.adsRemaining;const adBtn=document.getElementById('start-ad-btn');if(adBtn&&window.adsRemaining<=0){adBtn.disabled=true;adBtn.className='btn btn-disabled';adBtn.innerText='🚫 লিমিট শেষ';}}}fetchUserNotifications();}catch(e){console.error(e);}}
+async function rewardUserPoints(pts,reason=''){try{currentPoints+=pts;document.getElementById('home-balance').innerText=`${currentPoints} Points`;document.getElementById('wallet-balance').innerText=`${currentPoints} Points`;if(tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');tg.showAlert(`✅ +${pts} Points যোগ হয়েছে!`);hidePremiumModal();const r=await fetch(`${API_BASE_URL}/api/add-points`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({userId,points:pts,reason})});const d=await r.json();if(d&&d.limit_reached){tg.showAlert(d.message||'⚠️ লিমিট শেষ!');currentPoints-=pts;document.getElementById('home-balance').innerText=`${currentPoints} Points`;document.getElementById('wallet-balance').innerText=`${currentPoints} Points`;fetchUserData();return;}if(d&&d.new_balance!==undefined){currentPoints=d.new_balance;document.getElementById('home-balance').innerText=`${currentPoints} Points`;document.getElementById('wallet-balance').innerText=`${currentPoints} Points`;}if(reason==='ad'&&d){if(d.ads_watched!==undefined){totalAdsWatched=d.ads_watched;const ac=document.getElementById('total-ads-count');if(ac)ac.innerText=totalAdsWatched;const ha=document.getElementById('home-ads');if(ha)ha.innerText=totalAdsWatched;}if(d.ads_today!==undefined){window.adsToday=d.ads_today;window.adsRemaining=d.ads_remaining!==undefined?d.ads_remaining:Math.max(0,(window.dailyAdLimit||15)-window.adsToday);const awt=document.getElementById('ads-watched-today');const art=document.getElementById('ads-remaining-today');if(awt)awt.innerText=window.adsToday;if(art)art.innerText=window.adsRemaining;const adBtn=document.getElementById('start-ad-btn');if(adBtn&&window.adsRemaining<=0){adBtn.disabled=true;adBtn.className='btn btn-disabled';adBtn.innerText='🚫 লিমিট শেষ';}}}fetchUserNotifications();}catch(e){console.error(e);}}
 
 async function fetchUserNotifications() {
     try {
@@ -596,5 +628,30 @@ async function adminSendBroadcast(){const msg=document.getElementById('admin-bro
 
 (async function init(){generateCaptcha();drawWheel(0);await fetchUserData();})();
 </script>
+    <div id="social-proof-toast" style="position: fixed; bottom: -60px; left: 15px; background: rgba(15, 23, 42, 0.95); border-left: 4px solid #10b981; border-radius: 6px; padding: 10px 15px; font-size: 11px; color: white; display: flex; align-items: center; gap: 8px; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s; opacity: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+        <span style="font-size: 16px;">🔥</span>
+        <span id="social-proof-text"></span>
+    </div>
+    <script>
+    const fakeNames = ["Sabbir", "Rahim", "Tania", "Hasib", "Nusrat", "Arif", "Mehedi", "Sumaiya", "Rakib", "Imran", "Mim", "Riya"];
+    const fakeMethods = ["bKash", "Nagad", "Mobile Recharge", "USDT"];
+    function showSocialProof() {
+        const t = document.getElementById('social-proof-toast');
+        if(!t) return;
+        const name = fakeNames[Math.floor(Math.random() * fakeNames.length)];
+        const num = "01" + Math.floor(Math.random() * 9 + 1) + "***";
+        const method = fakeMethods[Math.floor(Math.random() * fakeMethods.length)];
+        const amount = Math.floor(Math.random() * 20 + 2) * 10;
+        document.getElementById('social-proof-text').innerHTML = `<b>${name} (${num})</b> just withdrew ${amount} BDT via ${method}!`;
+        t.style.bottom = "80px";
+        t.style.opacity = "1";
+        setTimeout(() => {
+            t.style.bottom = "-60px";
+            t.style.opacity = "0";
+        }, 4000);
+    }
+    setInterval(showSocialProof, 20000);
+    setTimeout(showSocialProof, 5000);
+    </script>
 </body>
 </html>
