@@ -219,7 +219,7 @@
                 <div id="streak-day-6" style="background:rgba(255,255,255,0.05);padding:8px 3px;border-radius:7px;font-size:10px;font-weight:bold;color:var(--text-muted);">D6<br><span class="checkin-reward-txt">+5</span></div>
                 <div id="streak-day-7" style="background:rgba(255,255,255,0.05);padding:8px 3px;border-radius:7px;font-size:10px;font-weight:bold;color:var(--text-muted);">D7<br><span id="checkin-d7-txt">+25</span></div>
             </div>
-            <button class="btn btn-success" id="claim-bonus-btn" onclick="dailyCheckin()">Claim Today's Bonus / ৫ পয়েন্ট নিন</button>
+            <button class="btn btn-success" id="claim-bonus-btn" onclick="dailyCheckin()">Claim Today's Bonus / 100 পয়েন্ট নিন</button>
         </div>
     </div>
 
@@ -231,7 +231,7 @@
         <div class="card">
             <h2>🎁 দৈনিক সিক্রেট জ্যাকপট</h2>
             <div style="margin-bottom:12px;padding:9px;background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;border-radius:6px;color:#fca5a5;font-size:12px;">⚠️ নিয়মাবলী: আপনার পেমেন্ট বা উইথড্র নিশ্চিত রাখতে প্রতিদিনের সিক্রেট কোড সংগ্রহ করা বাধ্যতামূলক। সিক্রেট কোড সংগ্রহ না করলে আপনার উইথড্র পেতে বিলম্ব বা সমস্যা হতে পারে!</div>
-            <p class="mb-2" style="color:var(--text-muted);font-size:12px;">🔥 আজকের অফার: <span id="jackpot-reward-text">50</span> Points!</p>
+            <p class="mb-2" style="color:var(--text-muted);font-size:12px;">🔥 আজকের অফার: <span style="color:#10b981; font-weight:900; text-shadow:0 0 10px rgba(16,185,129,0.5); font-size:16px;"><span id="jackpot-reward-text">50</span> Points!</span></p>
             <div id="jackpot-claim-section">
                 <button class="btn btn-primary" onclick="openSecretCodeLink()">১. সিক্রেট কোড সংগ্রহ করুন</button>
                 <div class="input-group" style="margin-top:10px;"><input type="text" id="secret-code-input" placeholder="এখানে সিক্রেট কোড লিখুন"></div>
@@ -535,7 +535,7 @@ function switchTab(tabId,el){
 
 async function checkGuardMembership(){const btn=document.getElementById('verify-guard-btn');btn.innerText='অপেক্ষা...';const c=new AbortController();const tid=setTimeout(()=>c.abort(),7000);try{const r=await fetch(`${API_BASE_URL}/api/check_membership`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId}),signal:c.signal});const d=await r.json();if(d.is_verified){localStorage.setItem('channels_verified','true');document.getElementById('guard-modal').style.display='none';document.getElementById('guard-modal').classList.remove('active');}else alert('⚠️'+(d.message||'চ্যানেলে জয়েন করেননি!'));}catch(e){alert(e.name==='AbortError'?'⚠️ টাইমআউট!':'⚠️ নেটওয়ার্ক সমস্যা.');}finally{clearTimeout(tid);btn.innerText='ভেরিফাই করুন';}}
 
-async function dailyCheckin(){const btn=document.getElementById('claim-bonus-btn');btn.disabled=true;btn.innerText='অপেক্ষা...';try{const r=await fetch(`${API_BASE_URL}/api/daily_checkin`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId})});const d=await r.json();if(d.success){if(tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');btn.classList.add('task-complete-glow');alert(d.message);fetchUserData();}else{alert('⚠️'+d.message);btn.disabled=true;btn.innerText='আজকের বোনাস ক্লেইম হয়েছে ✅';btn.style.background='#059669';}}catch{alert('নেটওয়ার্ক সমস্যা।');btn.disabled=false;btn.innerText=`Claim Today's Bonus / ${window.dailyCheckinReward||5} পয়েন্ট নিন`;}}
+async function dailyCheckin(){const btn=document.getElementById('claim-bonus-btn');btn.disabled=true;btn.innerText='অপেক্ষা...';try{const r=await fetch(`${API_BASE_URL}/api/daily_checkin`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId})});const d=await r.json();if(d.success){if(tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');btn.classList.add('task-complete-glow');alert(d.message);fetchUserData();}else{alert('⚠️'+d.message);btn.disabled=true;btn.innerText='আজকের বোনাস ক্লেইম হয়েছে ✅';btn.style.background='#059669';}}catch{alert('নেটওয়ার্ক সমস্যা।');btn.disabled=false;btn.innerText=`Claim Today's Bonus / ${window.dailyCheckinReward || 100} পয়েন্ট নিন`;}}
 
 async function fetchUserData(){try{const r=await fetch(`${API_BASE_URL}/api/user_data`,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({user_id:userId,username:userName,first_name:firstName})});const d=await r.json();if(!r.ok)return;
 if(d.is_banned){document.body.innerHTML="<h1 style='color:red;text-align:center;margin-top:50px;'>⚠️ Banned.</h1>";return;}
@@ -566,7 +566,7 @@ window.minWdBkash=d.min_wd_bkash||5000;
 window.wdFee=d.wd_fee||50;
 window.minRefReq=d.min_ref_req||3;
 window.minAdsReq=d.min_ads_req||50;
-const crbt=document.getElementById('captcha-reward-btn-txt');if(crbt)crbt.innerText=`🎁 পয়েন্ট ওয়ালেটে জমা করতে অ্যাডটি দেখুন (+${window.captchaRewardPoints} Pts)`;
+const crbt=document.getElementById('captcha-reward-btn-txt');if(crbt)crbt.innerHTML=`🎁 পয়েন্ট ওয়ালেটে জমা করতে অ্যাডটি দেখুন (<span style="color:#10b981; font-weight:900; text-shadow:0 0 10px rgba(16,185,129,0.5); font-size:16px;">+${window.captchaRewardPoints} Pts</span>)`;
 const crtxt=document.getElementById('captcha-reward-text');if(crtxt)crtxt.innerText=`${window.captchaRewardPoints} Points`;
 const rrt=document.getElementById('ref-reward-text');if(rrt)rrt.innerText=window.referralReward;
 const wdFeeTxt=document.getElementById('wd-fee-text');if(wdFeeTxt)wdFeeTxt.innerText=window.wdFee;
@@ -578,7 +578,7 @@ if (d.ads_today !== undefined && d.ads_today >= (window.adsToday || 0)) { window
 window.adsRemaining = d.ads_remaining !== undefined ? d.ads_remaining : Math.max(0, (window.dailyAdLimit || 15) - window.adsToday);
 const awt=document.getElementById('ads-watched-today'),adl=document.getElementById('ads-daily-limit'),art=document.getElementById('ads-remaining-today'),alt2=document.getElementById('ad-limit-text');
 if(awt)awt.innerText=window.adsToday;if(adl)adl.innerText=window.dailyAdLimit;if(art)art.innerText=window.adsRemaining;if(alt2)alt2.innerText=window.dailyAdLimit;
-const ab=document.getElementById('ad-reward-banner');if(ab)ab.innerText=`🔥 প্রতি অ্যাডে পাবেন ${window.adRewardPoints} Points!`;
+const ab=document.getElementById('ad-reward-banner');if(ab)ab.innerHTML=`🔥 প্রতি অ্যাডে পাবেন <span style="color:#10b981; font-weight:900; text-shadow:0 0 10px rgba(16,185,129,0.5); font-size:16px;">${window.adRewardPoints} Points!</span>`;
 const adBtn=document.getElementById('start-ad-btn');if(adBtn){if(window.adsRemaining<=0){adBtn.disabled=true;adBtn.className='btn btn-disabled';adBtn.innerText='🚫 লিমিট শেষ';}else{adBtn.disabled=false;adBtn.className='btn btn-primary';adBtn.innerText=`Watch Ad (+${window.adRewardPoints} Pts)`;}}
 currentPoints=d.points||0;document.getElementById('home-balance').innerText=`${currentPoints} Points`;document.getElementById('wallet-balance').innerText=`${currentPoints} Points`;
 const wdMinPts = window.minWdBkash || 5000;
@@ -590,7 +590,7 @@ if(wdPBar) wdPBar.style.width = wdPct + '%';
 if(wdPTxt) wdPTxt.innerText = `🎯 উইথড্র লক্ষ্যমাত্রা: ${wdPct}% সম্পন্ন! ${wdRem > 0 ? `আর মাত্র ${wdRem} পয়েন্ট বাকি।` : 'উইথড্র করার জন্য প্রস্তুত!'}`;
 currentReferrals=d.referral_count||d.total_referrals||0;totalAdsWatched=d.ads_watched||d.total_ads_watched||0;
 const ac=document.getElementById('total-ads-count');if(ac)ac.innerText=totalAdsWatched;const ha=document.getElementById('home-ads');if(ha)ha.innerText=totalAdsWatched;
-if(d.last_checkin_date){const today=new Date().toISOString().split('T')[0];const cb=document.getElementById('claim-bonus-btn');if(d.last_checkin_date===today){cb.disabled=true;cb.innerText='আজকের বোনাস ক্লেইম হয়েছে ✅';cb.style.background='#059669';}else{cb.disabled=false;cb.innerText=`Claim Today's Bonus / ${window.dailyCheckinReward} পয়েন্ট নিন`;}}
+if(d.last_checkin_date){const today=new Date().toISOString().split('T')[0];const cb=document.getElementById('claim-bonus-btn');if(d.last_checkin_date===today){cb.disabled=true;cb.innerText='আজকের বোনাস ক্লেইম হয়েছে ✅';cb.style.background='#059669';}else{cb.disabled=false;cb.innerText=`Claim Today's Bonus / ${window.dailyCheckinReward || 100} পয়েন্ট নিন`;}}
 document.querySelectorAll('.checkin-reward-txt').forEach(e=>e.innerText='+'+window.dailyCheckinReward);
 const cd7t=document.getElementById('checkin-d7-txt');if(cd7t)cd7t.innerText='+'+window.dailyCheckinD7;
 let streak=d.login_streak||0;for(let i=1;i<=7;i++){const b=document.getElementById('streak-day-'+i);if(b){if(i<=streak){b.style.background='rgba(16,185,129,0.2)';b.style.color='#10b981';}else{b.style.background='rgba(255,255,255,0.05)';b.style.color='var(--text-muted)';}}}
