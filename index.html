@@ -98,6 +98,82 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes glowPulse { 0% { box-shadow: 0 0 5px rgba(16,185,129,0.2); } 50% { box-shadow: 0 0 20px rgba(16,185,129,0.8); } 100% { box-shadow: 0 0 5px rgba(16,185,129,0.2); } }
         .task-complete-glow { animation: glowPulse 2s infinite; border-color: #10b981 !important; transition: all 0.3s ease; }
+    
+        .point-highlight {
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6));
+        }
+        .point-badge {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .glow-pulse { animation: glowPulse 2s infinite; }
+
+        @keyframes floatUp {
+            0% { opacity: 0; transform: translateY(0) scale(0.8); }
+            20% { opacity: 1; transform: translateY(-10px) scale(1.1); }
+            80% { opacity: 1; transform: translateY(-30px) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(0.9); }
+        }
+        @keyframes bouncePill {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        @keyframes borderGlow {
+            0% { box-shadow: 0 0 10px rgba(16,185,129,0.3); border-color: rgba(16,185,129,0.4); }
+            50% { box-shadow: 0 0 25px rgba(16,185,129,0.8); border-color: rgba(16,185,129,0.9); }
+            100% { box-shadow: 0 0 10px rgba(16,185,129,0.3); border-color: rgba(16,185,129,0.4); }
+        }
+        
+        .floating-points {
+            position: absolute;
+            color: #10b981;
+            font-weight: 900;
+            font-size: 24px;
+            text-shadow: 0 0 15px #10b981, 0 0 5px #fff;
+            pointer-events: none;
+            z-index: 1000;
+            animation: floatUp 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        .point-highlight {
+            background: linear-gradient(135deg, #34d399, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            text-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+            letter-spacing: 0.5px;
+        }
+        
+        .point-badge {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
+            border: 1px solid rgba(16, 185, 129, 0.6);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+            color: #fff;
+            text-shadow: 0 0 8px #10b981;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 900;
+            display: inline-block;
+            animation: bouncePill 3s infinite ease-in-out;
+        }
+        
+        .balance-card-enhanced {
+            background: linear-gradient(145deg, rgba(15,23,42,0.9), rgba(30,41,59,0.95));
+            border: 2px solid rgba(16,185,129,0.4);
+            border-radius: 20px;
+            animation: borderGlow 3s infinite;
+            position: relative;
+            overflow: visible;
+        }
     </style>
     <script src="https://alwingulla.com/88/tag.min.js" data-zone="3439952" async data-cfasync="false"></script>
 </head>
@@ -239,9 +315,9 @@
     <!-- 4. WALLET TAB -->
     <div id="tab-wallet" class="tab-content">
         <div class="header"><h1>💳 ওয়ালেট (Wallet)</h1><p style="color:var(--text-muted);font-size:13px;">Withdraw your earnings</p></div>
-        <div class="balance-card" style="padding:18px;">
+        <div class="balance-card balance-card-enhanced" style="padding:18px;">
             <h3>মোট ব্যালেন্স</h3>
-            <h1 id="wallet-balance">0 Points</h1>
+            <h1 id="wallet-balance" class="point-highlight">0 Points</h1>
             <p style="font-size:12px;margin-top:8px;color:#fca5a5;font-weight:bold;">১০০ Points = ১ টাকা (BDT) / ১০০০ Points = ১০ টাকা (BDT)</p>
             <div style="margin-top: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px; border: 1px solid rgba(255,255,255,0.05); text-align: left;">
                 <p id="wd-progress-text" style="font-size: 11px; margin-bottom: 6px; color: var(--text-muted);">🎯 উইথড্র লক্ষ্যমাত্রা: 0% সম্পন্ন! আর মাত্র 0 পয়েন্ট বাকি।</p>
@@ -413,6 +489,22 @@
 <script>
 const API_BASE_URL='https://income-lab-bot.onrender.com';
 const tg=window.Telegram.WebApp;
+
+function showFloatingPoints(amount, elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const floating = document.createElement('div');
+    floating.className = 'floating-points';
+    floating.innerText = `+${amount} Pts`;
+    floating.style.left = `${rect.left + rect.width / 2 - 20}px`;
+    floating.style.top = `${rect.top - 10}px`;
+    document.body.appendChild(floating);
+    setTimeout(() => {
+        if(floating.parentNode) floating.parentNode.removeChild(floating);
+    }, 1500);
+}
+
 tg.expand();tg.ready();
 const isWeb=!tg.initDataUnsafe||!tg.initDataUnsafe.user;
 const isAdminHash=window.location.hash.includes('admin');
@@ -507,7 +599,7 @@ let tc=0;const vb1=document.getElementById('verify-btn-1');if(d.task_status==='C
 const vb2=document.getElementById('verify-btn-2');if(d.task2_status==='COMPLETED'){vb2.innerText='✅ সম্পন্ন';vb2.className='btn btn-disabled';vb2.disabled=true;tc++;}
 const vb3=document.getElementById('verify-btn-3');if(vb3&&d.task3_status==='COMPLETED'){vb3.innerText='✅ সম্পন্ন';vb3.className='btn btn-disabled';vb3.disabled=true;tc++;}
 document.getElementById('home-tasks').innerText=tc;
-const rc=document.getElementById('ref-list-container');if(d.referrals&&d.referrals.length>0){rc.innerHTML='';d.referrals.forEach(rf=>{const dt=new Date(rf.joined_at).toLocaleDateString('bn-BD');rc.innerHTML+=`<div class="data-item"><div class="left"><span class="title">${rf.first_name||'User'}</span><span class="subtitle">${dt}</span></div><div class="right" style="color:var(--primary-color);">+${window.referralReward||50} Pts</div></div>`;});}else rc.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">কোনো রেফার নেই</p>';
+const rc=document.getElementById('ref-list-container');if(d.referrals&&d.referrals.length>0){rc.innerHTML='';d.referrals.forEach(rf=>{const dt=new Date(rf.joined_at).toLocaleDateString('bn-BD');rc.innerHTML+=`<div class="data-item"><div class="left"><span class="title">${rf.first_name||'User'}</span><span class="subtitle">${dt}</span></div><div class="right point-badge">+${window.referralReward||50} Pts</div></div>`;});}else rc.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:13px;">কোনো রেফার নেই</p>';
 const wc=document.getElementById('withdrawal-history-container');if(d.withdrawal_history&&d.withdrawal_history.length>0){wc.innerHTML='';d.withdrawal_history.forEach(w=>{const dt=new Date(w.created_at).toLocaleDateString('bn-BD');const sc=w.status==='PENDING'?'status-pending':(w.status==='APPROVED'?'status-approved':'status-rejected');let h_html = `<div class="data-item" style="flex-direction:column;align-items:flex-start;"><div style="display:flex;justify-content:space-between;width:100%;"><div class="left"><span class="title">${w.method} - ${w.amount} BDT</span><span class="subtitle">${dt}</span></div><div class="right ${sc}">${w.status}</div></div>`;
 if (w.status === 'REJECTED' && w.rejection_reason) {
     h_html += `<div style="margin-top:6px;font-size:11px;color:#fca5a5;background:rgba(239,68,68,0.1);padding:4px 8px;border-radius:4px;border:1px dashed #ef4444;">❌ রিজেক্টের কারণ: ${w.rejection_reason}</div>`;
