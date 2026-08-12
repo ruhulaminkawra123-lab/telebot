@@ -165,7 +165,7 @@
         <!-- B) Math Captcha -->
         <div class="card">
             <h2>ম্যাথ ক্যাপচা ভেরিফিকেশন</h2>
-            <p style="color:var(--text-muted);font-size:12px;margin-bottom:12px;">৫টি সহজ গণিত সমাধান করুন, তারপর অ্যাড দেখে পয়েন্ট নিন।</p>
+            <p style="color:var(--text-muted);font-size:12px;margin-bottom:12px;">৫টি সহজ গণিত সমাধান করুন, তারপর অ্যাড দেখে <span id='captcha-reward-text' style='color:#10b981;font-weight:bold;'>৩০ Points</span> ক্লেইম করুন।</p>
             <div class="captcha-progress" id="captcha-progress">
                 <div class="captcha-dot" id="dot-0"></div><div class="captcha-dot" id="dot-1"></div><div class="captcha-dot" id="dot-2"></div><div class="captcha-dot" id="dot-3"></div><div class="captcha-dot" id="dot-4"></div>
             </div>
@@ -320,22 +320,22 @@
                 <h2>⚙️ পয়েন্ট ও রিওয়ার্ড কনফিগারেশন</h2>
                 <div id="admin-settings-container" style="margin-top:12px;text-align:left;">
                     <h3 style="color:#10b981;margin-bottom:10px;font-size:16px;">🎯 টাস্ক ও গেমস পয়েন্ট বোনাস</h3>
-                    <div class="input-group" style="margin-bottom:9px;"><label>অ্যাড ভিউ বোনাস পয়েন্ট (প্রতি অ্যাডে)</label><input type="text" id="setting-ad_reward" value="2"></div>
-                    <div class="input-group" style="margin-bottom:9px;"><label>ম্যাথ ক্যাপচা সম্পন্ন করার পয়েন্ট</label><input type="text" id="setting-captcha_reward" value="3"></div>
-                    <div class="input-group" style="margin-bottom:9px;"><label>টাস্ক ১, ২ ও ৩ এর পয়েন্ট (চ্যানেল/ফেসবুক)</label><input type="text" id="setting-task_reward" value="200"></div>
-                    <div class="input-group" style="margin-bottom:9px;"><label>দৈনিক সিক্রেট কোড (শর্টলিংক) পয়েন্ট</label><input type="text" id="setting-shortlink_reward" value="20"></div>
-                    <div class="input-group" style="margin-bottom:9px;"><label>স্পিন অ্যান্ড উইন পয়েন্ট (গড় পয়েন্ট)</label><input type="text" id="setting-spin_avg_reward" value="7"></div>
-                    <div class="input-group" style="margin-bottom:9px;"><label>ডেইলি চেক-ইন পয়েন্ট (দিন ১ - ৬)</label><input type="text" id="setting-daily_checkin_reward" value="5"></div>
-                    <div class="input-group" style="margin-bottom:9px;"><label>৭ম দিনের স্পেশাল চেক-ইন বোনাস</label><input type="text" id="setting-daily_checkin_d7" value="25"></div>
-                    <div class="input-group" style="margin-bottom:9px;"><label>প্রতি রেফারেল বোনাস পয়েন্ট</label><input type="text" id="setting-referral_reward" value="50"></div>
-                    <div class="input-group" style="margin-bottom:15px;"><label>দৈনিক সর্বোচ্চ অ্যাড দেখা লিমিট (টি)</label><input type="text" id="setting-daily_ad_limit" value="20"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>অ্যাড ভিউ বোনাস পয়েন্ট (প্রতি অ্যাডে)</label><input type="text" id="setting-ad_reward"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>ম্যাথ ক্যাপচা সম্পন্ন করার পয়েন্ট</label><input type="text" id="setting-captcha_reward"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>টাস্ক ১, ২ ও ৩ এর পয়েন্ট (চ্যানেল/ফেসবুক)</label><input type="text" id="setting-task_reward"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>দৈনিক সিক্রেট কোড (শর্টলিংক) পয়েন্ট</label><input type="text" id="setting-shortlink_reward"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>স্পিন অ্যান্ড উইন পয়েন্ট (গড় পয়েন্ট)</label><input type="text" id="setting-spin_avg_reward"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>ডেইলি চেক-ইন পয়েন্ট (দিন ১ - ৬)</label><input type="text" id="setting-daily_checkin_reward"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>৭ম দিনের স্পেশাল চেক-ইন বোনাস</label><input type="text" id="setting-daily_checkin_d7"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>প্রতি রেফারেল বোনাস পয়েন্ট</label><input type="text" id="setting-referral_reward"></div>
+                    <div class="input-group" style="margin-bottom:15px;"><label>দৈনিক সর্বোচ্চ অ্যাড দেখা লিমিট (টি)</label><input type="text" id="setting-daily_ad_limit"></div>
 
                     <h3 style="color:#3b82f6;margin-bottom:10px;font-size:16px;">💳 ওয়ালেট ও উইথড্রয়াল লিমিট কনফিগারেশন</h3>
-                    <div class="input-group" style="margin-bottom:9px;"><label>সর্বনিম্ন মোবাইল রিচার্জ পয়েন্ট (যেমন: 1000)</label><input type="text" id="setting-min_wd_recharge" value="1000"></div>
-                    <div class="input-group" style="margin-bottom:9px;"><label>সর্বনিম্ন বিকাশ/নগদ/USDT পয়েন্ট (যেমন: 5000)</label><input type="text" id="setting-min_wd_bkash" value="5000"></div>
-                    <div class="input-group" style="margin-bottom:9px;"><label>প্রতি উইথড্র সার্ভিস ফি পয়েন্ট (যেমন: 50)</label><input type="text" id="setting-wd_fee" value="50"></div>
-                    <div class="input-group" style="margin-bottom:9px;"><label>উইথড্র করার জন্য বাধ্যতামূলক রেফার সংখ্যা</label><input type="text" id="setting-min_ref_req" value="3"></div>
-                    <div class="input-group" style="margin-bottom:9px;"><label>উইথড্র করার জন্য বাধ্যতামূলক মোট অ্যাড সংখ্যা</label><input type="text" id="setting-min_ads_req" value="50"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>সর্বনিম্ন মোবাইল রিচার্জ পয়েন্ট (যেমন: 1000)</label><input type="text" id="setting-min_wd_recharge"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>সর্বনিম্ন বিকাশ/নগদ/USDT পয়েন্ট (যেমন: 5000)</label><input type="text" id="setting-min_wd_bkash"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>প্রতি উইথড্র সার্ভিস ফি পয়েন্ট (যেমন: 50)</label><input type="text" id="setting-wd_fee"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>উইথড্র করার জন্য বাধ্যতামূলক রেফার সংখ্যা</label><input type="text" id="setting-min_ref_req"></div>
+                    <div class="input-group" style="margin-bottom:9px;"><label>উইথড্র করার জন্য বাধ্যতামূলক মোট অ্যাড সংখ্যা</label><input type="text" id="setting-min_ads_req"></div>
                 </div>
                 <button class="btn btn-outline" onclick="adminLoadSettings()">Load Current DB Settings</button>
                 <button class="btn btn-success" onclick="adminSaveSettings()" style="margin-top:12px;display:none;" id="admin-save-settings-btn">💾 সেটিং আপডেট করুন</button>
